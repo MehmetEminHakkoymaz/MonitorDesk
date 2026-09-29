@@ -48,7 +48,7 @@ The app does not require an account, contact a server, or collect telemetry. Dia
 
 ## Validation
 
-Automated checks cover native structure layouts and rejecting unsupported or out-of-range writes before hardware access. GitHub Actions builds the app and runs these checks on Windows; it cannot test real monitor behavior.
+Automated checks cover native structure layouts and rejecting unsupported or out-of-range writes before hardware access. A Windows CI workflow is prepared locally but is not enabled on GitHub yet. Automated checks cannot test real monitor behavior.
 
 Local read-only validation detected two 1920×1080 external monitors at 240 Hz and 120 Hz. Both reported brightness; only the first reported contrast. Hardware writes and built-in panel WMI writes have not been tested.
 
