@@ -103,8 +103,8 @@ public partial class MainWindow : Window
             Content = new TextBlock { Text = $"{s.Width} × {s.Height}", Foreground = Brushes.Black }
         }).ToList();
         DisplayMode? Selected() => resolution.SelectedIndex >= 0 && rate.SelectedItem is ComboBoxItem { Tag: uint hz }
-            ? new(sizes[resolution.SelectedIndex].Width, sizes[resolution.SelectedIndex].Height, hz) : null;
-        void UpdateApply() => apply.IsEnabled = Selected() is { } m && m != new DisplayMode((uint)display.Width, (uint)display.Height, display.Hertz);
+            ? new(sizes[resolution.SelectedIndex].Width, sizes[resolution.SelectedIndex].Height, hz, display.Orientation) : null;
+        void UpdateApply() => apply.IsEnabled = Selected() is { } m && m != new DisplayMode((uint)display.Width, (uint)display.Height, display.Hertz, display.Orientation);
         resolution.SelectionChanged += (_, _) =>
         {
             if (resolution.SelectedIndex < 0) return;
@@ -122,6 +122,22 @@ public partial class MainWindow : Window
         resolution.SelectedIndex = sizes.FindIndex(s => s.Width == display.Width && s.Height == display.Height);
         apply.Click += async (_, _) => { if (Selected() is { } mode) await PreviewModeAsync(display, mode); };
         row.Children.Add(resolution); row.Children.Add(rate); row.Children.Add(apply); panel.Children.Add(row);
+        panel.Children.Add(Text("Orientation", 15));
+        var rotationRow = new WrapPanel { Margin = new(0, 8, 0, 8) };
+        var orientation = new ComboBox { MinWidth = 210, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
+        System.Windows.Automation.AutomationProperties.SetName(orientation, $"Display {display.Number} orientation");
+        var active = new Native.DevMode { Width = (uint)display.Width, Height = (uint)display.Height, Frequency = display.Hertz, Orientation = display.Orientation };
+        for (uint value = 0; value < 4; value++)
+        {
+            var rotated = DisplayModes.Describe(DisplayModes.Rotate(active, value));
+            orientation.Items.Add(new ComboBoxItem { Tag = rotated, Content = new TextBlock { Text = rotated.OrientationName, Foreground = Brushes.Black } });
+        }
+        orientation.SelectedIndex = (int)display.Orientation;
+        var rotate = new Button { Content = "Preview orientation", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        orientation.SelectionChanged += (_, _) => rotate.IsEnabled = orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode m } && m.Orientation != display.Orientation;
+        rotate.Click += async (_, _) => { if (orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode mode }) await PreviewModeAsync(display, mode); };
+        rotationRow.Children.Add(orientation); rotationRow.Children.Add(rotate); panel.Children.Add(rotationRow);
+        panel.Children.Add(Text("Rotation uses the current resolution and refresh rate, swapping width and height when needed. Windows checks support before applying.", 12, "Muted"));
         panel.Children.Add(Text("Confirm within 15 seconds or the previous mode will be restored. Kept changes last for this Windows session. Mirrored screens may change together.", 12, "Muted"));
         return panel;
     }

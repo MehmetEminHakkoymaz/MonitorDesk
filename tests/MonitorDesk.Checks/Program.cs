@@ -169,3 +169,26 @@ if (args.Contains("--hardware-read"))
     }
 }
 Console.WriteLine($"Final total: {count} checks passed. No display settings were changed.");
+
+for (uint from = 0; from < 4; from++)
+{
+    var source = DisplayModes.Rotate(currentMode, from);
+    for (uint to = 0; to < 4; to++)
+    {
+        var target = DisplayModes.Rotate(source, to);
+        Check(target.Orientation == to && target.Width == (to % 2 == 0 ? 1920u : 1080u) && target.Height == (to % 2 == 0 ? 1080u : 1920u)
+            && target.Frequency == 60 && target.BitsPerPel == 32 && (target.Fields & 0x80) != 0,
+            $"Orientation {from} to {to} preserves timing and sets correct dimensions and native field");
+        Check(DisplayModes.Describe(DisplayModes.Rotate(target, from)) == DisplayModes.Describe(source),
+            $"Orientation {from} to {to} round trip restores the full mode");
+    }
+}
+string[] expectedNames = ["Landscape", "Portrait", "Landscape (flipped)", "Portrait (flipped)"];
+for (uint i = 0; i < 4; i++)
+    Check(DisplayModes.Describe(DisplayModes.Rotate(currentMode, i)).OrientationName == expectedNames[i], $"Orientation {i} has the expected label");
+var nativePortrait = currentMode; nativePortrait.Width = 1080; nativePortrait.Height = 1920;
+Check(DisplayModes.Describe(nativePortrait).OrientationName == "Portrait" && DisplayModes.Describe(DisplayModes.Rotate(nativePortrait, 3)).OrientationName == "Landscape", "Native portrait panels use correct orientation labels");
+Check(DisplayModes.Describe(currentMode) != DisplayModes.Describe(DisplayModes.Rotate(currentMode, 2)), "Read-back detects flipped orientation even when pixel dimensions are unchanged");
+try { DisplayModes.Rotate(currentMode, 4); throw new Exception("Invalid orientation accepted"); }
+catch (ArgumentOutOfRangeException) { Check(true, "Invalid orientation is rejected before native access"); }
+Console.WriteLine($"Total including orientation: {count} checks passed. No display settings were changed.");

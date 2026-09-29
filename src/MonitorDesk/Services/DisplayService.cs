@@ -6,7 +6,7 @@ namespace MonitorDesk.Services;
 public record Level(uint Min, uint Current, uint Max, bool IsStale = false);
 public record Display(string Id, string Device, string Name, int Number, bool Primary,
     int Left, int Top, int Width, int Height, uint Hertz, int PhysicalIndex,
-    Level? Brightness, Level? Contrast, string? WmiInstance, string Note);
+    Level? Brightness, Level? Contrast, string? WmiInstance, string Note, uint Orientation = 0);
 
 internal static class WmiBrightness
 {
@@ -177,7 +177,7 @@ public sealed class DisplayService
                     result.Add(new Display(id, info.Device, name, number, (info.Flags & 1) != 0,
                         info.Monitor.Left, info.Monitor.Top, hasMode ? (int)mode.Width : info.Monitor.Right - info.Monitor.Left,
                         hasMode ? (int)mode.Height : info.Monitor.Bottom - info.Monitor.Top, hasMode ? mode.Frequency : 0,
-                        index, brightness, contrast, panel?.Instance, note));
+                        index, brightness, contrast, panel?.Instance, note, hasMode ? mode.Orientation : 0));
                 }
             }
             finally { if (physical.Length > 0) Native.DestroyPhysicalMonitors((uint)physical.Length, physical); }

@@ -2,7 +2,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.2.0 · Windows only**
+**Working title · v0.3.0 local build · Windows only**
 
 ## Features
 
@@ -15,6 +15,7 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 - Light and dark themes, per-monitor DPI awareness and keyboard-accessible controls.
 - Apply changes explicitly; moving a slider alone does not alter the monitor.
 - Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
+- Preview landscape, portrait, landscape (flipped) and portrait (flipped) orientation.
 
 ## Build and run
 
@@ -49,7 +50,9 @@ Display numbers are local to this app, not guaranteed to match Windows Settings.
 
 Select a resolution and one of its supported refresh rates, then choose **Preview mode**. Windows validates the selected mode before applying it. Choose **Keep for this session** within 15 seconds, or use **Revert** / Escape to restore the previous mode. Closing the confirmation window also reverts. Confirmed changes apply to the current Windows session; saved Windows defaults are not overwritten.
 
-Choices preserve the current color depth, orientation and scan type. Mirrored screens may change together. Display changes made elsewhere require a refresh before previewing. The rollback timer runs independently of the UI thread, but cannot recover from process termination or a hung display driver. A disconnected display or a driver failure may prevent restoration; errors are shown in the status area. Use Windows Display Settings if recovery is needed.
+Resolution and refresh-rate choices preserve the current color depth, orientation and scan type. Mirrored screens may change together. Display changes made elsewhere require a refresh before previewing. The rollback timer runs independently of the UI thread, but cannot recover from process termination or a hung display driver. A disconnected display or a driver failure may prevent restoration; errors are shown in the status area. Use Windows Display Settings if recovery is needed.
+
+Use **Orientation** and **Preview orientation** to rotate the active mode. This keeps the current refresh rate and swaps pixel width and height for quarter turns; unapplied resolution selections are not used. Windows tests rotation support before making any change. The same 15-second confirmation restores both the previous orientation and resolution if you revert or do not confirm. Confirmation keeps the rotation for this Windows session only. Physical monitor rotation is manual. Rotation and physical-screen recovery in v0.3.0 still need manual validation.
 
 Local validation passed 44 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
 

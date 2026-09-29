@@ -2,9 +2,24 @@ using System.Runtime.InteropServices;
 
 namespace MonitorDesk.Services;
 
-internal record DisplayMode(uint Width, uint Height, uint Hertz)
+internal record DisplayMode(uint Width, uint Height, uint Hertz, uint Orientation = 0)
 {
-    public override string ToString() => $"{Width} × {Height} · {Hertz} Hz";
+    internal string OrientationName
+    {
+        get
+        {
+            bool nativePortrait = (Orientation % 2 == 0 ? Width : Height) < (Orientation % 2 == 0 ? Height : Width);
+            return (nativePortrait, Orientation) switch
+            {
+                (false, 0) or (true, 3) => "Landscape",
+                (false, 1) or (true, 0) => "Portrait",
+                (false, 2) or (true, 1) => "Landscape (flipped)",
+                (false, 3) or (true, 2) => "Portrait (flipped)",
+                _ => "Unknown orientation"
+            };
+        }
+    }
+    public override string ToString() => $"{Width} × {Height} · {Hertz} Hz · {OrientationName}";
 }
 
 internal sealed class DisplayModes
@@ -25,7 +40,15 @@ internal sealed class DisplayModes
         return string.IsNullOrWhiteSpace(item.Id) ? device : item.Id;
     }
 
-    internal static DisplayMode Describe(Native.DevMode mode) => new(mode.Width, mode.Height, mode.Frequency);
+    internal static DisplayMode Describe(Native.DevMode mode) => new(mode.Width, mode.Height, mode.Frequency, mode.Orientation);
+    internal static Native.DevMode Rotate(Native.DevMode mode, uint orientation)
+    {
+        if (orientation > 3 || mode.Orientation > 3) throw new ArgumentOutOfRangeException(nameof(orientation));
+        if (mode.Orientation % 2 != orientation % 2) (mode.Width, mode.Height) = (mode.Height, mode.Width);
+        mode.Orientation = orientation;
+        mode.Fields |= 0x80 | 0x00080000 | 0x00100000;
+        return mode;
+    }
     internal static bool Eligible(Native.DevMode mode, Native.DevMode current) =>
         mode.Width > 0 && mode.Height > 0 && mode.Frequency > 1 &&
         mode.BitsPerPel == current.BitsPerPel && mode.Orientation == current.Orientation &&
@@ -52,14 +75,16 @@ internal sealed class DisplayModes
         if (Identity(display.Device) != display.Id)
             throw new InvalidOperationException("Display configuration changed. Refresh and try again.");
         var original = Current(display.Device);
-        if (Describe(original) != new DisplayMode((uint)display.Width, (uint)display.Height, display.Hertz))
+        if (Describe(original) != new DisplayMode((uint)display.Width, (uint)display.Height, display.Hertz, display.Orientation))
             throw new InvalidOperationException("Display settings changed elsewhere. Refresh and try again.");
-        var candidates = Enumerate(display.Device, original);
+        // Rotation keeps the active pixel dimensions and refresh rate; Windows tests support below.
+        var candidates = selected.Orientation == original.Orientation ? Enumerate(display.Device, original)
+            : new List<Native.DevMode> { Rotate(original, selected.Orientation) };
         if (!candidates.Any(m => Describe(m) == selected))
             throw new InvalidOperationException("This mode is no longer supported. Refresh and try again.");
         var target = candidates.First(m => Describe(m) == selected);
-        // Only change the requested mode, preserving desktop position and orientation.
-        target.Fields = 0x00040000 | 0x00080000 | 0x00100000 | 0x00200000 | 0x00400000;
+        // Preserve desktop position, and include orientation for both apply and rollback.
+        target.Fields = 0x80 | 0x00040000 | 0x00080000 | 0x00100000 | 0x00200000 | 0x00400000;
         EnsureSuccess(Native.ChangeDisplaySettingsEx(display.Device, ref target, 0, 2, 0));
         original.Fields = target.Fields;
         var preview = new ModePreview(() =>
