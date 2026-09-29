@@ -41,7 +41,7 @@ public partial class MainWindow : Window
         {
             displays = await service.ReadAsync();
             if (closing) return;
-            Render(); Status.Text = "Up to date. Move a slider, then choose Apply to change that setting.";
+            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? "Some controls did not respond. Last-known values are marked and disabled; refresh to retry." : "Up to date. Move a slider, then choose Apply to change that setting.";
         }
         catch (Exception ex) { Summary.Text = displays.Count == 0 ? "Display discovery failed" : "Showing previous display information"; Status.Text = "Could not refresh displays: " + ex.Message; }
         finally { SetBusy(false); }
@@ -78,12 +78,12 @@ public partial class MainWindow : Window
         Level? level = contrast ? display.Contrast : display.Brightness;
         var panel = new StackPanel();
         var caption = Text(name, 15); caption.FontWeight = FontWeights.SemiBold; panel.Children.Add(caption);
-        if (level == null) { var unavailable = Text("Not supported or not responding", 12, "Muted"); unavailable.Margin = new(0, 12, 0, 0); panel.Children.Add(unavailable); return panel; }
-        var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10 };
+        if (level == null) { var unavailable = Text("Value unavailable. Refresh to retry.", 12, "Muted"); unavailable.Margin = new(0, 12, 0, 0); panel.Children.Add(unavailable); return panel; }
+        var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10, IsEnabled = !level.IsStale };
         System.Windows.Automation.AutomationProperties.SetName(slider, $"Display {display.Number} {name}");
-        var value = Text($"{level.Current} / {level.Max}", 12, "Muted");
+        var value = Text(level.IsStale ? $"Last known: {level.Current} / {level.Max} · Not current" : $"{level.Current} / {level.Max}", 12, "Muted");
         var apply = new Button { Content = "Apply " + name.ToLowerInvariant(), HorizontalAlignment = HorizontalAlignment.Left, Margin = new(0, 12, 0, 0), IsEnabled = false };
-        slider.ValueChanged += (_, _) => { value.Text = $"{Math.Round(slider.Value)} / {level.Max}"; apply.IsEnabled = (uint)Math.Round(slider.Value) != level.Current; };
+        slider.ValueChanged += (_, _) => { value.Text = $"{Math.Round(slider.Value)} / {level.Max}"; apply.IsEnabled = !level.IsStale && (uint)Math.Round(slider.Value) != level.Current; };
         apply.Click += async (_, _) =>
         {
             SetBusy(true); Status.Text = $"Applying {name.ToLowerInvariant()} to display {display.Number}…";
@@ -96,7 +96,9 @@ public partial class MainWindow : Window
             catch (Exception ex) { Status.Text = $"Could not update {name.ToLowerInvariant()}: {ex.Message} Refresh before trying again."; }
             finally { SetBusy(false); }
         };
-        panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply); return panel;
+        panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply);
+        if (level.IsStale) panel.Children.Add(Text("Monitor did not respond. Refresh to reconnect.", 12, "Muted"));
+        return panel;
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
     private void Theme_Click(object sender, RoutedEventArgs e)
@@ -121,6 +123,3 @@ public partial class MainWindow : Window
         foreach (var label in current) if (labels.Remove(label)) label.Close();
     }
 }
-
-
-

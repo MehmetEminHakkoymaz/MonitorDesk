@@ -2,7 +2,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.1.1 · Windows only**
+**Working title · v0.1.2 · Windows only**
 
 ## Features
 
@@ -42,7 +42,7 @@ Enable DDC/CI in the monitor's own menu. Some docks, adapters, drivers, HDR mode
 
 WMI brightness is used only when an active provider matches the display device identity. Built-in panel brightness is snapped to a supported level. Contrast is not available through WMI. WMI and DDC/CI operations run off the UI thread and are serialized. A stuck driver call can delay further operations; a hard driver timeout is not implemented in this release.
 
-Display numbers are local to this app, not guaranteed to match Windows Settings. Mirrored configurations may group physical screens. Refresh rate is the integer reported by EnumDisplaySettings (fractional rates are not represented). Display resolution and refresh rate are read-only in v0.1.1.
+Display numbers are local to this app, not guaranteed to match Windows Settings. Mirrored configurations may group physical screens. Refresh rate is the integer reported by EnumDisplaySettings (fractional rates are not represented). Display resolution and refresh rate are read-only in v0.1.2.
 
 The app does not require an account, contact a server, or collect telemetry. Diagnostic exports contain local display identifiers; review them before sharing.
 
@@ -80,3 +80,17 @@ MonitorDesk.exe --snapshot C:\path\window.png
 
 Project documentation, code comments and GitHub activity use English.
 
+
+### Intermittent contrast reads (v0.1.2)
+
+On the local three-monitor setup, Display 2 returned an I2C transmission error (`0xC0262582`) in 6 of 8 back-to-back contrast reads. With a 150 ms pause after brightness, all 8 reads succeeded. This supports a timing-sensitive communication issue; it does not identify a specific cable, driver or firmware fault.
+
+Hardware reads are now paced and transient transport failures are retried at most three times. Previously successful values remain visible but disabled and explicitly marked as not current when all attempts fail. No cached value is treated as a fresh reading. Cache entries are discarded when displays disappear. This improves resilience; it cannot guarantee driver or hardware reliability.
+
+Read-only diagnostics (never change monitor settings):
+
+```powershell
+dotnet run --project tests/MonitorDesk.Checks -c Release -- --diagnose
+dotnet run --project tests/MonitorDesk.Checks -c Release -- --diagnose --paced
+dotnet run --project tests/MonitorDesk.Checks -c Release -- --service-diagnose
+```

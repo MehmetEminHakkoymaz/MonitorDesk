@@ -2,6 +2,47 @@ using MonitorDesk.Services;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+if (args.Contains("--diagnose"))
+{
+    for (int round = 1; round <= 8; round++)
+    {
+        Native.MonitorCallback callback = (nint monitor, nint dc, ref Native.Rect rect, nint data) =>
+        {
+            var info = new Native.MonitorInfo { Size = Marshal.SizeOf<Native.MonitorInfo>() };
+            if (!Native.GetMonitorInfo(monitor, ref info) || !Native.GetNumberOfPhysicalMonitorsFromHMONITOR(monitor, out uint number)) return true;
+            var physical = new Native.Physical[number];
+            if (!Native.GetPhysicalMonitorsFromHMONITOR(monitor, number, physical)) return true;
+            try
+            {
+                foreach (var p in physical)
+                {
+                    bool b = Native.GetMonitorBrightness(p.Handle, out uint bmin, out uint bv, out uint bmax);
+                    int be = b ? 0 : Marshal.GetLastWin32Error();
+                    if (args.Contains("--paced")) Thread.Sleep(150);
+                    bool c = Native.GetMonitorContrast(p.Handle, out uint cmin, out uint cv, out uint cmax);
+                    int ce = c ? 0 : Marshal.GetLastWin32Error();
+                    Console.WriteLine($"round={round} device={info.Device} brightness={b}:{bv}/{bmax} error={be} contrast={c}:{cv}/{cmax} error={ce}");
+                }
+            }
+            finally { Native.DestroyPhysicalMonitors(number, physical); }
+            return true;
+        };
+        Native.EnumDisplayMonitors(0, 0, callback, 0);
+        await Task.Delay(400);
+    }
+    return;
+}
+if (args.Contains("--service-diagnose"))
+{
+    var monitored = new DisplayService();
+    for (int round = 1; round <= 8; round++)
+    {
+        foreach (var screen in await monitored.ReadAsync())
+            Console.WriteLine($"round={round} display={screen.Number} contrast={screen.Contrast?.Current} stale={screen.Contrast?.IsStale}");
+        await Task.Delay(400);
+    }
+    return;
+}
 int count = 0;
 void Check(bool condition, string message)
 {
@@ -39,3 +80,31 @@ if (args.Contains("--hardware-read"))
     Check(normal.Count > 0 && normal.Select(x => x.Id).SequenceEqual(failedWmi.Select(x => x.Id)), "Real displays remain discoverable when the WMI provider fails");
 }
 Console.WriteLine($"Total: {count} checks passed.");
+
+
+
+var delays = new List<int>();
+var reader = new LevelReader(delays.Add);
+int attempts = 0;
+int transportError = unchecked((int)0xC0262582);
+var recovered = reader.Read("display2|contrast", () => ++attempts < 3 ? new(null, transportError) : new(new Level(0, 75, 100), 0));
+Check(attempts == 3 && recovered?.Current == 75 && !recovered.IsStale, "Transient transport failures recover within three attempts");
+Check(delays.SequenceEqual(new[] {150, 150, 300}), "DDC reads and retries are paced");
+attempts = 0;
+var stale = reader.Read("display2|contrast", () => { attempts++; return new(null, transportError); });
+Check(attempts == 3 && stale is { Current: 75, IsStale: true }, "Exhausted retries retain an explicitly stale last-known value");
+Check(reader.Read("other|contrast", () => new(null, transportError)) == null, "Unknown controls never receive invented cached values");
+attempts = 0;
+reader.Read("unsupported", () => { attempts++; return new(null, unchecked((int)0xC0262584)); });
+Check(attempts == 1, "Explicit unsupported errors are not retried");
+var fresh = reader.Read("display2|contrast", () => new(new Level(0, 70, 100), 0));
+Check(fresh is { Current: 70, IsStale: false }, "A successful refresh replaces stale data");
+reader.Retain([]);
+Check(reader.Unavailable("display2|contrast") == null, "Disconnect removes cached display values");
+try
+{
+    await service.SetAsync(display with { Contrast = new Level(0, 75, 100, true) }, true, 70);
+    throw new Exception("Stale data allowed a write");
+}
+catch (ArgumentOutOfRangeException) { Check(true, "Stale controls reject writes before hardware access"); }
+Console.WriteLine($"Total after DDC regression tests: {count} checks passed.");

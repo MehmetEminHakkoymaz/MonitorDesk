@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — Reliable DDC/CI reads
+
+- Pace hardware queries by 150 ms and retry transient communication errors up to three attempts.
+- Retain previously read controls as disabled, clearly marked last-known values when a refresh fails.
+- Clear cached values after a display disconnects and reject writes based on stale readings.
+- Add read-only diagnostic modes and regression checks for retries, recovery and stale values.
+
+
 ## 0.1.1 — Display discovery recovery
 
 - Ignore missing and malformed optional WMI brightness data.
@@ -16,4 +24,3 @@
 - Add native ABI and input-validation checks plus Windows CI.
 
 Resolution and refresh rate are read-only in this preview. Hardware writes still require manual validation.
-

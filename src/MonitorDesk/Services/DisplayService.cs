@@ -3,7 +3,7 @@ using System.Collections;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace MonitorDesk.Services;
-public record Level(uint Min, uint Current, uint Max);
+public record Level(uint Min, uint Current, uint Max, bool IsStale = false);
 public record Display(string Id, string Device, string Name, int Number, bool Primary,
     int Left, int Top, int Width, int Height, uint Hertz, int PhysicalIndex,
     Level? Brightness, Level? Contrast, string? WmiInstance, string Note);
@@ -99,6 +99,7 @@ internal static class WmiBrightness
 public sealed class DisplayService
 {
     private readonly SemaphoreSlim gate = new(1, 1);
+    private readonly LevelReader levelReader = new();
     private readonly Func<List<WmiBrightness.Panel>> readPanels;
     public DisplayService() : this(WmiBrightness.Read) { }
     internal DisplayService(Func<List<WmiBrightness.Panel>> readPanels) => this.readPanels = readPanels;
@@ -136,17 +137,19 @@ public sealed class DisplayService
         var result = new Native.Physical[count];
         return Native.GetPhysicalMonitorsFromHMONITOR(handle, count, result) ? result : [];
     }
-    private static Level? ReadLevel(nint handle, bool contrast)
+    private static LevelReply ReadLevel(nint handle, bool contrast)
     {
         uint min, current, max;
         bool ok = contrast ? Native.GetMonitorContrast(handle, out min, out current, out max)
                            : Native.GetMonitorBrightness(handle, out min, out current, out max);
-        return ok && max > min && current >= min && current <= max ? new(min, current, max) : null;
+        int error = ok ? 0 : Marshal.GetLastWin32Error();
+        return ok && max > min && current >= min && current <= max ? new(new Level(min, current, max), 0) : new(null, ok ? unchecked((int)0xC0262585) : error);
     }
     private List<Display> Read()
     {
         var panels = WmiBrightness.ReadSafely(readPanels);
         var result = new List<Display>();
+        var connected = new HashSet<string>(StringComparer.Ordinal);
         int number = 0;
         foreach (var (handle, info) in Logical().OrderBy(x => x.Info.Device, StringComparer.Ordinal))
         {
@@ -162,8 +165,13 @@ public sealed class DisplayService
                 int count = Math.Max(1, physical.Length);
                 for (int index = 0; index < count; index++)
                 {
-                    var brightness = panel != null ? new Level(0, panel.Value, 100) : physical.Length > 0 ? ReadLevel(physical[index].Handle, false) : null;
-                    var contrast = physical.Length > 0 ? ReadLevel(physical[index].Handle, true) : null;
+                    string controlKey = $"{id}|{index}";
+                    string brightnessKey = controlKey + "|brightness", contrastKey = controlKey + "|contrast";
+                    connected.Add(brightnessKey); connected.Add(contrastKey);
+                    var brightness = panel != null ? new Level(0, panel.Value, 100) : physical.Length > 0
+                        ? levelReader.Read(brightnessKey, () => ReadLevel(physical[index].Handle, false)) : levelReader.Unavailable(brightnessKey);
+                    var contrast = physical.Length > 0
+                        ? levelReader.Read(contrastKey, () => ReadLevel(physical[index].Handle, true)) : levelReader.Unavailable(contrastKey);
                     string name = physical.Length > 0 ? physical[index].Description : "Windows display";
                     string note = panel != null ? "Built-in brightness · Windows WMI" : brightness != null || contrast != null ? "Hardware controls · DDC/CI" : "Hardware controls unavailable. Check DDC/CI in the monitor menu and your cable or dock.";
                     result.Add(new Display(id, info.Device, name, number, (info.Flags & 1) != 0,
@@ -174,12 +182,13 @@ public sealed class DisplayService
             }
             finally { if (physical.Length > 0) Native.DestroyPhysicalMonitors((uint)physical.Length, physical); }
         }
+        levelReader.Retain(connected);
         return result;
     }
     public async Task SetAsync(Display display, bool contrast, uint value)
     {
         var level = contrast ? display.Contrast : display.Brightness;
-        if (level == null || value < level.Min || value > level.Max) throw new ArgumentOutOfRangeException(nameof(value));
+        if (level == null || level.IsStale || value < level.Min || value > level.Max) throw new ArgumentOutOfRangeException(nameof(value));
         await gate.WaitAsync();
         try
         {
@@ -201,6 +210,7 @@ public sealed class DisplayService
                     if (display.PhysicalIndex >= physical.Length || physical[display.PhysicalIndex].Description != display.Name)
                         throw new InvalidOperationException("Display configuration changed. Refresh and try again.");
                     nint handle = physical[display.PhysicalIndex].Handle;
+                    Thread.Sleep(150);
                     bool ok = contrast ? Native.SetMonitorContrast(handle, value) : Native.SetMonitorBrightness(handle, value);
                     if (!ok) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "The monitor did not accept this setting. Check its on-screen menu.");
                 }
@@ -210,4 +220,3 @@ public sealed class DisplayService
         finally { gate.Release(); }
     }
 }
-
