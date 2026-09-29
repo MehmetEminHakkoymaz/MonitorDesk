@@ -2,7 +2,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.3.0 local build · Windows only**
+**Working title · v0.3.0 · Windows only**
 
 ## Features
 
@@ -52,9 +52,9 @@ Select a resolution and one of its supported refresh rates, then choose **Previe
 
 Resolution and refresh-rate choices preserve the current color depth, orientation and scan type. Mirrored screens may change together. Display changes made elsewhere require a refresh before previewing. The rollback timer runs independently of the UI thread, but cannot recover from process termination or a hung display driver. A disconnected display or a driver failure may prevent restoration; errors are shown in the status area. Use Windows Display Settings if recovery is needed.
 
-Use **Orientation** and **Preview orientation** to rotate the active mode. This keeps the current refresh rate and swaps pixel width and height for quarter turns; unapplied resolution selections are not used. Windows tests rotation support before making any change. The same 15-second confirmation restores both the previous orientation and resolution if you revert or do not confirm. Confirmation keeps the rotation for this Windows session only. Physical monitor rotation is manual. Rotation and physical-screen recovery in v0.3.0 still need manual validation.
+Use **Orientation** and **Preview orientation** to rotate the active mode. This keeps the current refresh rate and swaps pixel width and height for quarter turns; unapplied resolution selections are not used. Windows tests rotation support before making any change. The same 15-second confirmation restores both the previous orientation and resolution if you revert or do not confirm. Confirmation keeps the rotation for this Windows session only. Physical monitor rotation is manual. The user tested the orientation functionality on their setup and reported no issues; individual recovery scenarios were not recorded separately.
 
-Local validation passed 44 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
+Local validation passed 83 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
 
 The app does not require an account, contact a server, or collect telemetry. Diagnostic exports contain local display identifiers; review them before sharing.
 

@@ -1,12 +1,13 @@
 # Changelog
 
-## 0.3.0 — Display orientation (local build)
+## 0.3.0 — Display orientation
 
 - Add landscape, portrait and flipped orientation previews with Windows driver validation.
 - Preserve refresh rate and swap width/height on quarter turns.
 - Include orientation in stale-state checks, apply verification and timed rollback.
 - Label orientations for both native landscape and native portrait panels.
 - Add regression coverage for all 16 orientation transitions and round trips.
+- Pass 83 automated/read-only checks; user testing of orientation reported no issues.
 
 ## 0.2.0 — Display mode preview
 
