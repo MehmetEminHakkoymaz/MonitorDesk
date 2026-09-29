@@ -13,6 +13,8 @@ public partial class MainWindow : Window
     private readonly DisplayService service = new();
     private List<Display> displays = [];
     private bool busy, pending, light, closing;
+    private bool changingMode;
+    private ModePreview? modePreview;
     private readonly DispatcherTimer debounce = new() { Interval = TimeSpan.FromMilliseconds(750) };
     private readonly List<Window> labels = [];
     public MainWindow()
@@ -21,6 +23,7 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
+        Closing += (_, e) => { if (changingMode) { e.Cancel = true; modePreview?.Revert(); } };
         Closed += (_, _) => { closing = true; SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
     }
     private void DisplayChanged(object? sender, EventArgs e)
@@ -62,6 +65,7 @@ public partial class MainWindow : Window
             content.Children.Add(Text($"DISPLAY {display.Number:00}  {(display.Primary ? "· PRIMARY" : "· EXTENDED")}", 11, "Accent"));
             var title = Text(display.Name, 22); title.Margin = new(0, 8, 0, 8); title.FontWeight = FontWeights.SemiBold; content.Children.Add(title);
             content.Children.Add(Text($"{display.Width} × {display.Height}   /   {(display.Hertz > 1 ? $"{display.Hertz} Hz" : "Refresh rate unavailable")}", 14, "Muted"));
+            content.Children.Add(ModeControl(display));
             var controls = new Grid { Margin = new(0, 20, 0, 16) };
             controls.ColumnDefinitions.Add(new()); controls.ColumnDefinitions.Add(new());
             var brightness = Control(display, false); brightness.Margin = new(0, 0, 24, 0);
@@ -72,6 +76,93 @@ public partial class MainWindow : Window
             card.SetResourceReference(Border.BackgroundProperty, "Card"); card.SetResourceReference(Border.BorderBrushProperty, "Line"); Cards.Children.Add(card);
         }
     }
+    private StackPanel ModeControl(Display display)
+    {
+        var panel = new StackPanel { Margin = new(0, 18, 0, 0) };
+        panel.Children.Add(Text("Resolution and refresh rate", 15));
+        List<DisplayMode> modes;
+        try { modes = DisplayModes.Read(display.Device); }
+        catch (Exception ex) { panel.Children.Add(Text(ex.Message, 12, "Muted")); return panel; }
+        if (modes.Count == 0) { panel.Children.Add(Text("No compatible display modes available.", 12, "Muted")); return panel; }
+        var row = new WrapPanel { Margin = new(0, 8, 0, 8) };
+        var resolution = new ComboBox { MinWidth = 160, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
+        var rate = new ComboBox { MinWidth = 110, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
+        // The application's implicit TextBlock style otherwise overrides native combo text colors.
+        foreach (var combo in new[] { resolution, rate })
+        {
+            var textStyle = new Style(typeof(TextBlock));
+            textStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, Brushes.Black));
+            combo.Resources.Add(typeof(TextBlock), textStyle);
+        }
+        System.Windows.Automation.AutomationProperties.SetName(resolution, $"Display {display.Number} resolution");
+        System.Windows.Automation.AutomationProperties.SetName(rate, $"Display {display.Number} refresh rate");
+        var apply = new Button { Content = "Preview mode", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        var sizes = modes.Select(m => (m.Width, m.Height)).Distinct().ToList();
+        resolution.ItemsSource = sizes.Select(s => new ComboBoxItem
+        {
+            Content = new TextBlock { Text = $"{s.Width} × {s.Height}", Foreground = Brushes.Black }
+        }).ToList();
+        DisplayMode? Selected() => resolution.SelectedIndex >= 0 && rate.SelectedItem is ComboBoxItem { Tag: uint hz }
+            ? new(sizes[resolution.SelectedIndex].Width, sizes[resolution.SelectedIndex].Height, hz) : null;
+        void UpdateApply() => apply.IsEnabled = Selected() is { } m && m != new DisplayMode((uint)display.Width, (uint)display.Height, display.Hertz);
+        resolution.SelectionChanged += (_, _) =>
+        {
+            if (resolution.SelectedIndex < 0) return;
+            var size = sizes[resolution.SelectedIndex];
+            rate.Items.Clear();
+            foreach (var m in modes.Where(m => m.Width == size.Width && m.Height == size.Height))
+                rate.Items.Add(new ComboBoxItem { Content = new TextBlock { Text = $"{m.Hertz} Hz", Foreground = Brushes.Black }, Tag = m.Hertz, Foreground = Brushes.Black });
+            rate.SelectedIndex = -1;
+            for (int i = 0; i < rate.Items.Count; i++)
+                if ((uint)((ComboBoxItem)rate.Items[i]).Tag == display.Hertz) rate.SelectedIndex = i;
+            if (rate.SelectedIndex < 0) rate.SelectedIndex = rate.Items.Count - 1;
+            UpdateApply();
+        };
+        rate.SelectionChanged += (_, _) => UpdateApply();
+        resolution.SelectedIndex = sizes.FindIndex(s => s.Width == display.Width && s.Height == display.Height);
+        apply.Click += async (_, _) => { if (Selected() is { } mode) await PreviewModeAsync(display, mode); };
+        row.Children.Add(resolution); row.Children.Add(rate); row.Children.Add(apply); panel.Children.Add(row);
+        panel.Children.Add(Text("Confirm within 15 seconds or the previous mode will be restored. Kept changes last for this Windows session. Mirrored screens may change together.", 12, "Muted"));
+        return panel;
+    }
+
+    private async Task PreviewModeAsync(Display display, DisplayMode mode)
+    {
+        changingMode = true; SetBusy(true); CloseLabels();
+        Status.Text = $"Testing {mode} on display {display.Number}…";
+        string result;
+        try
+        {
+            modePreview = await Task.Run(() => DisplayModes.Apply(display, mode));
+            var preview = modePreview;
+            var body = new StackPanel { Margin = new(24) };
+            body.Children.Add(Text($"Keep {mode}?", 22));
+            var countdown = Text("", 14, "Muted"); countdown.Margin = new(0, 16, 0, 16); body.Children.Add(countdown);
+            var buttons = new WrapPanel();
+            var keep = new Button { Content = "Keep for this session", Margin = new(0, 0, 12, 0) };
+            var revert = new Button { Content = "Revert", IsCancel = true };
+            buttons.Children.Add(keep); buttons.Children.Add(revert); body.Children.Add(buttons);
+            var dialog = new Window { Title = "Confirm display mode", Owner = this, Content = body, Width = 520,
+                SizeToContent = SizeToContent.Height, ResizeMode = ResizeMode.NoResize, WindowStartupLocation = WindowStartupLocation.CenterScreen, Topmost = true };
+            dialog.SetResourceReference(BackgroundProperty, "Page");
+            var ticker = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
+            void UpdateCountdown() => countdown.Text = $"Reverting in {Math.Max(0, (int)Math.Ceiling((preview.Deadline - DateTime.UtcNow).TotalSeconds))} seconds unless you keep this mode.";
+            ticker.Tick += (_, _) => UpdateCountdown();
+            keep.Click += (_, _) => preview.Keep();
+            revert.Click += (_, _) => preview.Revert();
+            dialog.Closed += (_, _) => preview.Revert();
+            dialog.PreviewKeyDown += (_, e) => { if (e.Key == System.Windows.Input.Key.Escape) { preview.Revert(); e.Handled = true; } };
+            UpdateCountdown(); ticker.Start();
+            try { dialog.Show(); revert.Focus(); result = await preview.Completion.Task; }
+            finally { ticker.Stop(); dialog.Close(); }
+        }
+        catch (Exception ex) { result = "Could not preview display mode: " + ex.Message; }
+        finally { modePreview?.Dispose(); modePreview = null; changingMode = false; SetBusy(false); }
+        await RefreshAsync();
+        debounce.Stop(); pending = false;
+        Status.Text = result;
+    }
+
     private StackPanel Control(Display display, bool contrast)
     {
         string name = contrast ? "Contrast" : "Brightness";

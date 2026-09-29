@@ -2,7 +2,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.1.2 · Windows only**
+**Working title · v0.2.0 · Windows only**
 
 ## Features
 
@@ -14,6 +14,7 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 - Refresh after display configuration changes.
 - Light and dark themes, per-monitor DPI awareness and keyboard-accessible controls.
 - Apply changes explicitly; moving a slider alone does not alter the monitor.
+- Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
 
 ## Build and run
 
@@ -42,7 +43,15 @@ Enable DDC/CI in the monitor's own menu. Some docks, adapters, drivers, HDR mode
 
 WMI brightness is used only when an active provider matches the display device identity. Built-in panel brightness is snapped to a supported level. Contrast is not available through WMI. WMI and DDC/CI operations run off the UI thread and are serialized. A stuck driver call can delay further operations; a hard driver timeout is not implemented in this release.
 
-Display numbers are local to this app, not guaranteed to match Windows Settings. Mirrored configurations may group physical screens. Refresh rate is the integer reported by EnumDisplaySettings (fractional rates are not represented). Display resolution and refresh rate are read-only in v0.1.2.
+Display numbers are local to this app, not guaranteed to match Windows Settings. Mirrored configurations may group physical screens. Refresh rate is the integer reported by EnumDisplaySettings (fractional rates are not represented).
+
+### Resolution and refresh rate
+
+Select a resolution and one of its supported refresh rates, then choose **Preview mode**. Windows validates the selected mode before applying it. Choose **Keep for this session** within 15 seconds, or use **Revert** / Escape to restore the previous mode. Closing the confirmation window also reverts. Confirmed changes apply to the current Windows session; saved Windows defaults are not overwritten.
+
+Choices preserve the current color depth, orientation and scan type. Mirrored screens may change together. Display changes made elsewhere require a refresh before previewing. The rollback timer runs independently of the UI thread, but cannot recover from process termination or a hung display driver. A disconnected display or a driver failure may prevent restoration; errors are shown in the status area. Use Windows Display Settings if recovery is needed.
+
+Local validation passed 44 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
 
 The app does not require an account, contact a server, or collect telemetry. Diagnostic exports contain local display identifiers; review them before sharing.
 
@@ -72,7 +81,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 
 ## Roadmap
 
-- Resolution and refresh-rate selection with timed rollback.
+- Persist confirmed display modes across Windows sessions.
 - Work, gaming and evening profiles.
 - System tray controls and keyboard shortcuts.
 - Localized UI resources and Turkish translation.

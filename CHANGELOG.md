@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 — Display mode preview
+
+- Add per-display resolution and refresh-rate selection from driver-enumerated modes.
+- Validate mode changes with Windows before applying and re-read the resulting mode.
+- Restore the previous mode after 15 seconds unless confirmed, or when the confirmation window closes.
+- Run rollback independently of the UI dispatcher and report driver or disconnection failures.
+- Keep confirmed modes for the current Windows session without updating registry defaults.
+- Add mode filtering, error handling, timeout, disposal and confirmation-race checks.
+
 ## 0.1.2 — Reliable DDC/CI reads
 
 - Pace hardware queries by 150 ms and retry transient communication errors up to three attempts.

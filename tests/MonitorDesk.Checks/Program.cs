@@ -108,3 +108,64 @@ try
 }
 catch (ArgumentOutOfRangeException) { Check(true, "Stale controls reject writes before hardware access"); }
 Console.WriteLine($"Total after DDC regression tests: {count} checks passed.");
+
+var currentMode = new Native.DevMode { Width = 1920, Height = 1080, Frequency = 60, BitsPerPel = 32 };
+Check(DisplayModes.Eligible(currentMode, currentMode), "Current progressive mode is eligible");
+var invalidMode = currentMode; invalidMode.Frequency = 1;
+Check(!DisplayModes.Eligible(invalidMode, currentMode), "Default or unknown refresh rates are excluded");
+invalidMode = currentMode; invalidMode.Orientation = 1;
+Check(!DisplayModes.Eligible(invalidMode, currentMode), "Mode choices preserve orientation");
+invalidMode = currentMode; invalidMode.BitsPerPel = 16;
+Check(!DisplayModes.Eligible(invalidMode, currentMode), "Mode choices preserve color depth");
+invalidMode = currentMode; invalidMode.DisplayFlags = 2;
+Check(!DisplayModes.Eligible(invalidMode, currentMode), "Mode choices preserve scan type");
+foreach (int code in new[] { 1, -1, -2, -3, -4, -5, -6 })
+{
+    try { DisplayModes.EnsureSuccess(code); throw new Exception("Driver failure was accepted"); }
+    catch (InvalidOperationException) { Check(true, $"Display mode result {code} is not reported as success"); }
+}
+int restored = 0;
+using (var preview = new ModePreview(() => Interlocked.Increment(ref restored)))
+{
+    preview.Start(TimeSpan.FromMilliseconds(50));
+    await preview.Completion.Task.WaitAsync(TimeSpan.FromSeconds(3));
+    Check(restored == 1 && !preview.Keep(), "Timeout restores once and rejects late confirmation");
+    preview.Revert();
+    Check(restored == 1, "Repeated revert is idempotent");
+}
+restored = 0;
+using (var preview = new ModePreview(() => restored++))
+{
+    preview.Start();
+    Check(preview.Keep(), "Explicit confirmation keeps an active preview");
+    preview.Revert();
+    Check(restored == 0, "Confirmed preview is not reverted on disposal or close");
+}
+using (var preview = new ModePreview(() => throw new InvalidOperationException("Disconnected")))
+{
+    preview.Start(); preview.Revert();
+    Check((await preview.Completion.Task).Contains("Disconnected"), "Rollback failures are reported to the user");
+}
+restored = 0;
+var disposedPreview = new ModePreview(() => restored++);
+disposedPreview.Start(); disposedPreview.Dispose();
+Check(restored == 1, "Closing an unconfirmed preview restores the original mode");
+for (int attempt = 0; attempt < 25; attempt++)
+{
+    int rollbacks = 0;
+    using var preview = new ModePreview(() => Interlocked.Increment(ref rollbacks));
+    preview.Start();
+    bool kept = false;
+    await Task.WhenAll(Task.Run(() => kept = preview.Keep()), Task.Run(preview.Revert));
+    if (rollbacks != (kept ? 0 : 1)) throw new Exception("Confirmation and rollback race");
+}
+Check(true, "Concurrent confirmation and rollback have exactly one outcome");
+if (args.Contains("--hardware-read"))
+{
+    foreach (var screen in (await service.ReadAsync()).DistinctBy(d => d.Device))
+    {
+        var modes = DisplayModes.Read(screen.Device);
+        Check(modes.Count > 0, $"Display {screen.Number} exposes {modes.Count} compatible modes without writes");
+    }
+}
+Console.WriteLine($"Final total: {count} checks passed. No display settings were changed.");
