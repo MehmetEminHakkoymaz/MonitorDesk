@@ -192,3 +192,5 @@ Check(DisplayModes.Describe(currentMode) != DisplayModes.Describe(DisplayModes.R
 try { DisplayModes.Rotate(currentMode, 4); throw new Exception("Invalid orientation accepted"); }
 catch (ArgumentOutOfRangeException) { Check(true, "Invalid orientation is rejected before native access"); }
 Console.WriteLine($"Total including orientation: {count} checks passed. No display settings were changed.");
+await LayoutChecks.Run(Check, args.Contains("--hardware-read"));
+Console.WriteLine($"Total including layout: {count} checks passed. No display settings were changed.");

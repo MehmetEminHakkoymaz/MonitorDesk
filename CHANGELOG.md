@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — Screen arrangement
+
+- Add a draggable display layout editor with edge snapping, keyboard adjustment and draft reset.
+- Preserve the primary display and reject overlaps, gaps and corner-only connections.
+- Apply all positions in one temporary CCD configuration, preserving display modes and saved defaults.
+- Reuse the 15-second confirmation flow to restore the captured layout on timeout or cancellation.
+- Reject stale drafts and avoid restoring an obsolete topology after connection changes.
+- Pass 108 automated/read-only checks; the user confirmed screen positioning works in the desktop application. Native validation from the agent sandbox remains blocked; individual recovery scenarios were not recorded separately.
+
 ## 0.3.0 — Display orientation
 
 - Add landscape, portrait and flipped orientation previews with Windows driver validation.

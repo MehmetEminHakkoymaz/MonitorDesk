@@ -142,17 +142,41 @@ public partial class MainWindow : Window
         return panel;
     }
 
-    private async Task PreviewModeAsync(Display display, DisplayMode mode)
+    private Task PreviewModeAsync(Display display, DisplayMode mode) =>
+        PreviewChangeAsync(() => DisplayModes.Apply(display, mode), mode.ToString());
+
+    private async void Arrange_Click(object sender, RoutedEventArgs e)
+    {
+        SetBusy(true);
+        try
+        {
+            var layout = new DisplayLayout();
+            var snapshot = await Task.Run(layout.Read);
+            if (closing) return;
+            var screens = snapshot.Screens().Select(s => s with { Number = displays.FirstOrDefault(d => d.Device == s.Device)?.Number ?? s.Number }).ToList();
+            if (screens.Count < 2) throw new InvalidOperationException("Connect at least two extended displays to arrange them.");
+            var editor = new LayoutEditor(screens) { Owner = this };
+            if (editor.ShowDialog() == true)
+            {
+                var requested = editor.Placements;
+                await PreviewChangeAsync(() => layout.Apply(snapshot, requested), "this screen layout");
+            }
+        }
+        catch (Exception ex) { Status.Text = "Could not arrange screens: " + ex.Message; }
+        finally { SetBusy(false); }
+    }
+
+    private async Task PreviewChangeAsync(Func<ModePreview> apply, string description)
     {
         changingMode = true; SetBusy(true); CloseLabels();
-        Status.Text = $"Testing {mode} on display {display.Number}…";
+        Status.Text = $"Testing {description}…";
         string result;
         try
         {
-            modePreview = await Task.Run(() => DisplayModes.Apply(display, mode));
+            modePreview = await Task.Run(apply);
             var preview = modePreview;
             var body = new StackPanel { Margin = new(24) };
-            body.Children.Add(Text($"Keep {mode}?", 22));
+            body.Children.Add(Text($"Keep {description}?", 22));
             var countdown = Text("", 14, "Muted"); countdown.Margin = new(0, 16, 0, 16); body.Children.Add(countdown);
             var buttons = new WrapPanel();
             var keep = new Button { Content = "Keep for this session", Margin = new(0, 0, 12, 0) };

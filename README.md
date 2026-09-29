@@ -2,7 +2,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.3.0 · Windows only**
+**Working title · v0.4.0 · Windows only**
 
 ## Features
 
@@ -16,6 +16,7 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 - Apply changes explicitly; moving a slider alone does not alter the monitor.
 - Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
 - Preview landscape, portrait, landscape (flipped) and portrait (flipped) orientation.
+- Arrange extended displays by dragging numbered tiles, with edge snapping and timed rollback.
 
 ## Build and run
 
@@ -54,7 +55,17 @@ Resolution and refresh-rate choices preserve the current color depth, orientatio
 
 Use **Orientation** and **Preview orientation** to rotate the active mode. This keeps the current refresh rate and swaps pixel width and height for quarter turns; unapplied resolution selections are not used. Windows tests rotation support before making any change. The same 15-second confirmation restores both the previous orientation and resolution if you revert or do not confirm. Confirmation keeps the rotation for this Windows session only. Physical monitor rotation is manual. The user tested the orientation functionality on their setup and reported no issues; individual recovery scenarios were not recorded separately.
 
-Local validation passed 83 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
+Local validation for v0.3.0 passed 83 checks including read-only mode enumeration on three displays. The user also tested the resolution and refresh-rate functionality on their setup and reported no issues. Individual manual recovery scenarios were not recorded separately.
+
+### Screen arrangement
+
+Choose **Arrange screens**, then drag the numbered tiles to match your desk. Nearby edges snap together. Use arrow keys to move a focused tile by 10 pixels, or Shift + arrows for 1-pixel adjustments. **Reset draft** restores the starting layout without changing Windows. The primary display remains primary; coordinates are normalized around it even when its tile is moved.
+
+**Preview layout** is enabled for changed layouts with no overlapping screens or disconnected gaps. Screens must share an edge, not just a corner. Windows validates and applies all positions together, preserving the captured source and target modes. Confirm within 15 seconds to keep the layout for this Windows session, or revert to restore all original positions. Saved Windows defaults are not overwritten. Mirrored layouts are not supported; use Extend in Windows Settings first.
+
+Connecting/disconnecting displays or changing display settings while editing invalidates the draft. A connection change during rollback is reported rather than applying an obsolete topology. As with mode previews, process termination or a hung driver can prevent automatic restoration; use Windows Display Settings if necessary.
+
+v0.4.0 local validation passed 108 automated/read-only checks, including real CCD layout discovery. Native validation of the unchanged layout was skipped because the agent sandbox received Windows error 5 (access denied to the interactive display session). The user subsequently tested screen arrangement in the desktop application and confirmed that positioning works correctly. Individual timeout, disconnect and recovery scenarios were not recorded separately.
 
 The app does not require an account, contact a server, or collect telemetry. Diagnostic exports contain local display identifiers; review them before sharing.
 
