@@ -1,2 +1,82 @@
 # MonitorDesk
-A Windows desktop app for managing monitor brightness, contrast, and display information.
+
+Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
+
+**Working title · v0.1.1 · Windows only**
+
+## Features
+
+- Discover active displays, their current resolution, refresh rate and primary status.
+- Identify screens with temporary numbered overlays.
+- Read and adjust external monitor brightness and contrast using Windows DDC/CI APIs.
+- Use Windows WMI brightness on compatible built-in panels.
+- Show unavailable controls honestly, without simulated values or software dimming.
+- Refresh after display configuration changes.
+- Light and dark themes, per-monitor DPI awareness and keyboard-accessible controls.
+- Apply changes explicitly; moving a slider alone does not alter the monitor.
+
+## Build and run
+
+Install the .NET 10 SDK on Windows, then run from the repository root:
+
+```powershell
+dotnet restore tests/MonitorDesk.Checks --configfile NuGet.Config
+dotnet build tests/MonitorDesk.Checks -c Release --no-restore
+dotnet run --project tests/MonitorDesk.Checks -c Release --no-build
+dotnet run --project src/MonitorDesk -c Release --no-build
+```
+
+No third-party NuGet packages are required. NuGet.Config clears package feeds deliberately; the installed SDK supplies the framework references.
+
+To create a distributable folder:
+
+```powershell
+dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/MonitorDesk
+```
+
+Run `artifacts/MonitorDesk/MonitorDesk.exe`. This is a framework-dependent build: the target PC needs the .NET 10 Windows Desktop Runtime. Administrator rights are not requested.
+
+## Hardware limitations
+
+Enable DDC/CI in the monitor's own menu. Some docks, adapters, drivers, HDR modes and monitor presets block or restrict controls. A readable value does not guarantee the device will accept writes. Apply reports command errors and reads current values again.
+
+WMI brightness is used only when an active provider matches the display device identity. Built-in panel brightness is snapped to a supported level. Contrast is not available through WMI. WMI and DDC/CI operations run off the UI thread and are serialized. A stuck driver call can delay further operations; a hard driver timeout is not implemented in this release.
+
+Display numbers are local to this app, not guaranteed to match Windows Settings. Mirrored configurations may group physical screens. Refresh rate is the integer reported by EnumDisplaySettings (fractional rates are not represented). Display resolution and refresh rate are read-only in v0.1.1.
+
+The app does not require an account, contact a server, or collect telemetry. Diagnostic exports contain local display identifiers; review them before sharing.
+
+## Validation
+
+Automated checks cover native structure layouts and rejecting unsupported or out-of-range writes before hardware access. GitHub Actions builds the app and runs these checks on Windows; it cannot test real monitor behavior.
+
+Local read-only validation detected two 1920×1080 external monitors at 240 Hz and 120 Hz. Both reported brightness; only the first reported contrast. Hardware writes and built-in panel WMI writes have not been tested.
+
+Manual checks before a release:
+
+- Apply a small brightness change on each supported display and restore it.
+- Confirm unsupported contrast is unavailable.
+- Identify screens with negative coordinates and different DPI scales.
+- Disconnect/reconnect a display during refresh and verify recovery.
+- Try light/dark themes, keyboard navigation and 125–200% scaling.
+- Test a compatible laptop panel separately.
+
+## Architecture
+
+`Services/Native.cs` contains the Windows interop boundary. `Services/DisplayService.cs` owns capability reads, safe physical handle cleanup and serialized writes. `MainWindow` builds cards from actual capabilities; `App` also supports local read-only diagnostic modes:
+
+```powershell
+MonitorDesk.exe --probe C:\path\displays.json
+MonitorDesk.exe --snapshot C:\path\window.png
+```
+
+## Roadmap
+
+- Resolution and refresh-rate selection with timed rollback.
+- Work, gaming and evening profiles.
+- System tray controls and keyboard shortcuts.
+- Localized UI resources and Turkish translation.
+- Final product name and distributable installer.
+
+Project documentation, code comments and GitHub activity use English.
+
