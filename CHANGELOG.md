@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 — Compact workspace UI
+
+- Embed screen arrangement above display settings in the main window.
+- Replace oversized full-width display cards with a responsive one-to-three-column layout.
+- Reduce headings, spacing and button sizes, and theme dropdowns for light and dark appearances.
+- Preserve layout drafts during refresh when the Windows configuration is unchanged.
+- Retain explicit apply actions and the existing 15-second preview rollback.
+- Pass the existing 108 checks and inspect wide, narrow and light-theme layouts. The user approved the UI update for commit and push.
+
 ## 0.4.0 — Screen arrangement
 
 - Add a draggable display layout editor with edge snapping, keyboard adjustment and draft reset.

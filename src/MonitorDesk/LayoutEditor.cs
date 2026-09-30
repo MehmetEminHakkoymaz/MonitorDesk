@@ -6,10 +6,10 @@ using MonitorDesk.Services;
 
 namespace MonitorDesk;
 
-internal sealed class LayoutEditor : Window
+internal sealed class LayoutEditor : UserControl
 {
-    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, MinHeight = 240 };
-    private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap, Margin = new(0, 12, 0, 12) };
+    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, Height = 150 };
+    private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap, Margin = new(0, 8, 0, 8), FontSize = 12 };
     private readonly Button preview = new() { Content = "Preview layout", Margin = new(12, 0, 0, 0) };
     private readonly List<ScreenPlacement> original;
     private List<ScreenPlacement> screens;
@@ -17,35 +17,40 @@ internal sealed class LayoutEditor : Window
     private Point start;
     private ScreenPlacement? dragging;
     private Border? draggedTile;
+    internal event EventHandler? PreviewRequested;
     internal IReadOnlyList<ScreenPlacement> Placements => LayoutGeometry.Normalize(screens);
 
     internal LayoutEditor(IEnumerable<ScreenPlacement> placements)
     {
         original = placements.ToList(); screens = original.ToList();
-        Title = "Arrange screens"; Width = 860; Height = 620; MinWidth = 600; MinHeight = 470;
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        SetResourceReference(BackgroundProperty, "Page");
-        var root = new Grid { Margin = new(24) };
-        root.RowDefinitions.Add(new() { Height = GridLength.Auto });
-        root.RowDefinitions.Add(new() { Height = new GridLength(1, GridUnitType.Star) });
+
+
+        SetResourceReference(BackgroundProperty, "Card");
+        var root = new Grid();
         root.RowDefinitions.Add(new() { Height = GridLength.Auto });
         root.RowDefinitions.Add(new() { Height = GridLength.Auto });
-        var heading = new StackPanel { Margin = new(0, 0, 0, 16) };
-        heading.Children.Add(new TextBlock { Text = "Arrange your screens", FontSize = 24, FontWeight = FontWeights.SemiBold });
-        heading.Children.Add(new TextBlock { Text = "Drag numbered screens to match your desk. Edges snap together.\nSelect a screen and use arrow keys (10 px), or Shift + arrows (1 px).", TextWrapping = TextWrapping.Wrap, Margin = new(0, 8, 0, 0) });
+        root.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        root.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        var heading = new StackPanel { Margin = new(0, 0, 0, 10) };
+        heading.Children.Add(new TextBlock { Text = "Arrange your screens", FontSize = 17, FontWeight = FontWeights.SemiBold });
+        heading.Children.Add(new TextBlock { Text = "Drag screens to match your desk · Arrow keys to adjust · Shift for precision", TextWrapping = TextWrapping.Wrap, Margin = new(0, 4, 0, 0), FontSize = 12 });
         root.Children.Add(heading);
         var frame = new Border { Child = surface, BorderThickness = new(1), CornerRadius = new(10) };
-        frame.SetResourceReference(Border.BorderBrushProperty, "Line"); frame.SetResourceReference(BackgroundProperty, "Card");
+        frame.SetResourceReference(Border.BorderBrushProperty, "Line"); frame.SetResourceReference(BackgroundProperty, "Page");
         Grid.SetRow(frame, 1); root.Children.Add(frame);
-        Grid.SetRow(status, 2); root.Children.Add(status);
+
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         var reset = new Button { Content = "Reset draft", Margin = new(0, 0, 12, 0) };
-        var cancel = new Button { Content = "Cancel", IsCancel = true };
+
         reset.Click += (_, _) => { screens = original.ToList(); Draw(); };
-        cancel.Click += (_, _) => Close();
-        preview.Click += (_, _) => { if (LayoutGeometry.Validate(screens) == null) DialogResult = true; };
-        buttons.Children.Add(reset); buttons.Children.Add(cancel); buttons.Children.Add(preview);
-        Grid.SetRow(buttons, 3); root.Children.Add(buttons); Content = root;
+
+        preview.Click += (_, _) => { if (LayoutGeometry.Validate(screens) == null) PreviewRequested?.Invoke(this, EventArgs.Empty); };
+        buttons.Children.Add(reset); buttons.Children.Add(preview);
+        var footer = new Grid { Margin = new(0, 8, 0, 0) };
+        footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        status.Margin = new(0, 0, 16, 0); status.VerticalAlignment = VerticalAlignment.Center;
+        footer.Children.Add(status); Grid.SetColumn(buttons, 1); footer.Children.Add(buttons);
+        Grid.SetRow(footer, 2); root.Children.Add(footer); Content = root;
         surface.SizeChanged += (_, _) => { if (dragging == null) Draw(); };
         Loaded += (_, _) => Draw();
     }
@@ -56,15 +61,15 @@ internal sealed class LayoutEditor : Window
         if (screens.Count == 0) return;
         double left = screens.Min(s => s.X), top = screens.Min(s => s.Y);
         double width = screens.Max(s => s.Right) - left, height = screens.Max(s => s.Bottom) - top;
-        scale = Math.Min(Math.Max(1, surface.ActualWidth - 100) / width, Math.Max(1, surface.ActualHeight - 100) / height);
+        scale = Math.Min(Math.Max(1, surface.ActualWidth - 100) / width, Math.Max(1, surface.ActualHeight - 28) / height);
         offsetX = (surface.ActualWidth - width * scale) / 2 - left * scale;
         offsetY = (surface.ActualHeight - height * scale) / 2 - top * scale;
         foreach (var screen in screens)
         {
-            var label = new TextBlock { Text = $"{screen.Number}" + (screen.Primary ? "\nPrimary" : ""), FontSize = 22, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            var label = new TextBlock { Text = $"{screen.Number}" + (screen.Primary ? "\nPrimary" : ""), FontSize = 16, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             var tile = new Border { Child = label, Width = Math.Max(12, screen.Width * scale), Height = Math.Max(12, screen.Height * scale), BorderThickness = new(2), CornerRadius = new(6), Cursor = Cursors.SizeAll, Focusable = true,
                 ToolTip = $"Display {screen.Number}: {screen.Width} × {screen.Height}; position {screen.X}, {screen.Y}" };
-            tile.SetResourceReference(BackgroundProperty, "Page"); tile.SetResourceReference(Border.BorderBrushProperty, "Accent");
+            tile.SetResourceReference(BackgroundProperty, "Card"); tile.SetResourceReference(Border.BorderBrushProperty, "Accent");
             System.Windows.Automation.AutomationProperties.SetName(tile, $"Display {screen.Number}{(screen.Primary ? ", primary" : "")}. Use arrow keys to move.");
             Canvas.SetLeft(tile, offsetX + screen.X * scale); Canvas.SetTop(tile, offsetY + screen.Y * scale);
             tile.GotKeyboardFocus += (_, _) => tile.BorderThickness = new(4);
@@ -114,7 +119,7 @@ internal sealed class LayoutEditor : Window
     {
         string? error = LayoutGeometry.Validate(screens);
         bool changed = error == null && !LayoutGeometry.Normalize(screens).SequenceEqual(LayoutGeometry.Normalize(original));
-        status.Text = error ?? (changed ? "Ready to preview. Confirm within 15 seconds to keep this layout for the current Windows session." : "Drag a screen to begin. Nothing changes until you choose Preview layout.");
+        status.Text = error ?? (changed ? "Ready · Confirm within 15 seconds to keep for this session." : "Drag to arrange. Preview to apply.");
         preview.IsEnabled = error == null && changed;
     }
 }

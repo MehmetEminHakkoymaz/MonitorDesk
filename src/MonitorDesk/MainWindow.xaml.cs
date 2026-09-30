@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Cards.SizeChanged += (_, _) => SizeCards();
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
@@ -33,7 +34,7 @@ public partial class MainWindow : Window
     }
     private void SetBusy(bool value)
     {
-        busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value;
+        busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value;
         if (!value && pending && !closing) { pending = false; debounce.Start(); }
     }
     public async Task RefreshAsync()
@@ -43,8 +44,9 @@ public partial class MainWindow : Window
         try
         {
             displays = await service.ReadAsync();
+            await RefreshLayoutAsync();
             if (closing) return;
-            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? "Some controls did not respond. Last-known values are marked and disabled; refresh to retry." : "Up to date. Move a slider, then choose Apply to change that setting.";
+            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? "Some controls did not respond. Last-known values are marked and disabled; refresh to retry." : "Ready · Changes apply only when you choose Apply or Preview.";
         }
         catch (Exception ex) { Summary.Text = displays.Count == 0 ? "Display discovery failed" : "Showing previous display information"; Status.Text = "Could not refresh displays: " + ex.Message; }
         finally { SetBusy(false); }
@@ -63,44 +65,38 @@ public partial class MainWindow : Window
         {
             var content = new StackPanel();
             content.Children.Add(Text($"DISPLAY {display.Number:00}  {(display.Primary ? "· PRIMARY" : "· EXTENDED")}", 11, "Accent"));
-            var title = Text(display.Name, 22); title.Margin = new(0, 8, 0, 8); title.FontWeight = FontWeights.SemiBold; content.Children.Add(title);
+            var title = Text(display.Name, 17); title.Margin = new(0, 6, 0, 6); title.FontWeight = FontWeights.SemiBold; content.Children.Add(title);
             content.Children.Add(Text($"{display.Width} × {display.Height}   /   {(display.Hertz > 1 ? $"{display.Hertz} Hz" : "Refresh rate unavailable")}", 14, "Muted"));
             content.Children.Add(ModeControl(display));
-            var controls = new Grid { Margin = new(0, 20, 0, 16) };
+            var controls = new Grid { Margin = new(0, 14, 0, 12) };
             controls.ColumnDefinitions.Add(new()); controls.ColumnDefinitions.Add(new());
-            var brightness = Control(display, false); brightness.Margin = new(0, 0, 24, 0);
+            var brightness = Control(display, false); brightness.Margin = new(0, 0, 14, 0);
             var contrast = Control(display, true); Grid.SetColumn(contrast, 1);
             controls.Children.Add(brightness); controls.Children.Add(contrast); content.Children.Add(controls);
             content.Children.Add(Text(display.Note, 12, "Muted"));
-            var card = new Border { Child = content, Padding = new(24), CornerRadius = new(14), BorderThickness = new(1), Margin = new(0, 0, 0, 16) };
+            var card = new Border { Child = content, Padding = new(16), CornerRadius = new(14), BorderThickness = new(1), Margin = new(0, 0, 12, 12) };
             card.SetResourceReference(Border.BackgroundProperty, "Card"); card.SetResourceReference(Border.BorderBrushProperty, "Line"); Cards.Children.Add(card);
+            SizeCards();
         }
     }
     private StackPanel ModeControl(Display display)
     {
-        var panel = new StackPanel { Margin = new(0, 18, 0, 0) };
-        panel.Children.Add(Text("Resolution and refresh rate", 15));
+        var panel = new StackPanel { Margin = new(0, 14, 0, 0) };
+        panel.Children.Add(Text("Display mode", 13));
         List<DisplayMode> modes;
         try { modes = DisplayModes.Read(display.Device); }
         catch (Exception ex) { panel.Children.Add(Text(ex.Message, 12, "Muted")); return panel; }
         if (modes.Count == 0) { panel.Children.Add(Text("No compatible display modes available.", 12, "Muted")); return panel; }
-        var row = new WrapPanel { Margin = new(0, 8, 0, 8) };
-        var resolution = new ComboBox { MinWidth = 160, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
-        var rate = new ComboBox { MinWidth = 110, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
-        // The application's implicit TextBlock style otherwise overrides native combo text colors.
-        foreach (var combo in new[] { resolution, rate })
-        {
-            var textStyle = new Style(typeof(TextBlock));
-            textStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, Brushes.Black));
-            combo.Resources.Add(typeof(TextBlock), textStyle);
-        }
+        var row = new WrapPanel { Margin = new(0, 6, 0, 6) };
+        var resolution = new ComboBox { MinWidth = 132, Margin = new(0, 0, 12, 8) };
+        var rate = new ComboBox { MinWidth = 90, Margin = new(0, 0, 12, 8) };
         System.Windows.Automation.AutomationProperties.SetName(resolution, $"Display {display.Number} resolution");
         System.Windows.Automation.AutomationProperties.SetName(rate, $"Display {display.Number} refresh rate");
-        var apply = new Button { Content = "Preview mode", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        var apply = new Button { Content = "Preview", IsEnabled = false, Margin = new(0, 0, 0, 8) };
         var sizes = modes.Select(m => (m.Width, m.Height)).Distinct().ToList();
         resolution.ItemsSource = sizes.Select(s => new ComboBoxItem
         {
-            Content = new TextBlock { Text = $"{s.Width} × {s.Height}", Foreground = Brushes.Black }
+            Content = $"{s.Width} × {s.Height}"
         }).ToList();
         DisplayMode? Selected() => resolution.SelectedIndex >= 0 && rate.SelectedItem is ComboBoxItem { Tag: uint hz }
             ? new(sizes[resolution.SelectedIndex].Width, sizes[resolution.SelectedIndex].Height, hz, display.Orientation) : null;
@@ -111,7 +107,7 @@ public partial class MainWindow : Window
             var size = sizes[resolution.SelectedIndex];
             rate.Items.Clear();
             foreach (var m in modes.Where(m => m.Width == size.Width && m.Height == size.Height))
-                rate.Items.Add(new ComboBoxItem { Content = new TextBlock { Text = $"{m.Hertz} Hz", Foreground = Brushes.Black }, Tag = m.Hertz, Foreground = Brushes.Black });
+                rate.Items.Add(new ComboBoxItem { Content = $"{m.Hertz} Hz", Tag = m.Hertz });
             rate.SelectedIndex = -1;
             for (int i = 0; i < rate.Items.Count; i++)
                 if ((uint)((ComboBoxItem)rate.Items[i]).Tag == display.Hertz) rate.SelectedIndex = i;
@@ -122,50 +118,63 @@ public partial class MainWindow : Window
         resolution.SelectedIndex = sizes.FindIndex(s => s.Width == display.Width && s.Height == display.Height);
         apply.Click += async (_, _) => { if (Selected() is { } mode) await PreviewModeAsync(display, mode); };
         row.Children.Add(resolution); row.Children.Add(rate); row.Children.Add(apply); panel.Children.Add(row);
-        panel.Children.Add(Text("Orientation", 15));
-        var rotationRow = new WrapPanel { Margin = new(0, 8, 0, 8) };
-        var orientation = new ComboBox { MinWidth = 210, Margin = new(0, 0, 12, 8), Foreground = Brushes.Black, Background = Brushes.White };
+        panel.Children.Add(Text("Orientation", 13));
+        var rotationRow = new WrapPanel { Margin = new(0, 6, 0, 6) };
+        var orientation = new ComboBox { MinWidth = 170, Margin = new(0, 0, 12, 8) };
         System.Windows.Automation.AutomationProperties.SetName(orientation, $"Display {display.Number} orientation");
         var active = new Native.DevMode { Width = (uint)display.Width, Height = (uint)display.Height, Frequency = display.Hertz, Orientation = display.Orientation };
         for (uint value = 0; value < 4; value++)
         {
             var rotated = DisplayModes.Describe(DisplayModes.Rotate(active, value));
-            orientation.Items.Add(new ComboBoxItem { Tag = rotated, Content = new TextBlock { Text = rotated.OrientationName, Foreground = Brushes.Black } });
+            orientation.Items.Add(new ComboBoxItem { Tag = rotated, Content = rotated.OrientationName });
         }
         orientation.SelectedIndex = (int)display.Orientation;
-        var rotate = new Button { Content = "Preview orientation", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        var rotate = new Button { Content = "Rotate", IsEnabled = false, Margin = new(0, 0, 0, 8) };
         orientation.SelectionChanged += (_, _) => rotate.IsEnabled = orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode m } && m.Orientation != display.Orientation;
         rotate.Click += async (_, _) => { if (orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode mode }) await PreviewModeAsync(display, mode); };
         rotationRow.Children.Add(orientation); rotationRow.Children.Add(rotate); panel.Children.Add(rotationRow);
-        panel.Children.Add(Text("Rotation uses the current resolution and refresh rate, swapping width and height when needed. Windows checks support before applying.", 12, "Muted"));
-        panel.Children.Add(Text("Confirm within 15 seconds or the previous mode will be restored. Kept changes last for this Windows session. Mirrored screens may change together.", 12, "Muted"));
+        rotate.ToolTip = "Preview orientation using the current resolution and refresh rate.";
+        panel.Children.Add(Text("15-second undo protection · Session only", 12, "Muted"));
         return panel;
     }
 
     private Task PreviewModeAsync(Display display, DisplayMode mode) =>
         PreviewChangeAsync(() => DisplayModes.Apply(display, mode), mode.ToString());
 
-    private async void Arrange_Click(object sender, RoutedEventArgs e)
+    private readonly DisplayLayout layout = new();
+    private LayoutSnapshot? layoutSnapshot;
+    private async Task RefreshLayoutAsync()
     {
-        SetBusy(true);
         try
         {
-            var layout = new DisplayLayout();
             var snapshot = await Task.Run(layout.Read);
             if (closing) return;
+            if (layoutSnapshot != null && LayoutHost.Content is LayoutEditor && DisplayLayout.SameState(layoutSnapshot, snapshot)) return;
             var screens = snapshot.Screens().Select(s => s with { Number = displays.FirstOrDefault(d => d.Device == s.Device)?.Number ?? s.Number }).ToList();
-            if (screens.Count < 2) throw new InvalidOperationException("Connect at least two extended displays to arrange them.");
-            var editor = new LayoutEditor(screens) { Owner = this };
-            if (editor.ShowDialog() == true)
+            layoutSnapshot = snapshot;
+            if (screens.Count < 2) { LayoutHost.Content = Text("Connect a second extended display to arrange your workspace.", 14, "Muted"); return; }
+            var editor = new LayoutEditor(screens);
+            editor.PreviewRequested += async (_, _) =>
             {
                 var requested = editor.Placements;
                 await PreviewChangeAsync(() => layout.Apply(snapshot, requested), "this screen layout");
-            }
+                // A completed preview resets its draft, even when a rollback restored the same topology.
+                layoutSnapshot = null;
+                SetBusy(true);
+                try { await RefreshLayoutAsync(); } finally { SetBusy(false); }
+            };
+            LayoutHost.Content = editor;
         }
-        catch (Exception ex) { Status.Text = "Could not arrange screens: " + ex.Message; }
-        finally { SetBusy(false); }
+        catch (Exception ex) { layoutSnapshot = null; LayoutHost.Content = Text("Layout unavailable: " + ex.Message, 13, "Muted"); }
     }
 
+    private void SizeCards()
+    {
+        double available = Math.Max(320, Cards.ActualWidth);
+        int columns = Math.Clamp((int)(available / 360), 1, 3);
+        double width = (columns == 1 ? available : Math.Min(440, available / columns)) - 12;
+        foreach (var card in Cards.Children.OfType<Border>()) card.Width = width;
+    }
     private async Task PreviewChangeAsync(Func<ModePreview> apply, string description)
     {
         changingMode = true; SetBusy(true); CloseLabels();
@@ -208,7 +217,7 @@ public partial class MainWindow : Window
         string name = contrast ? "Contrast" : "Brightness";
         Level? level = contrast ? display.Contrast : display.Brightness;
         var panel = new StackPanel();
-        var caption = Text(name, 15); caption.FontWeight = FontWeights.SemiBold; panel.Children.Add(caption);
+        var caption = Text(name, 13); caption.FontWeight = FontWeights.SemiBold; panel.Children.Add(caption);
         if (level == null) { var unavailable = Text("Value unavailable. Refresh to retry.", 12, "Muted"); unavailable.Margin = new(0, 12, 0, 0); panel.Children.Add(unavailable); return panel; }
         var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10, IsEnabled = !level.IsStale };
         System.Windows.Automation.AutomationProperties.SetName(slider, $"Display {display.Number} {name}");
@@ -222,6 +231,7 @@ public partial class MainWindow : Window
             {
                 await service.SetAsync(display, contrast, (uint)Math.Round(slider.Value));
                 displays = await service.ReadAsync();
+            await RefreshLayoutAsync();
                 if (!closing) { Render(); Status.Text = $"{name} command sent. Display values have been read back."; }
             }
             catch (Exception ex) { Status.Text = $"Could not update {name.ToLowerInvariant()}: {ex.Message} Refresh before trying again."; }

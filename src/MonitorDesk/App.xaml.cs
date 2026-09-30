@@ -23,20 +23,17 @@ public partial class App : Application
             catch (Exception ex) { await File.WriteAllTextAsync(e.Args[1], JsonSerializer.Serialize(new { Error = ex.Message })); Shutdown(1); }
             return;
         }
-        if (e.Args.Length == 2 && e.Args[0] == "--layout-snapshot")
-        {
-            var screens = new DisplayLayout().Read().Screens();
-            var displays = await new DisplayService().ReadAsync();
-            var editor = new LayoutEditor(screens.Select(s => s with { Number = displays.FirstOrDefault(d => d.Device == s.Device)?.Number ?? s.Number }));
-            MainWindow = editor; editor.Show();
-            await editor.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            SaveSnapshot(editor, e.Args[1]); Shutdown(); return;
-        }
-        var window = new MainWindow(); MainWindow = window; window.Show();
-        if (e.Args.Length == 2 && e.Args[0] == "--snapshot")
+        var window = new MainWindow(); MainWindow = window;
+        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot");
+        if (snapshot && e.Args.Length >= 4 && int.TryParse(e.Args[2], out int width) && int.TryParse(e.Args[3], out int height))
+        { window.Width = Math.Clamp(width, 680, 2560); window.Height = Math.Clamp(height, 520, 1600); }
+        window.Show();
+        if (snapshot)
         {
             // Render the actual WPF layout with real read-only display data for local QA.
             await window.InitialRead.Task;
+            if (e.Args.Contains("--light")) window.Toolbar.Children.OfType<System.Windows.Controls.Button>().Last().RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+            await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             SaveSnapshot(window, e.Args[1]);
             Shutdown();
         }
