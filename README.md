@@ -1,5 +1,7 @@
 # MonitorDesk
 
+**English** | [Türkçe](README.tr.md)
+
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
 **Working title · v0.5.0 · Windows only**
@@ -103,7 +105,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 - Localized UI resources and Turkish translation.
 - Final product name and distributable installer.
 
-Project documentation, code comments and GitHub activity use English.
+This README is available in English and [Turkish](README.tr.md). Use the language links at the top of either file to switch. This changes the documentation language; the application UI currently uses English. Keep both README versions in sync when updating documentation. Code comments and GitHub activity use English.
 
 
 ### Intermittent contrast reads (v0.1.2)
