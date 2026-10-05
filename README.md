@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.5.0 · Windows only**
+**Working title · v0.6.0 · Windows only**
 
 ## Features
 
@@ -19,8 +19,23 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 - Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
 - Preview landscape, portrait, landscape (flipped) and portrait (flipped) orientation.
 - Arrange extended displays by dragging numbered tiles, with edge snapping and timed rollback.
+- Apply Night, Normal and High light brightness/contrast profiles across supported monitors.
 
 The main window combines the arrangement editor and compact display cards. Cards adapt to one, two or three columns as the window resizes, and dropdowns follow the selected light or dark theme. A draft arrangement survives refreshes while the underlying Windows layout is unchanged; configuration changes replace it with the current layout.
+
+### Lighting profiles
+
+Choose a button in **Lighting profiles** to immediately apply its preset to all connected monitors:
+
+- **Night:** brightness 25%, contrast 60%.
+- **Normal:** brightness 55%, contrast 70%.
+- **High light:** brightness 90%, contrast 75%.
+
+Values are percentages of each control's supported minimum-to-maximum range. Actual perceived brightness varies between monitors. Night adjusts hardware brightness and contrast; it does not change color temperature or enable Windows Night light. Profiles run only when chosen, with no schedule or automatic application on startup.
+
+The app reads capabilities before applying, skips unavailable or stale controls, and sends supported settings sequentially. One failure does not block the remaining controls. Values already at the target are not written again. Read-back verifies results; **Results by monitor** shows successful changes, skipped controls, errors, unverified values and values that differ from the request. Built-in panels may snap brightness to supported steps. A profile can be partially applied; completed changes are retained. You can choose another profile or use the individual sliders afterward.
+
+v0.6.0 passed 123 automated/read-only checks. Profile batch tests use simulated writes; applying profiles to physical monitors requires user testing.
 
 ## Build and run
 
@@ -100,7 +115,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 ## Roadmap
 
 - Persist confirmed display modes across Windows sessions.
-- Work, gaming and evening profiles.
+- Customizable profiles and scheduled lighting changes.
 - System tray controls and keyboard shortcuts.
 - Localized UI resources and Turkish translation.
 - Final product name and distributable installer.

@@ -194,3 +194,5 @@ catch (ArgumentOutOfRangeException) { Check(true, "Invalid orientation is reject
 Console.WriteLine($"Total including orientation: {count} checks passed. No display settings were changed.");
 await LayoutChecks.Run(Check, args.Contains("--hardware-read"));
 Console.WriteLine($"Total including layout: {count} checks passed. No display settings were changed.");
+await ProfileChecks.Run(Check);
+Console.WriteLine($"Total including profiles: {count} checks passed. No display settings were changed.");

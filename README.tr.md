@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.5.0 · Yalnızca Windows**
+**Geçici proje adı · v0.6.0 · Yalnızca Windows**
 
 ## Özellikler
 
@@ -19,8 +19,23 @@ Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek
 - Desteklenen çözünürlük ve tazeleme hızlarını 15 saniyelik onay süresiyle önizler.
 - Yatay, dikey, ters yatay ve ters dikey yönleri önizler.
 - Genişletilmiş ekranları sürükleyerek konumlandırmayı, kenar hizalamayı ve süre sonunda geri dönmeyi destekler.
+- Gece, normal ve yüksek ışık parlaklık/kontrast profillerini desteklenen tüm monitörlere uygular.
 
 Ana pencere, yerleşim düzenleyicisini ve kompakt ekran kartlarını bir araya getirir. Kartlar pencere genişliğine göre bir, iki veya üç sütuna yerleşir; açılır menüler açık/koyu temaya uyum sağlar. Windows’taki ekran düzeni değişmediyse yerleşim taslağı yenileme sırasında korunur; yapılandırma değişirse güncel düzen yüklenir.
+
+### Işık profilleri
+
+**Lighting profiles** alanındaki bir düğmeye basınca ilgili profil bağlı tüm monitörlere hemen uygulanır:
+
+- **Night (Gece):** parlaklık %25, kontrast %60.
+- **Normal:** parlaklık %55, kontrast %70.
+- **High light (Yüksek ışık):** parlaklık %90, kontrast %75.
+
+Yüzdeler her kontrolün desteklediği minimum ve maksimum aralığına göre hesaplanır. Algılanan parlaklık monitörler arasında değişebilir. Gece profili donanımsal parlaklığı ve kontrastı ayarlar; renk sıcaklığını değiştirmez veya Windows Gece Işığı'nı açmaz. Profiller yalnızca seçildiğinde uygulanır; zamanlama veya uygulama açılışında otomatik uygulama yoktur.
+
+Uygulama önce güncel yetenekleri okur; kullanılamayan veya güncel olmayan kontrolleri atlar ve desteklenen ayarları sırayla gönderir. Bir hata diğer kontrolleri engellemez. Zaten hedef değerde olan kontrollere tekrar yazılmaz. İşlem sonunda değerler yeniden okunur; **Results by monitor** bölümünde başarılı değişiklikler, atlanan kontroller, hatalar, doğrulanamayan ve istenenden farklı okunan değerler gösterilir. Dahili paneller parlaklığı desteklenen seviyeye yuvarlayabilir. Profil kısmen uygulanabilir; tamamlanan değişiklikler korunur. Sonrasında başka profil seçebilir veya ayrı kaydırıcıları kullanabilirsin.
+
+v0.6.0 için 123 otomatik/salt okunur kontrol geçti. Profil toplu uygulama testlerinde yazma işlemleri taklit edildi; fiziksel monitörlerde profil uygulaması kullanıcı tarafından test edilmelidir.
 
 ## Derleme ve çalıştırma
 
@@ -100,7 +115,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 ## Yol haritası
 
 - Onaylanan ekran modlarını Windows oturumları arasında kalıcı olarak saklama.
-- İş, oyun ve akşam profilleri.
+- Özelleştirilebilir profiller ve zamanlanmış ışık değişiklikleri.
 - Sistem tepsisi kontrolleri ve klavye kısayolları.
 - Arayüzün yerelleştirilmesi ve Türkçe çevirisi.
 - Nihai ürün adı ve dağıtılabilir kurulum programı.

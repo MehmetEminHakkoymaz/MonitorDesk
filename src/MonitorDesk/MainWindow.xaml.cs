@@ -15,17 +15,25 @@ public partial class MainWindow : Window
     private bool busy, pending, light, closing;
     private bool changingMode;
     private ModePreview? modePreview;
+    private readonly CancellationTokenSource profileCancellation = new();
     private readonly DispatcherTimer debounce = new() { Interval = TimeSpan.FromMilliseconds(750) };
     private readonly List<Window> labels = [];
     public MainWindow()
     {
         InitializeComponent();
+        foreach (var profile in LightingProfile.Presets)
+        {
+            var button = new Button { Content = $"{profile.Name} · {profile.Brightness}% / {profile.Contrast}%", Margin = new(0, 0, 10, 6), ToolTip = $"Apply {profile.Name.ToLowerInvariant()}: brightness {profile.Brightness}%, contrast {profile.Contrast}% on all supported monitors." };
+            System.Windows.Automation.AutomationProperties.SetName(button, $"Apply {profile.Name} lighting profile to all monitors");
+            button.Click += async (_, _) => await ApplyProfileAsync(profile);
+            ProfileButtons.Children.Add(button);
+        }
         Cards.SizeChanged += (_, _) => SizeCards();
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
         Closing += (_, e) => { if (changingMode) { e.Cancel = true; modePreview?.Revert(); } };
-        Closed += (_, _) => { closing = true; SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
+        Closed += (_, _) => { closing = true; profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
     }
     private void DisplayChanged(object? sender, EventArgs e)
     {
@@ -34,7 +42,7 @@ public partial class MainWindow : Window
     }
     private void SetBusy(bool value)
     {
-        busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value;
+        busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value; ProfileButtons.IsEnabled = !value;
         if (!value && pending && !closing) { pending = false; debounce.Start(); }
     }
     public async Task RefreshAsync()
@@ -55,6 +63,30 @@ public partial class MainWindow : Window
     {
         var text = new TextBlock { Text = value, FontSize = size, TextWrapping = TextWrapping.Wrap };
         text.SetResourceReference(TextBlock.ForegroundProperty, color); return text;
+    }
+    private async Task ApplyProfileAsync(LightingProfile profile)
+    {
+        if (busy) return;
+        SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed;
+        ProfileStatus.Text = Status.Text = $"Reading current controls before applying {profile.Name.ToLowerInvariant()}…";
+        try
+        {
+            var profiles = new LightingProfiles(service.ReadAsync, service.SetAsync);
+            var result = await profiles.ApplyAsync(profile, new Progress<string>(message =>
+            {
+                if (!closing) ProfileStatus.Text = Status.Text = message;
+            }), profileCancellation.Token);
+            if (closing) return;
+            if (result.ReadBack != null) { displays = result.ReadBack; Render(); await RefreshLayoutAsync(); }
+            else { displays = displays.Select(d => d with { Brightness = d.Brightness is { } b ? b with { IsStale = true } : null, Contrast = d.Contrast is { } c ? c with { IsStale = true } : null }).ToList(); Render(); }
+            ProfileStatus.Text = Status.Text = result.Controls.Count == 0 ? "No connected monitors were found." : $"{profile.Name} · {result.Summary}";
+            ProfileReport.Text = string.Join(Environment.NewLine, result.Controls.Select(c => $"Display {c.Display.Number} · {(c.Contrast ? "Contrast" : "Brightness")} · {c.Status}: {c.Detail}"));
+            if (result.ReadError != null) ProfileReport.Text += Environment.NewLine + "Read-back failed: " + result.ReadError;
+            ProfileDetails.Visibility = Visibility.Visible;
+        }
+        catch (OperationCanceledException) { if (!closing) ProfileStatus.Text = "Profile application cancelled; completed changes remain applied."; }
+        catch (Exception ex) { if (!closing) ProfileStatus.Text = Status.Text = "Could not apply profile: " + ex.Message; }
+        finally { SetBusy(false); }
     }
     private void Render()
     {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — Lighting profiles
+
+- Add Night, Normal and High light presets for all supported monitor brightness/contrast controls.
+- Map percentages to hardware ranges and refresh capabilities before applying sequential writes.
+- Skip unsupported, stale and unchanged controls; continue after individual failures.
+- Verify read-back and report partial application, device-limited values and failures per monitor.
+- Pass 123 automated/read-only checks, including simulated profile writes. Physical profile testing is pending.
+
 ## 0.5.0 — Compact workspace UI
 
 - Embed screen arrangement above display settings in the main window.
