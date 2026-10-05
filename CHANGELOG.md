@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — Windows installer
+
+- Add an Inno Setup recipe and PowerShell/CMD build entry points for a single Windows x64 setup EXE.
+- Bundle the .NET Windows Desktop runtime for offline installation without a separate runtime installer.
+- Install per user with desktop/Start menu shortcuts, an uninstall entry and a stable upgrade identity.
+- Run existing checks and a read-only packaged startup check before compiling, and generate a SHA-256 checksum for GitHub Releases.
+- Keep release runtime-pack restore separate from the existing development NuGet configuration.
+- The user successfully compiled the installer with Inno Setup 6.7.3, passing the build script's checks and packaged read-only startup check. The generated SHA-256 checksum was verified; install/upgrade/uninstall testing is pending.
+
 ## 0.7.0 — Refined workspace UI
 
 - Center the workspace with a bounded width for maximized windows and evenly sized display cards.

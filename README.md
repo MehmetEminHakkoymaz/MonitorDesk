@@ -6,6 +6,12 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 
 **Working title · v0.7.0 · Windows only**
 
+## Install
+
+Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download **MonitorDesk-Setup-0.7.0-win-x64.exe** when available and run it. GitHub's source ZIP is not an installer.
+
+The setup installs MonitorDesk for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
+
 ## Features
 
 - Discover active displays, their current resolution, refresh rate and primary status.
@@ -59,6 +65,26 @@ dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/MonitorDesk
 ```
 
 Run `artifacts/MonitorDesk/MonitorDesk.exe`. This is a framework-dependent build: the target PC needs the .NET 10 Windows Desktop Runtime. Administrator rights are not requested.
+
+### Build the setup EXE
+
+The build machine needs the .NET 10 SDK, Inno Setup 6.3+ or 7, and internet access to download Microsoft's runtime packs. Install the compiler once:
+
+```powershell
+winget install --id JRSoftware.InnoSetup -e -s winget -i
+```
+
+Then run **Build-Installer.cmd** from the repository root, or:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
+```
+
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/MonitorDesk-Setup-0.7.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+
+Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
+
+The user successfully built the setup EXE with Inno Setup 6.7.3, including the automated checks and packaged read-only startup check. The generated SHA-256 checksum was verified. Installation, upgrade and uninstall testing are pending.
 
 ## Hardware limitations
 

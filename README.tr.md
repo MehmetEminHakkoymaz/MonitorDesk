@@ -6,6 +6,12 @@ Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek
 
 **Geçici proje adı · v0.7.0 · Yalnızca Windows**
 
+## Kurulum
+
+Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlandığında **MonitorDesk-Setup-0.7.0-win-x64.exe** dosyasını indirip çalıştır. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
+
+Kurulum, MonitorDesk’i Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
+
 ## Özellikler
 
 - Bağlı ekranları, geçerli çözünürlüklerini, tazeleme hızlarını ve birincil ekran durumunu gösterir.
@@ -59,6 +65,26 @@ dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/MonitorDesk
 ```
 
 `artifacts/MonitorDesk/MonitorDesk.exe` dosyasını çalıştır. Bu derleme framework’e bağımlıdır: hedef bilgisayarda .NET 10 Windows Desktop Runtime bulunmalıdır. Yönetici yetkisi istenmez.
+
+### Kurulum EXE’sini oluşturma
+
+Paketi hazırlayan bilgisayarda .NET 10 SDK, Inno Setup 6.3+ veya 7 ve Microsoft çalışma ortamı paketlerini indirmek için internet gerekir. Derleyiciyi bir defa kur:
+
+```powershell
+winget install --id JRSoftware.InnoSetup -e -s winget -i
+```
+
+Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya şu komutu kullan:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
+```
+
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/MonitorDesk-Setup-0.7.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+
+Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
+
+Kullanıcı, otomatik kontroller ve paketlenmiş uygulamanın salt okunur açılış kontrolü dahil kurulum EXE’sini Inno Setup 6.7.3 ile başarıyla oluşturdu. Üretilen SHA-256 doğrulama dosyası kontrol edildi. Kurulum, güncelleme ve kaldırma testleri henüz yapılmadı.
 
 ## Donanım sınırlamaları
 
