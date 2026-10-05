@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.6.0 · Windows only**
+**Working title · v0.7.0 · Windows only**
 
 ## Features
 
@@ -23,6 +23,8 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 
 The main window combines the arrangement editor and compact display cards. Cards adapt to one, two or three columns as the window resizes, and dropdowns follow the selected light or dark theme. A draft arrangement survives refreshes while the underlying Windows layout is unchanged; configuration changes replace it with the current layout.
 
+The workspace stays centered and capped at 1320 pixels when maximized. Lighting profiles sit beside screen arrangement in wider windows and move below it in narrower windows. Three sun icons have increasing fill for Night, Normal and High light; preset values are available in tooltips. Explanatory profile text is hidden until an operation needs a progress/result message. Sliders and scrollbars follow the selected theme.
+
 ### Lighting profiles
 
 Choose a button in **Lighting profiles** to immediately apply its preset to all connected monitors:
@@ -35,7 +37,7 @@ Values are percentages of each control's supported minimum-to-maximum range. Act
 
 The app reads capabilities before applying, skips unavailable or stale controls, and sends supported settings sequentially. One failure does not block the remaining controls. Values already at the target are not written again. Read-back verifies results; **Results by monitor** shows successful changes, skipped controls, errors, unverified values and values that differ from the request. Built-in panels may snap brightness to supported steps. A profile can be partially applied; completed changes are retained. You can choose another profile or use the individual sliders afterward.
 
-v0.6.0 passed 123 automated/read-only checks. Profile batch tests use simulated writes; applying profiles to physical monitors requires user testing.
+v0.7.0 passed 123 automated/read-only checks. Wide, windowed, narrow and light-theme WPF layouts were inspected. Profile batch tests use simulated writes; physical interaction with the updated UI requires user testing.
 
 ## Build and run
 

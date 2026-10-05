@@ -8,7 +8,7 @@ namespace MonitorDesk;
 
 internal sealed class LayoutEditor : UserControl
 {
-    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, Height = 150 };
+    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, Height = 190, ToolTip = "Drag screens to match your desk. Arrow keys to adjust; Shift for precision." };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap, Margin = new(0, 8, 0, 8), FontSize = 12 };
     private readonly Button preview = new() { Content = "Preview layout", Margin = new(12, 0, 0, 0) };
     private readonly List<ScreenPlacement> original;
@@ -33,7 +33,6 @@ internal sealed class LayoutEditor : UserControl
         root.RowDefinitions.Add(new() { Height = GridLength.Auto });
         var heading = new StackPanel { Margin = new(0, 0, 0, 10) };
         heading.Children.Add(new TextBlock { Text = "Arrange your screens", FontSize = 17, FontWeight = FontWeights.SemiBold });
-        heading.Children.Add(new TextBlock { Text = "Drag screens to match your desk · Arrow keys to adjust · Shift for precision", TextWrapping = TextWrapping.Wrap, Margin = new(0, 4, 0, 0), FontSize = 12 });
         root.Children.Add(heading);
         var frame = new Border { Child = surface, BorderThickness = new(1), CornerRadius = new(10) };
         frame.SetResourceReference(Border.BorderBrushProperty, "Line"); frame.SetResourceReference(BackgroundProperty, "Page");

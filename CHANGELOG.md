@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 — Refined workspace UI
+
+- Center the workspace with a bounded width for maximized windows and evenly sized display cards.
+- Place lighting profiles beside screen arrangement, switching to a horizontal row below it in narrow windows.
+- Replace percentage labels and explanatory copy with three vector sun icons with increasing fill and descriptive tooltips.
+- Keep application progress, partial results and per-monitor details available after choosing a profile.
+- Enlarge arrangement tiles, move keyboard guidance to a tooltip and theme sliders and scrollbars.
+- Pass 123 automated/read-only checks and inspect wide, windowed, narrow and light-theme WPF layouts. The user approved this version for commit and push; further maximized-window refinement is requested.
+
 ## 0.6.0 — Lighting profiles
 
 - Add Night, Normal and High light presets for all supported monitor brightness/contrast controls.

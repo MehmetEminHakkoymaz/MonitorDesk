@@ -23,12 +23,18 @@ public partial class MainWindow : Window
         InitializeComponent();
         foreach (var profile in LightingProfile.Presets)
         {
-            var button = new Button { Content = $"{profile.Name} · {profile.Brightness}% / {profile.Contrast}%", Margin = new(0, 0, 10, 6), ToolTip = $"Apply {profile.Name.ToLowerInvariant()}: brightness {profile.Brightness}%, contrast {profile.Contrast}% on all supported monitors." };
+            var content = new StackPanel { Orientation = Orientation.Horizontal };
+            var icon = new LightingIcon(profile.Brightness / 100.0) { Width = 36, Height = 36, Margin = new(0, 0, 12, 0) };
+            icon.SetResourceReference(LightingIcon.InkProperty, "Accent");
+            content.Children.Add(icon);
+            content.Children.Add(new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center, FontSize = 14 });
+            var button = new Button { Content = content, Height = 66, Margin = new(0, 0, 0, 8), ToolTip = $"Apply {profile.Name.ToLowerInvariant()}: brightness {profile.Brightness}%, contrast {profile.Contrast}% on all supported monitors. Unavailable controls are skipped." };
             System.Windows.Automation.AutomationProperties.SetName(button, $"Apply {profile.Name} lighting profile to all monitors");
             button.Click += async (_, _) => await ApplyProfileAsync(profile);
             ProfileButtons.Children.Add(button);
         }
         Cards.SizeChanged += (_, _) => SizeCards();
+        TopSections.SizeChanged += (_, _) => SizeSections();
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
@@ -67,7 +73,7 @@ public partial class MainWindow : Window
     private async Task ApplyProfileAsync(LightingProfile profile)
     {
         if (busy) return;
-        SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed;
+        SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed; ProfileStatus.Visibility = Visibility.Visible;
         ProfileStatus.Text = Status.Text = $"Reading current controls before applying {profile.Name.ToLowerInvariant()}…";
         try
         {
@@ -200,11 +206,22 @@ public partial class MainWindow : Window
         catch (Exception ex) { layoutSnapshot = null; LayoutHost.Content = Text("Layout unavailable: " + ex.Message, 13, "Muted"); }
     }
 
+    private void SizeSections()
+    {
+        bool compact = TopSections.ActualWidth < 1000;
+        TopSections.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(280);
+        Grid.SetColumn(LightingPanel, compact ? 0 : 1);
+        Grid.SetRow(LightingPanel, compact ? 1 : 0);
+        ArrangementPanel.Margin = compact ? new(0, 0, 0, 12) : new(0, 0, 16, 0);
+        ProfileButtons.Columns = compact ? 3 : 1;
+        foreach (var button in ProfileButtons.Children.OfType<Button>())
+            button.Margin = compact ? new(0, 0, 8, 0) : new(0, 0, 0, 8);
+    }
     private void SizeCards()
     {
         double available = Math.Max(320, Cards.ActualWidth);
         int columns = Math.Clamp((int)(available / 360), 1, 3);
-        double width = (columns == 1 ? available : Math.Min(440, available / columns)) - 12;
+        double width = available / columns - 12;
         foreach (var card in Cards.Children.OfType<Border>()) card.Width = width;
     }
     private async Task PreviewChangeAsync(Func<ModePreview> apply, string description)

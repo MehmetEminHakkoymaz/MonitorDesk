@@ -32,8 +32,35 @@
   <Setter Property="Cursor" Value="Hand"/><Setter Property="FontWeight" Value="SemiBold"/>
   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
    <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-   <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger></ControlTemplate.Triggers>
+   <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger></ControlTemplate.Triggers>
   </ControlTemplate></Setter.Value></Setter>
  </Style>
- <Style TargetType="Slider"><Setter Property="Margin" Value="0,12,0,4"/><Setter Property="Minimum" Value="0"/><Setter Property="Maximum" Value="100"/><Setter Property="IsSnapToTickEnabled" Value="True"/><Setter Property="TickFrequency" Value="1"/></Style>
+ <Style x:Key="SliderSegment" TargetType="RepeatButton">
+  <Setter Property="Focusable" Value="False"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}"/></ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style TargetType="Slider">
+  <Setter Property="Background" Value="Transparent"/>
+  <Setter Property="Margin" Value="0,12,0,4"/><Setter Property="Minimum" Value="0"/><Setter Property="Maximum" Value="100"/><Setter Property="IsSnapToTickEnabled" Value="True"/><Setter Property="TickFrequency" Value="1"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Slider">
+   <Grid Height="24" Background="{TemplateBinding Background}">
+    <Track x:Name="PART_Track" VerticalAlignment="Center">
+     <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource SliderSegment}" Background="{DynamicResource Accent}"/></Track.DecreaseRepeatButton>
+     <Track.Thumb><Thumb Width="14" Height="14"><Thumb.Template><ControlTemplate TargetType="Thumb"><Ellipse x:Name="Knob" Fill="{DynamicResource Ink}" Stroke="{DynamicResource Accent}" StrokeThickness="2"/><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Knob" Property="Fill" Value="{DynamicResource Accent}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+     <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource SliderSegment}" Background="{DynamicResource Line}"/></Track.IncreaseRepeatButton>
+    </Track>
+   </Grid>
+   <ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="Background" Value="{DynamicResource Line}"/></Trigger></ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style TargetType="ScrollBar">
+  <Setter Property="Width" Value="10"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar">
+   <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="{TemplateBinding Orientation}">
+    <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageUpCommand}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
+    <Track.Thumb><Thumb MinHeight="28" Margin="2,0"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border x:Name="Handle" Background="{DynamicResource Line}" CornerRadius="3"/><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Handle" Property="Background" Value="{DynamicResource Muted}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+    <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static ScrollBar.PageDownCommand}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+   </Track>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
 </Application.Resources></Application>

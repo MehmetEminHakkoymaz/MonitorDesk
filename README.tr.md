@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.6.0 · Yalnızca Windows**
+**Geçici proje adı · v0.7.0 · Yalnızca Windows**
 
 ## Özellikler
 
@@ -23,6 +23,8 @@ Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek
 
 Ana pencere, yerleşim düzenleyicisini ve kompakt ekran kartlarını bir araya getirir. Kartlar pencere genişliğine göre bir, iki veya üç sütuna yerleşir; açılır menüler açık/koyu temaya uyum sağlar. Windows’taki ekran düzeni değişmediyse yerleşim taslağı yenileme sırasında korunur; yapılandırma değişirse güncel düzen yüklenir.
 
+Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pikselle sınırlanır. Işık profilleri geniş pencerede ekran yerleşiminin yanında, dar pencerede altında görünür. Gece, normal ve yüksek ışık için doluluğu artan üç güneş simgesi kullanılır; profil değerleri araç ipuçlarında bulunur. Profil alanında yalnızca işlem sırasında ilerleme ve sonuç mesajları gösterilir. Kaydırıcılar ve kaydırma çubukları seçilen temaya uyum sağlar.
+
 ### Işık profilleri
 
 **Lighting profiles** alanındaki bir düğmeye basınca ilgili profil bağlı tüm monitörlere hemen uygulanır:
@@ -35,7 +37,7 @@ Yüzdeler her kontrolün desteklediği minimum ve maksimum aralığına göre he
 
 Uygulama önce güncel yetenekleri okur; kullanılamayan veya güncel olmayan kontrolleri atlar ve desteklenen ayarları sırayla gönderir. Bir hata diğer kontrolleri engellemez. Zaten hedef değerde olan kontrollere tekrar yazılmaz. İşlem sonunda değerler yeniden okunur; **Results by monitor** bölümünde başarılı değişiklikler, atlanan kontroller, hatalar, doğrulanamayan ve istenenden farklı okunan değerler gösterilir. Dahili paneller parlaklığı desteklenen seviyeye yuvarlayabilir. Profil kısmen uygulanabilir; tamamlanan değişiklikler korunur. Sonrasında başka profil seçebilir veya ayrı kaydırıcıları kullanabilirsin.
 
-v0.6.0 için 123 otomatik/salt okunur kontrol geçti. Profil toplu uygulama testlerinde yazma işlemleri taklit edildi; fiziksel monitörlerde profil uygulaması kullanıcı tarafından test edilmelidir.
+v0.7.0 için 123 otomatik/salt okunur kontrol geçti. Geniş, normal ve dar pencere ile açık tema WPF görünümleri incelendi. Profil toplu uygulama testlerinde yazma işlemleri taklit edildi; güncellenen arayüzün fiziksel monitörlerde kullanımı kullanıcı tarafından test edilmelidir.
 
 ## Derleme ve çalıştırma
 
