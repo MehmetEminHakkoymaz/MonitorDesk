@@ -23,6 +23,10 @@ public partial class MainWindow : Window
     internal bool HideOnClose { get; set; }
     private bool exitRequested;
     private bool hideAfterPreview;
+    internal event EventHandler? QuickStateChanged;
+    internal IReadOnlyList<Display> QuickDisplays => displays;
+    internal bool IsBusy => busy;
+    internal bool EyeComfortEnabled => warmEnabled;
     internal void ExitApplication()
     {
         exitRequested = true;
@@ -63,6 +67,7 @@ public partial class MainWindow : Window
     private void SetBusy(bool value)
     {
         busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value; ProfileButtons.IsEnabled = !value;
+        QuickStateChanged?.Invoke(this, EventArgs.Empty);
         if (!value && pending && !closing) { pending = false; debounce.Start(); }
     }
     public async Task RefreshAsync()
@@ -84,7 +89,7 @@ public partial class MainWindow : Window
         var text = new TextBlock { Text = value, FontSize = size, TextWrapping = TextWrapping.Wrap };
         text.SetResourceReference(TextBlock.ForegroundProperty, color); return text;
     }
-    private async Task ApplyProfileAsync(LightingProfile profile)
+    internal async Task ApplyProfileAsync(LightingProfile profile)
     {
         if (busy) return;
         SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed; ProfileStatus.Visibility = Visibility.Visible;
@@ -278,7 +283,7 @@ public partial class MainWindow : Window
         Status.Text = result;
     }
 
-    private StackPanel Control(Display display, bool contrast)
+    internal StackPanel Control(Display display, bool contrast, bool compact = false)
     {
         string name = contrast ? "Contrast" : "Brightness";
         Level? level = contrast ? display.Contrast : display.Brightness;
@@ -303,12 +308,25 @@ public partial class MainWindow : Window
             catch (Exception ex) { Status.Text = $"Could not update {name.ToLowerInvariant()}: {ex.Message} Refresh before trying again."; }
             finally { SetBusy(false); }
         };
-        panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply);
+        if (compact)
+        {
+            panel.Children.Clear();
+            var row = new Grid();
+            row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+            row.RowDefinitions.Add(new() { Height = GridLength.Auto }); row.RowDefinitions.Add(new() { Height = GridLength.Auto });
+            row.Children.Add(caption); Grid.SetColumn(value, 1); row.Children.Add(value);
+            slider.Margin = new(0, 6, 10, 2); Grid.SetRow(slider, 1); row.Children.Add(slider);
+            apply.Content = "Apply"; apply.Padding = new(8, 4, 8, 4); apply.Margin = new(0, 6, 0, 0);
+            Grid.SetColumn(apply, 1); Grid.SetRow(apply, 1); row.Children.Add(apply); panel.Children.Add(row);
+        }
+        else { panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply); }
         if (level.IsStale) panel.Children.Add(Text("Monitor did not respond. Refresh to reconnect.", 12, "Muted"));
         return panel;
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
     private void Warm_Click(object sender, RoutedEventArgs e)
+        => ToggleEyeComfort();
+    internal void ToggleEyeComfort()
     {
         warmEnabled = !warmEnabled;
         UpdateWarmFilter();
@@ -330,6 +348,7 @@ public partial class MainWindow : Window
             warmEnabled = false; warmFilter.Dispose(); WarmButton.Content = "Eye comfort · Off";
             Status.Text = "Could not apply warm filter: " + ex.Message;
         }
+        QuickStateChanged?.Invoke(this, EventArgs.Empty);
     }
     private void Theme_Click(object sender, RoutedEventArgs e)
     {

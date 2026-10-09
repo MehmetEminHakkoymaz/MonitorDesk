@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.9.0 (development) · Windows only**
+**Working title · v0.10.0 (development) · Windows only**
 
 ## Install
 
@@ -34,6 +34,8 @@ The main window combines the arrangement editor and compact display cards. Cards
 The workspace stays centered and capped at 1320 pixels when maximized. Lighting profiles sit beside screen arrangement in wider windows and move below it in narrower windows. Three sun icons have increasing fill for Night, Normal and High light; preset values are available in tooltips. Explanatory profile text is hidden until an operation needs a progress/result message. Sliders and scrollbars follow the selected theme.
 
 ### System tray
+
+Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with brightness and contrast sliders and explicit **Apply** buttons. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel scrolls when needed and opens above the taskbar on the clicked screen; double-click still opens the full window.
 
 Closing the main window hides MonitorDesk in the Windows notification area. Double-click its icon, or right-click and choose **Aç** (Open), to restore the window. Choose **Çıkış** (Exit) to stop the app and remove the warm filter. The filter and display-change handling remain active while the window is hidden. Minimize still minimizes normally; closing an unconfirmed display preview restores it before hiding or exiting. Windows sign-out/shutdown ends the app normally. If tray initialization fails, closing exits so the app is not left running without an accessible icon.
 

@@ -30,7 +30,7 @@ public partial class App : Application
             return;
         }
         var window = new MainWindow(); MainWindow = window;
-        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot");
+        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot" || e.Args[0] == "--tray-snapshot");
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         if (!snapshot)
         {
@@ -48,9 +48,13 @@ public partial class App : Application
                 if (tray == null) throw new InvalidOperationException("Tray initialization failed.");
                 window.Close();
                 if (window.IsVisible) throw new InvalidOperationException("Close did not hide the window.");
+                tray.TogglePanel();
+                if (!tray.IsPanelVisible) throw new InvalidOperationException("Quick panel did not open.");
+                tray.TogglePanel();
+                if (tray.IsPanelVisible) throw new InvalidOperationException("Quick panel did not hide.");
                 tray.ShowWindow();
                 if (!window.IsVisible) throw new InvalidOperationException("Tray did not restore the window.");
-                await File.WriteAllTextAsync(e.Args[1], "PASS close hides the window; tray restores it; explicit exit requested.");
+                await File.WriteAllTextAsync(e.Args[1], "PASS close hides the window; quick panel opens and hides; tray restores the main window; explicit exit requested.");
                 window.ExitApplication();
             }
             catch (Exception ex) { await File.WriteAllTextAsync(e.Args[1], "FAIL " + ex.Message); Shutdown(1); }
@@ -62,7 +66,14 @@ public partial class App : Application
             await window.InitialRead.Task;
             if (e.Args.Contains("--light")) window.Toolbar.Children.OfType<System.Windows.Controls.Button>().Last().RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            SaveSnapshot(window, e.Args[1]);
+            if (e.Args[0] == "--tray-snapshot")
+            {
+                window.Hide();
+                var quick = new TrayPanel(window); quick.Show();
+                await quick.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                SaveSnapshot(quick, e.Args[1]); quick.Close();
+            }
+            else SaveSnapshot(window, e.Args[1]);
             Shutdown();
         }
     }

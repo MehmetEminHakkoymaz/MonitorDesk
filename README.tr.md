@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.9.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.10.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -32,6 +32,8 @@ Ana pencere, yerleşim düzenleyicisini ve kompakt ekran kartlarını bir araya 
 Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pikselle sınırlanır. Işık profilleri geniş pencerede ekran yerleşiminin yanında, dar pencerede altında görünür. Gece, normal ve yüksek ışık için doluluğu artan üç güneş simgesi kullanılır; profil değerleri araç ipuçlarında bulunur. Profil alanında yalnızca işlem sırasında ilerleme ve sonuç mesajları gösterilir. Kaydırıcılar ve kaydırma çubukları seçilen temaya uyum sağlar.
 
 ### Sistem tepsisi
+
+Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde parlaklık/kontrast kaydırıcıları ve ayrı **Apply** düğmeleri bulunur. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Gerektiğinde kaydırılabilir ve tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder.
 
 Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
 

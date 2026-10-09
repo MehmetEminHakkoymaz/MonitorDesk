@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0 — Tray quick controls (unreleased)
+
+- Add a single-left-click tray panel with vertically stacked monitor brightness/contrast controls and explicit apply actions.
+- Place three lighting presets below monitors and an eye-shaped on/off warm-filter toggle below the presets.
+- Share the main window's service, busy state, read-back and filter state; retain double-click/full-window restore and right-click exit.
+- Hide the panel on outside clicks or Escape, cap its height to the monitor work area and position in native pixels for mixed-DPI desktops.
+- Pass the existing 121 checks and desktop panel rendering/open/hide/restore/exit checks. The user approved this version for commit and push; physical slider/profile actions and mixed-DPI behavior have not been confirmed separately.
+
 ## 0.9.0 — System tray (unreleased)
 
 - Hide the main window on close while keeping the app and warm filter running in the notification area.
