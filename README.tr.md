@@ -4,11 +4,11 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.10.2 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.11.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
-Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlandığında **MonitorDesk-Setup-0.7.0-win-x64.exe** dosyasını indirip çalıştır. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
+Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **MonitorDesk-Setup-0.11.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
 
 Kurulum, MonitorDesk’i Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
@@ -33,7 +33,7 @@ Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pi
 
 ### Sistem tepsisi
 
-İkinci kez açma uyarısı Windows arayüz dilini kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce gösterilir. Bu dil seçimi yalnızca uyarıya uygulanır; tüm uygulama arayüzünü çevirmemektedir.
+Uygulama açılışta Windows **görüntüleme dilini** kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce açılır. Ana pencere, tepsi paneli ve menüsü, ışık profilleri, araç ipuçları, ekran önizleme pencereleri ve uygulamanın durum mesajları aynı dili kullanır. Monitör adları ve Windows/üreticiden gelen harici hata ayrıntıları aynen korunur. Windows görüntüleme dilini değiştirdikten sonra MonitorDesk’i yeniden başlat; yalnızca bölgesel tarih/sayı biçimini değiştirmek arayüz dilini değiştirmez.
 
 Her Windows kullanıcısı/oturumunda tek normal MonitorDesk örneği çalışır. Uygulama açıkken veya tepside gizliyken yeniden çalıştırmak, zaten açık olduğunu bildiren uyarıyı gösterir ve ikinci kopyayı kapatır. Gerçek çıkış kilidi bırakır; süreç sonlandırıldığında kalıcı kilit kalmaz. Tanılama, görüntü alma ve yaşam döngüsü kontrolleri bu başlangıç kilidinden bağımsızdır. Özelliği denemeden önce eski sürümü tepsiden Çıkış ile kapat; v0.10.2 öncesi sürümler bu kilidi kullanmaz.
 
@@ -98,11 +98,11 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/MonitorDesk-Setup-0.7.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/MonitorDesk-Setup-0.11.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 
-Kullanıcı, otomatik kontroller ve paketlenmiş uygulamanın salt okunur açılış kontrolü dahil kurulum EXE’sini Inno Setup 6.7.3 ile başarıyla oluşturdu. Üretilen SHA-256 doğrulama dosyası kontrol edildi. Kurulum, güncelleme ve kaldırma testleri henüz yapılmadı.
+v0.11.0 kurulum EXE’si, 143 otomatik kontrol ve paketlenmiş uygulamanın salt okunur açılış kontrolü geçtikten sonra Inno Setup 6.7.3 ile oluşturuldu. Üretilen SHA-256 doğrulama dosyası kontrol edildi. Kurulum, güncelleme ve kaldırma testleri henüz yapılmadı; kaynak kodu push etmek yerel EXE’yi GitHub’a yüklemez.
 
 ## Donanım sınırlamaları
 
@@ -163,10 +163,10 @@ MonitorDesk.exe --snapshot C:\path\window.png
 - Onaylanan ekran modlarını Windows oturumları arasında kalıcı olarak saklama.
 - Özelleştirilebilir profiller ve zamanlanmış ışık değişiklikleri.
 - Sistem tepsisi kontrolleri ve klavye kısayolları.
-- Arayüzün yerelleştirilmesi ve Türkçe çevirisi.
+- Ek arayüz dilleri ve isteğe bağlı manuel dil seçimi.
 - Nihai ürün adı ve dağıtılabilir kurulum programı.
 
-Bu README [İngilizce](README.md) ve Türkçe olarak sunulur. Dil değiştirmek için her iki dosyanın başındaki bağlantıları kullanabilirsin. Bu bağlantılar dokümantasyonun dilini değiştirir; uygulama arayüzü şu anda İngilizcedir. Doküman güncellenirken iki README sürümü de eş zamanlı güncellenmelidir. Kod yorumları ve GitHub etkinlikleri İngilizcedir.
+Bu README [İngilizce](README.md) ve Türkçe olarak sunulur. Dil değiştirmek için her iki dosyanın başındaki bağlantıları kullanabilirsin. Bu bağlantılar dokümantasyonun dilini değiştirir; uygulama arayüzü bağımsız olarak Windows görüntüleme dilini kullanır (Türkçe veya İngilizce). Doküman güncellenirken iki README sürümü de eş zamanlı güncellenmelidir. Kod yorumları ve GitHub etkinlikleri İngilizcedir.
 
 ### Aralıklı kontrast okuma hataları (v0.1.2)
 

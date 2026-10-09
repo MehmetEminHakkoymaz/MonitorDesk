@@ -21,14 +21,14 @@ internal sealed class TrayPanel : Window
     internal TrayPanel(MainWindow main)
     {
         this.main = main;
-        Title = "MonitorDesk quick controls"; Width = 320; MaxHeight = 560;
+        Title = L.Get("MonitorDesk quick controls"); Width = 320; MaxHeight = 560;
         SizeToContent = SizeToContent.Height; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false; Topmost = true; FontFamily = new("Segoe UI"); FontSize = 12;
         SetResourceReference(BackgroundProperty, "Page");
         var body = new StackPanel();
         var header = new Grid { Margin = new(0, 0, 0, 10) };
         header.Children.Add(new TextBlock { Text = "MonitorDesk", FontSize = 15, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
-        var refresh = new Button { Content = "↻", Padding = new(7, 3, 7, 3), ToolTip = "Refresh displays", HorizontalAlignment = HorizontalAlignment.Right };
+        var refresh = new Button { Content = "↻", Padding = new(7, 3, 7, 3), ToolTip = L.Get("Refresh displays"), HorizontalAlignment = HorizontalAlignment.Right };
         refresh.Click += async (_, _) => await main.RefreshAsync();
         header.Children.Add(refresh); body.Children.Add(header); body.Children.Add(monitors);
         foreach (var profile in LightingProfile.Presets)
@@ -37,15 +37,15 @@ internal sealed class TrayPanel : Window
             icon.SetResourceReference(LightingIcon.InkProperty, "Accent");
             var label = new StackPanel { Orientation = Orientation.Horizontal };
             label.Children.Add(new Viewbox { Width = 20, Height = 20, Child = icon, Margin = new(0, 0, 4, 0) });
-            label.Children.Add(new TextBlock { Text = profile.Name, FontSize = 11, VerticalAlignment = VerticalAlignment.Center });
-            var button = new Button { Content = label, Height = 34, Padding = new(4, 3, 4, 3), Margin = new(0, 0, 4, 0), ToolTip = $"{profile.Name}: brightness {profile.Brightness}%, contrast {profile.Contrast}%" };
+            label.Children.Add(new TextBlock { Text = L.Get(profile.Name), FontSize = 11, VerticalAlignment = VerticalAlignment.Center });
+            var button = new Button { Content = label, Height = 34, Padding = new(4, 3, 4, 3), Margin = new(0, 0, 4, 0), ToolTip = L.Format("{0}: brightness {1}%, contrast {2}%", L.Get(profile.Name), profile.Brightness, profile.Contrast) };
             button.Click += async (_, _) => await main.ApplyProfileAsync(profile); profiles.Children.Add(button);
         }
         body.Children.Add(profiles);
         var eyeContent = new StackPanel { Orientation = Orientation.Horizontal };
         eyeShape.Margin = new(0);
         eyeContent.Children.Add(new Viewbox { Width = 22, Height = 18, Child = eyeShape, Margin = new(0, 0, 8, 0) }); eyeContent.Children.Add(eyeState); eye.Content = eyeContent;
-        eye.ToolTip = "Toggle warm eye comfort filter";
+        eye.ToolTip = L.Get("Toggle warm eye comfort filter");
         eye.Click += (_, _) => main.ToggleEyeComfort(); body.Children.Add(eye);
         var status = new TextBlock { TextTrimming = TextTrimming.CharacterEllipsis, FontSize = 10, Margin = new(0, 8, 0, 0) };
         status.SetResourceReference(TextBlock.ForegroundProperty, "Muted");
@@ -67,16 +67,16 @@ internal sealed class TrayPanel : Window
         foreach (var display in main.QuickDisplays)
         {
             var controls = new StackPanel { IsEnabled = !main.IsBusy };
-            controls.Children.Add(new TextBlock { Text = $"Display {display.Number} · {display.Name}", FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = display.Name, Margin = new(0, 0, 0, 6) });
+            controls.Children.Add(new TextBlock { Text = L.Format("Display {0} · {1}", display.Number, display.Name), FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = display.Name, Margin = new(0, 0, 0, 6) });
             controls.Children.Add(main.Control(display, false, true));
             var contrast = main.Control(display, true, true); contrast.Margin = new(0, 4, 0, 0); controls.Children.Add(contrast);
             var card = new Border { Child = controls, Padding = new(8), CornerRadius = new(8), Margin = new(0, 0, 0, 6) };
             card.SetResourceReference(Border.BackgroundProperty, "Card"); monitors.Children.Add(card);
         }
-        if (main.QuickDisplays.Count == 0) monitors.Children.Add(new TextBlock { Text = "No displays available. Refresh to retry.", TextWrapping = TextWrapping.Wrap });
+        if (main.QuickDisplays.Count == 0) monitors.Children.Add(new TextBlock { Text = L.Get("No displays available. Refresh to retry."), TextWrapping = TextWrapping.Wrap });
         profiles.IsEnabled = !main.IsBusy;
-        eyeState.Text = $"Eye comfort · {(main.EyeComfortEnabled ? "On" : "Off")} · {main.EyeComfortStrength} / 90";
-        eye.ToolTip = $"Warm filter {(main.EyeComfortEnabled ? "enabled" : "disabled")}. Selected strength: {main.EyeComfortStrength} / 90. Click to toggle.";
+        eyeState.Text = L.Format("Eye comfort · {0} · {1} / 90", L.Get(main.EyeComfortEnabled ? "On" : "Off"), main.EyeComfortStrength);
+        eye.ToolTip = L.Format("Warm filter {0}. Selected strength: {1} / 90. Click to toggle.", L.Get(main.EyeComfortEnabled ? "enabled" : "disabled"), main.EyeComfortStrength);
         eyeShape.SetResourceReference(System.Windows.Shapes.Path.StrokeProperty, main.EyeComfortEnabled ? "Accent" : "Muted");
         eye.SetResourceReference(Button.BorderBrushProperty, main.EyeComfortEnabled ? "Accent" : "Line");
     }

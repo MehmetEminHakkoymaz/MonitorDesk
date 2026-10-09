@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 — Automatic interface language (unreleased)
+
+- Select Turkish for Turkish Windows display languages and English for other languages at startup.
+- Share a translation catalogue across XAML, monitor settings, screen arrangement, lighting profiles, Eye comfort, tray controls/menu, preview confirmations, tooltips and app-generated status/error messages.
+- Capture the language once so WPF callbacks and asynchronous display reads keep the same interface language; regional number/date formats remain independent.
+- Keep service status identifiers, monitor names and native error codes intact; preserve unrecognized external error details.
+- Update both READMEs and add culture-selection, fallback, formatting, callback and service-message regression checks.
+- Pass 143 automated checks without hardware writes; inspect Turkish and English main-window snapshots plus Turkish compact-window and tray layouts.
+- Build the self-contained v0.11.0 Windows x64 setup EXE with Inno Setup 6.7.3; pass its packaged read-only startup check and verify the generated SHA-256 checksum. Installation/upgrade/uninstall testing and GitHub Release upload remain separate steps.
+
 ## 0.10.2 — Duplicate launch protection (unreleased)
 
 - Hold a per-user/session named mutex throughout the app lifetime, including tray hiding, and warn on duplicate normal launches before creating another window or filter.

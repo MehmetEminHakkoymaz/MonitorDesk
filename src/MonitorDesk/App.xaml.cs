@@ -28,16 +28,18 @@ public partial class App : Application
             return;
         }
         bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--tray-check";
+        // Let read-only UI diagnostics render both languages without changing Windows settings.
+        if (diagnostic && e.Args.FirstOrDefault(a => a.StartsWith("--ui-culture=", StringComparison.Ordinal)) is { } culture)
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture["--ui-culture=".Length..]);
+        // Capture once: WPF callbacks can run with a different thread UI culture.
+        L.UseCulture(CultureInfo.CurrentUICulture);
         if (!diagnostic)
         {
             instance = new SingleInstance();
             if (!instance.Acquired)
             {
-                bool turkish = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "tr";
-                string title = turkish ? "MonitorDesk zaten açık" : "MonitorDesk is already running";
-                string message = turkish
-                    ? "MonitorDesk zaten açık ve sistem tepsisinde çalışıyor.\n\nSistem tepsisindeki MonitorDesk simgesinden paneli açabilir veya simgeye çift tıklayarak ana pencereye dönebilirsin."
-                    : "MonitorDesk is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.";
+                string title = L.Get("MonitorDesk is already running");
+                string message = L.Get("MonitorDesk is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.");
                 MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
                 Shutdown();
                 return;
@@ -112,4 +114,3 @@ public partial class App : Application
         using var stream = File.Create(path); encoder.Save(stream);
     }
 }
-

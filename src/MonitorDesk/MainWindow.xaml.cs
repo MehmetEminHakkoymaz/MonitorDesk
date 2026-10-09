@@ -42,9 +42,9 @@ public partial class MainWindow : Window
             var icon = new LightingIcon(profile.Brightness / 100.0) { Width = 36, Height = 36, Margin = new(0, 0, 12, 0) };
             icon.SetResourceReference(LightingIcon.InkProperty, "Accent");
             content.Children.Add(icon);
-            content.Children.Add(new TextBlock { Text = profile.Name, VerticalAlignment = VerticalAlignment.Center, FontSize = 14 });
-            var button = new Button { Content = content, Height = 66, Margin = new(0, 0, 0, 8), ToolTip = $"Apply {profile.Name.ToLowerInvariant()}: brightness {profile.Brightness}%, contrast {profile.Contrast}% on all supported monitors. Unavailable controls are skipped." };
-            System.Windows.Automation.AutomationProperties.SetName(button, $"Apply {profile.Name} lighting profile to all monitors");
+            content.Children.Add(new TextBlock { Text = L.Get(profile.Name), VerticalAlignment = VerticalAlignment.Center, FontSize = 14 });
+            var button = new Button { Content = content, Height = 66, Margin = new(0, 0, 0, 8), ToolTip = L.Format("Apply {0}: brightness {1}%, contrast {2}% on all supported monitors. Unavailable controls are skipped.", L.Get(profile.Name), profile.Brightness, profile.Contrast) };
+            System.Windows.Automation.AutomationProperties.SetName(button, L.Format("Apply {0} lighting profile to all monitors", L.Get(profile.Name)));
             button.Click += async (_, _) => await ApplyProfileAsync(profile);
             ProfileButtons.Children.Add(button);
         }
@@ -74,15 +74,15 @@ public partial class MainWindow : Window
     public async Task RefreshAsync()
     {
         if (busy) { pending = true; return; }
-        SetBusy(true); Status.Text = "Reading displays and supported hardware controls…";
+        SetBusy(true); Status.Text = L.Get("Reading displays and supported hardware controls…");
         try
         {
             displays = await service.ReadAsync();
             await RefreshLayoutAsync();
             if (closing) return;
-            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? "Some controls did not respond. Last-known values are marked and disabled; refresh to retry." : "Ready · Changes apply only when you choose Apply or Preview.";
+            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.") : L.Get("Ready · Changes apply only when you choose Apply or Preview.");
         }
-        catch (Exception ex) { Summary.Text = displays.Count == 0 ? "Display discovery failed" : "Showing previous display information"; Status.Text = "Could not refresh displays: " + ex.Message; }
+        catch (Exception ex) { Summary.Text = displays.Count == 0 ? L.Get("Display discovery failed") : L.Get("Showing previous display information"); Status.Text = L.Get("Could not refresh displays: ") + L.Message(ex.Message); }
         finally { SetBusy(false); }
     }
     private static TextBlock Text(string value, double size = 14, string color = "Ink")
@@ -94,45 +94,45 @@ public partial class MainWindow : Window
     {
         if (busy) return;
         SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed; ProfileStatus.Visibility = Visibility.Visible;
-        ProfileStatus.Text = Status.Text = $"Reading current controls before applying {profile.Name.ToLowerInvariant()}…";
+        ProfileStatus.Text = Status.Text = L.Format("Reading current controls before applying {0}…", L.Get(profile.Name));
         try
         {
             var profiles = new LightingProfiles(service.ReadAsync, service.SetAsync);
             var result = await profiles.ApplyAsync(profile, new Progress<string>(message =>
             {
-                if (!closing) ProfileStatus.Text = Status.Text = message;
+                if (!closing) ProfileStatus.Text = Status.Text = L.Message(message);
             }), profileCancellation.Token);
             if (closing) return;
             if (result.ReadBack != null) { displays = result.ReadBack; Render(); await RefreshLayoutAsync(); }
             else { displays = displays.Select(d => d with { Brightness = d.Brightness is { } b ? b with { IsStale = true } : null, Contrast = d.Contrast is { } c ? c with { IsStale = true } : null }).ToList(); Render(); }
-            ProfileStatus.Text = Status.Text = result.Controls.Count == 0 ? "No connected monitors were found." : $"{profile.Name} · {result.Summary}";
-            ProfileReport.Text = string.Join(Environment.NewLine, result.Controls.Select(c => $"Display {c.Display.Number} · {(c.Contrast ? "Contrast" : "Brightness")} · {c.Status}: {c.Detail}"));
-            if (result.ReadError != null) ProfileReport.Text += Environment.NewLine + "Read-back failed: " + result.ReadError;
+            ProfileStatus.Text = Status.Text = result.Controls.Count == 0 ? L.Get("No connected monitors were found.") : $"{L.Get(profile.Name)} · {L.ProfileSummary(result)}";
+            ProfileReport.Text = string.Join(Environment.NewLine, result.Controls.Select(c => $"{L.Format("Display {0} · {1}", c.Display.Number, c.Contrast ? L.Get("Contrast") : L.Get("Brightness"))} · {L.Get(c.Status)}: {L.Message(c.Detail)}"));
+            if (result.ReadError != null) ProfileReport.Text += Environment.NewLine + L.Get("Read-back failed: ") + L.Message(result.ReadError);
             ProfileDetails.Visibility = Visibility.Visible;
         }
-        catch (OperationCanceledException) { if (!closing) ProfileStatus.Text = "Profile application cancelled; completed changes remain applied."; }
-        catch (Exception ex) { if (!closing) ProfileStatus.Text = Status.Text = "Could not apply profile: " + ex.Message; }
+        catch (OperationCanceledException) { if (!closing) ProfileStatus.Text = L.Get("Profile application cancelled; completed changes remain applied."); }
+        catch (Exception ex) { if (!closing) ProfileStatus.Text = Status.Text = L.Get("Could not apply profile: ") + L.Message(ex.Message); }
         finally { SetBusy(false); }
     }
     private void Render()
     {
         if (warmEnabled) UpdateWarmFilter();
         Cards.Children.Clear();
-        Summary.Text = $"{displays.Count} connected display{(displays.Count == 1 ? "" : "s")}";
-        if (displays.Count == 0) Cards.Children.Add(Text("No active displays were found. Connect a screen and refresh.", 16, "Muted"));
+        Summary.Text = L.Turkish ? $"{displays.Count} bağlı ekran" : $"{displays.Count} connected display{(displays.Count == 1 ? "" : "s")}";
+        if (displays.Count == 0) Cards.Children.Add(Text(L.Get("No active displays were found. Connect a screen and refresh."), 16, "Muted"));
         foreach (var display in displays)
         {
             var content = new StackPanel();
-            content.Children.Add(Text($"DISPLAY {display.Number:00}  {(display.Primary ? "· PRIMARY" : "· EXTENDED")}", 11, "Accent"));
+            content.Children.Add(Text(L.Format("DISPLAY {0:00}  {1}", display.Number, display.Primary ? L.Get("· PRIMARY") : L.Get("· EXTENDED")), 11, "Accent"));
             var title = Text(display.Name, 17); title.Margin = new(0, 6, 0, 6); title.FontWeight = FontWeights.SemiBold; content.Children.Add(title);
-            content.Children.Add(Text($"{display.Width} × {display.Height}   /   {(display.Hertz > 1 ? $"{display.Hertz} Hz" : "Refresh rate unavailable")}", 14, "Muted"));
+            content.Children.Add(Text($"{display.Width} × {display.Height}   /   {(display.Hertz > 1 ? $"{display.Hertz} Hz" : L.Get("Refresh rate unavailable"))}", 14, "Muted"));
             content.Children.Add(ModeControl(display));
             var controls = new Grid { Margin = new(0, 14, 0, 12) };
             controls.ColumnDefinitions.Add(new()); controls.ColumnDefinitions.Add(new());
             var brightness = Control(display, false); brightness.Margin = new(0, 0, 14, 0);
             var contrast = Control(display, true); Grid.SetColumn(contrast, 1);
             controls.Children.Add(brightness); controls.Children.Add(contrast); content.Children.Add(controls);
-            content.Children.Add(Text(display.Note, 12, "Muted"));
+            content.Children.Add(Text(L.Message(display.Note), 12, "Muted"));
             var card = new Border { Child = content, Padding = new(16), CornerRadius = new(14), BorderThickness = new(1), Margin = new(0, 0, 12, 12) };
             card.SetResourceReference(Border.BackgroundProperty, "Card"); card.SetResourceReference(Border.BorderBrushProperty, "Line"); Cards.Children.Add(card);
             SizeCards();
@@ -141,17 +141,17 @@ public partial class MainWindow : Window
     private StackPanel ModeControl(Display display)
     {
         var panel = new StackPanel { Margin = new(0, 14, 0, 0) };
-        panel.Children.Add(Text("Display mode", 13));
+        panel.Children.Add(Text(L.Get("Display mode"), 13));
         List<DisplayMode> modes;
         try { modes = DisplayModes.Read(display.Device); }
-        catch (Exception ex) { panel.Children.Add(Text(ex.Message, 12, "Muted")); return panel; }
-        if (modes.Count == 0) { panel.Children.Add(Text("No compatible display modes available.", 12, "Muted")); return panel; }
+        catch (Exception ex) { panel.Children.Add(Text(L.Message(ex.Message), 12, "Muted")); return panel; }
+        if (modes.Count == 0) { panel.Children.Add(Text(L.Get("No compatible display modes available."), 12, "Muted")); return panel; }
         var row = new WrapPanel { Margin = new(0, 6, 0, 6) };
         var resolution = new ComboBox { MinWidth = 132, Margin = new(0, 0, 12, 8) };
         var rate = new ComboBox { MinWidth = 90, Margin = new(0, 0, 12, 8) };
-        System.Windows.Automation.AutomationProperties.SetName(resolution, $"Display {display.Number} resolution");
-        System.Windows.Automation.AutomationProperties.SetName(rate, $"Display {display.Number} refresh rate");
-        var apply = new Button { Content = "Preview", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        System.Windows.Automation.AutomationProperties.SetName(resolution, L.Format("Display {0} resolution", display.Number));
+        System.Windows.Automation.AutomationProperties.SetName(rate, L.Format("Display {0} refresh rate", display.Number));
+        var apply = new Button { Content = L.Get("Preview"), IsEnabled = false, Margin = new(0, 0, 0, 8) };
         var sizes = modes.Select(m => (m.Width, m.Height)).Distinct().ToList();
         resolution.ItemsSource = sizes.Select(s => new ComboBoxItem
         {
@@ -177,28 +177,28 @@ public partial class MainWindow : Window
         resolution.SelectedIndex = sizes.FindIndex(s => s.Width == display.Width && s.Height == display.Height);
         apply.Click += async (_, _) => { if (Selected() is { } mode) await PreviewModeAsync(display, mode); };
         row.Children.Add(resolution); row.Children.Add(rate); row.Children.Add(apply); panel.Children.Add(row);
-        panel.Children.Add(Text("Orientation", 13));
+        panel.Children.Add(Text(L.Get("Orientation"), 13));
         var rotationRow = new WrapPanel { Margin = new(0, 6, 0, 6) };
         var orientation = new ComboBox { MinWidth = 170, Margin = new(0, 0, 12, 8) };
-        System.Windows.Automation.AutomationProperties.SetName(orientation, $"Display {display.Number} orientation");
+        System.Windows.Automation.AutomationProperties.SetName(orientation, L.Format("Display {0} orientation", display.Number));
         var active = new Native.DevMode { Width = (uint)display.Width, Height = (uint)display.Height, Frequency = display.Hertz, Orientation = display.Orientation };
         for (uint value = 0; value < 4; value++)
         {
             var rotated = DisplayModes.Describe(DisplayModes.Rotate(active, value));
-            orientation.Items.Add(new ComboBoxItem { Tag = rotated, Content = rotated.OrientationName });
+            orientation.Items.Add(new ComboBoxItem { Tag = rotated, Content = L.Get(rotated.OrientationName) });
         }
         orientation.SelectedIndex = (int)display.Orientation;
-        var rotate = new Button { Content = "Rotate", IsEnabled = false, Margin = new(0, 0, 0, 8) };
+        var rotate = new Button { Content = L.Get("Rotate"), IsEnabled = false, Margin = new(0, 0, 0, 8) };
         orientation.SelectionChanged += (_, _) => rotate.IsEnabled = orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode m } && m.Orientation != display.Orientation;
         rotate.Click += async (_, _) => { if (orientation.SelectedItem is ComboBoxItem { Tag: DisplayMode mode }) await PreviewModeAsync(display, mode); };
         rotationRow.Children.Add(orientation); rotationRow.Children.Add(rotate); panel.Children.Add(rotationRow);
-        rotate.ToolTip = "Preview orientation using the current resolution and refresh rate.";
-        panel.Children.Add(Text("15-second undo protection · Session only", 12, "Muted"));
+        rotate.ToolTip = L.Get("Preview orientation using the current resolution and refresh rate.");
+        panel.Children.Add(Text(L.Get("15-second undo protection · Session only"), 12, "Muted"));
         return panel;
     }
 
     private Task PreviewModeAsync(Display display, DisplayMode mode) =>
-        PreviewChangeAsync(() => DisplayModes.Apply(display, mode), mode.ToString());
+        PreviewChangeAsync(() => DisplayModes.Apply(display, mode), L.Message(mode.ToString()));
 
     private readonly DisplayLayout layout = new();
     private LayoutSnapshot? layoutSnapshot;
@@ -211,12 +211,12 @@ public partial class MainWindow : Window
             if (layoutSnapshot != null && LayoutHost.Content is LayoutEditor && DisplayLayout.SameState(layoutSnapshot, snapshot)) return;
             var screens = snapshot.Screens().Select(s => s with { Number = displays.FirstOrDefault(d => d.Device == s.Device)?.Number ?? s.Number }).ToList();
             layoutSnapshot = snapshot;
-            if (screens.Count < 2) { LayoutHost.Content = Text("Connect a second extended display to arrange your workspace.", 14, "Muted"); return; }
+            if (screens.Count < 2) { LayoutHost.Content = Text(L.Get("Connect a second extended display to arrange your workspace."), 14, "Muted"); return; }
             var editor = new LayoutEditor(screens);
             editor.PreviewRequested += async (_, _) =>
             {
                 var requested = editor.Placements;
-                await PreviewChangeAsync(() => layout.Apply(snapshot, requested), "this screen layout");
+                await PreviewChangeAsync(() => layout.Apply(snapshot, requested), L.Get("this screen layout"));
                 // A completed preview resets its draft, even when a rollback restored the same topology.
                 layoutSnapshot = null;
                 SetBusy(true);
@@ -224,7 +224,7 @@ public partial class MainWindow : Window
             };
             LayoutHost.Content = editor;
         }
-        catch (Exception ex) { layoutSnapshot = null; LayoutHost.Content = Text("Layout unavailable: " + ex.Message, 13, "Muted"); }
+        catch (Exception ex) { layoutSnapshot = null; LayoutHost.Content = Text(L.Get("Layout unavailable: ") + L.Message(ex.Message), 13, "Muted"); }
     }
 
     private void SizeSections()
@@ -248,24 +248,24 @@ public partial class MainWindow : Window
     private async Task PreviewChangeAsync(Func<ModePreview> apply, string description)
     {
         changingMode = true; SetBusy(true); CloseLabels();
-        Status.Text = $"Testing {description}…";
+        Status.Text = L.Format("Testing {0}…", description);
         string result;
         try
         {
             modePreview = await Task.Run(apply);
             var preview = modePreview;
             var body = new StackPanel { Margin = new(24) };
-            body.Children.Add(Text($"Keep {description}?", 22));
+            body.Children.Add(Text(L.Format("Keep {0}?", description), 22));
             var countdown = Text("", 14, "Muted"); countdown.Margin = new(0, 16, 0, 16); body.Children.Add(countdown);
             var buttons = new WrapPanel();
-            var keep = new Button { Content = "Keep for this session", Margin = new(0, 0, 12, 0) };
-            var revert = new Button { Content = "Revert", IsCancel = true };
+            var keep = new Button { Content = L.Get("Keep for this session"), Margin = new(0, 0, 12, 0) };
+            var revert = new Button { Content = L.Get("Revert"), IsCancel = true };
             buttons.Children.Add(keep); buttons.Children.Add(revert); body.Children.Add(buttons);
-            var dialog = new Window { Title = "Confirm display mode", Owner = this, Content = body, Width = 520,
+            var dialog = new Window { Title = L.Get("Confirm display mode"), Owner = this, Content = body, Width = 520,
                 SizeToContent = SizeToContent.Height, ResizeMode = ResizeMode.NoResize, WindowStartupLocation = WindowStartupLocation.CenterScreen, Topmost = true };
             dialog.SetResourceReference(BackgroundProperty, "Page");
             var ticker = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
-            void UpdateCountdown() => countdown.Text = $"Reverting in {Math.Max(0, (int)Math.Ceiling((preview.Deadline - DateTime.UtcNow).TotalSeconds))} seconds unless you keep this mode.";
+            void UpdateCountdown() => countdown.Text = L.Format("Reverting in {0} seconds unless you keep this mode.", Math.Max(0, (int)Math.Ceiling((preview.Deadline - DateTime.UtcNow).TotalSeconds)));
             ticker.Tick += (_, _) => UpdateCountdown();
             keep.Click += (_, _) => preview.Keep();
             revert.Click += (_, _) => preview.Revert();
@@ -275,38 +275,38 @@ public partial class MainWindow : Window
             try { dialog.Show(); revert.Focus(); result = await preview.Completion.Task; }
             finally { ticker.Stop(); dialog.Close(); }
         }
-        catch (Exception ex) { result = "Could not preview display mode: " + ex.Message; }
+        catch (Exception ex) { result = L.Get("Could not preview display mode: ") + L.Message(ex.Message); }
         finally { modePreview?.Dispose(); modePreview = null; changingMode = false; SetBusy(false); }
         if (exitRequested) { Close(); return; }
         if (hideAfterPreview) { hideAfterPreview = false; CloseLabels(); Hide(); }
         await RefreshAsync();
         debounce.Stop(); pending = false;
-        Status.Text = result;
+        Status.Text = L.Message(result);
     }
 
     internal StackPanel Control(Display display, bool contrast, bool compact = false)
     {
-        string name = contrast ? "Contrast" : "Brightness";
+        string name = contrast ? L.Get("Contrast") : L.Get("Brightness");
         Level? level = contrast ? display.Contrast : display.Brightness;
         var panel = new StackPanel();
         var caption = Text(name, 13); caption.FontWeight = FontWeights.SemiBold; panel.Children.Add(caption);
-        if (level == null) { var unavailable = Text("Value unavailable. Refresh to retry.", 12, "Muted"); unavailable.Margin = new(0, 12, 0, 0); panel.Children.Add(unavailable); return panel; }
+        if (level == null) { var unavailable = Text(L.Get("Value unavailable. Refresh to retry."), 12, "Muted"); unavailable.Margin = new(0, 12, 0, 0); panel.Children.Add(unavailable); return panel; }
         var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10, IsEnabled = !level.IsStale };
-        System.Windows.Automation.AutomationProperties.SetName(slider, $"Display {display.Number} {name}");
-        var value = Text(level.IsStale ? $"Last known: {level.Current} / {level.Max} · Not current" : $"{level.Current} / {level.Max}", 12, "Muted");
-        var apply = new Button { Content = "Apply " + name.ToLowerInvariant(), HorizontalAlignment = HorizontalAlignment.Left, Margin = new(0, 12, 0, 0), IsEnabled = false };
+        System.Windows.Automation.AutomationProperties.SetName(slider, L.Format("Display {0} {1}", display.Number, name));
+        var value = Text(level.IsStale ? L.Format("Last known: {0} / {1} · Not current", level.Current, level.Max) : $"{level.Current} / {level.Max}", 12, "Muted");
+        var apply = new Button { Content = L.Get("Apply ") + name.ToLowerInvariant(), HorizontalAlignment = HorizontalAlignment.Left, Margin = new(0, 12, 0, 0), IsEnabled = false };
         slider.ValueChanged += (_, _) => { value.Text = $"{Math.Round(slider.Value)} / {level.Max}"; apply.IsEnabled = !level.IsStale && (uint)Math.Round(slider.Value) != level.Current; };
         apply.Click += async (_, _) =>
         {
-            SetBusy(true); Status.Text = $"Applying {name.ToLowerInvariant()} to display {display.Number}…";
+            SetBusy(true); Status.Text = L.Format("Applying {0} to display {1}…", name, display.Number);
             try
             {
                 await service.SetAsync(display, contrast, (uint)Math.Round(slider.Value));
                 displays = await service.ReadAsync();
             await RefreshLayoutAsync();
-                if (!closing) { Render(); Status.Text = $"{name} command sent. Display values have been read back."; }
+                if (!closing) { Render(); Status.Text = L.Format("{0} command sent. Display values have been read back.", name); }
             }
-            catch (Exception ex) { Status.Text = $"Could not update {name.ToLowerInvariant()}: {ex.Message} Refresh before trying again."; }
+            catch (Exception ex) { Status.Text = L.Format("Could not update {0}: {1} Refresh before trying again.", name, L.Message(ex.Message)); }
             finally { SetBusy(false); }
         };
         if (compact)
@@ -319,16 +319,16 @@ public partial class MainWindow : Window
             row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
             caption.FontSize = 11; caption.FontWeight = FontWeights.Normal; caption.VerticalAlignment = VerticalAlignment.Center;
             value.FontSize = 10; value.VerticalAlignment = VerticalAlignment.Center; value.Margin = new(4, 0, 6, 0);
-            value.ToolTip = level.IsStale ? "Last-known value. Refresh to reconnect." : $"Hardware range: {level.Min}–{level.Max}";
+            value.ToolTip = level.IsStale ? L.Get("Last-known value. Refresh to reconnect.") : L.Format("Hardware range: {0}–{1}", level.Min, level.Max);
             row.Children.Add(caption); Grid.SetColumn(value, 2); row.Children.Add(value);
             slider.Margin = new(0, 0, 2, 0); Grid.SetColumn(slider, 1); row.Children.Add(slider);
             apply.Content = "✓"; apply.FontSize = 11; apply.Padding = new(5, 2, 5, 2); apply.Margin = new(0);
-            apply.ToolTip = $"Apply {name.ToLowerInvariant()} to display {display.Number}";
-            System.Windows.Automation.AutomationProperties.SetName(apply, $"Apply display {display.Number} {name}");
+            apply.ToolTip = L.Format("Apply {0} to display {1}", name, display.Number);
+            System.Windows.Automation.AutomationProperties.SetName(apply, L.Format("Apply display {0} {1}", display.Number, name));
             Grid.SetColumn(apply, 3); row.Children.Add(apply); panel.Children.Add(row);
         }
         else { panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply); }
-        if (level.IsStale) panel.Children.Add(Text("Monitor did not respond. Refresh to reconnect.", 12, "Muted"));
+        if (level.IsStale) panel.Children.Add(Text(L.Get("Monitor did not respond. Refresh to reconnect."), 12, "Muted"));
         return panel;
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
@@ -342,7 +342,7 @@ public partial class MainWindow : Window
     private void WarmStrength_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         // XAML can raise ValueChanged before the label is initialized.
-        if (WarmValue != null) WarmValue.Text = $"Strength: {(int)e.NewValue} / 90";
+        if (WarmValue != null) WarmValue.Text = L.Format("Strength: {0} / 90", (int)e.NewValue);
         if (warmEnabled) UpdateWarmFilter();
         else QuickStateChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -352,12 +352,12 @@ public partial class MainWindow : Window
         {
             if (warmEnabled) warmFilter.Show(displays, (int)WarmStrength.Value);
             else warmFilter.Dispose();
-            WarmButton.Content = warmEnabled ? "Eye comfort · On" : "Eye comfort · Off";
+            WarmButton.Content = warmEnabled ? L.Get("Eye comfort · On") : L.Get("Eye comfort · Off");
         }
         catch (Exception ex)
         {
-            warmEnabled = false; warmFilter.Dispose(); WarmButton.Content = "Eye comfort · Off";
-            Status.Text = "Could not apply warm filter: " + ex.Message;
+            warmEnabled = false; warmFilter.Dispose(); WarmButton.Content = L.Get("Eye comfort · Off");
+            Status.Text = L.Get("Could not apply warm filter: ") + L.Message(ex.Message);
         }
         QuickStateChanged?.Invoke(this, EventArgs.Empty);
     }

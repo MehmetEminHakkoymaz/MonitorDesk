@@ -211,3 +211,5 @@ await LayoutChecks.Run(Check, args.Contains("--hardware-read"));
 Console.WriteLine($"Total including layout: {count} checks passed. No display settings were changed.");
 await ProfileChecks.Run(Check);
 Console.WriteLine($"Total including profiles: {count} checks passed. No display settings were changed.");
+LocalizationChecks.Run(Check);
+Console.WriteLine($"Total including localization: {count} checks passed. No display settings were changed.");

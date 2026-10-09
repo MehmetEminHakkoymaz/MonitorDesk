@@ -4,11 +4,11 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.10.2 (development) · Windows only**
+**Working title · v0.11.0 (development) · Windows only**
 
 ## Install
 
-Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download **MonitorDesk-Setup-0.7.0-win-x64.exe** when available and run it. GitHub's source ZIP is not an installer.
+Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download the setup EXE from the latest published release and run it. The current local build produces **MonitorDesk-Setup-0.11.0-win-x64.exe**; it must be uploaded as a release asset separately. GitHub's source ZIP is not an installer.
 
 The setup installs MonitorDesk for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
@@ -35,7 +35,7 @@ The workspace stays centered and capped at 1320 pixels when maximized. Lighting 
 
 ### System tray
 
-The duplicate-launch warning follows the Windows UI language: Turkish for Turkish locales and English for other languages. This applies to the warning, not the entire app interface.
+The app follows the Windows **display language** at startup: Turkish for Turkish locales, English otherwise. The main window, tray panel and menu, lighting profiles, tooltips, display-preview dialogs and app-generated status messages share this selection. Monitor names and external Windows/vendor error details remain as supplied. Restart MonitorDesk after changing the Windows display language; the regional date/number format alone does not switch the UI.
 
 Only one normal MonitorDesk instance runs per Windows user/session. Launching it again while it is open or hidden in the tray shows an already-running message and exits the second copy. Explicit exit releases the lock; a terminated process does not leave a permanent lock. Diagnostic probes, snapshots and lifecycle checks are isolated from this startup guard. Exit any older app version before testing this feature, since versions before v0.10.2 do not acquire the lock.
 
@@ -100,11 +100,11 @@ Then run **Build-Installer.cmd** from the repository root, or:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/MonitorDesk-Setup-0.7.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/MonitorDesk-Setup-0.11.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
 
 Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
 
-The user successfully built the setup EXE with Inno Setup 6.7.3, including the automated checks and packaged read-only startup check. The generated SHA-256 checksum was verified. Installation, upgrade and uninstall testing are pending.
+The v0.11.0 setup EXE was built with Inno Setup 6.7.3 after passing 143 automated checks and its packaged read-only startup check. The generated SHA-256 checksum was verified. Installation, upgrade and uninstall testing are pending; the local EXE is not uploaded by a source-code push.
 
 ## Hardware limitations
 
@@ -165,10 +165,10 @@ MonitorDesk.exe --snapshot C:\path\window.png
 - Persist confirmed display modes across Windows sessions.
 - Customizable profiles and scheduled lighting changes.
 - System tray controls and keyboard shortcuts.
-- Localized UI resources and Turkish translation.
+- Additional interface languages and an optional manual language selector.
 - Final product name and distributable installer.
 
-This README is available in English and [Turkish](README.tr.md). Use the language links at the top of either file to switch. This changes the documentation language; the application UI currently uses English. Keep both README versions in sync when updating documentation. Code comments and GitHub activity use English.
+This README is available in English and [Turkish](README.tr.md). Use the language links at the top of either file to switch. This changes the documentation language; the application UI independently follows the Windows display language (Turkish or English). Keep both README versions in sync when updating documentation. Code comments and GitHub activity use English.
 
 
 ### Intermittent contrast reads (v0.1.2)

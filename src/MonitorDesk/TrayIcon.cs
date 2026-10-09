@@ -20,9 +20,9 @@ internal sealed class TrayIcon : IDisposable
         panel.SizeChanged += (_, _) => { if (panel.IsVisible) PositionPanel(); };
         singleClick.Interval = TimeSpan.FromMilliseconds(Forms.SystemInformation.DoubleClickTime);
         singleClick.Tick += (_, _) => { singleClick.Stop(); TogglePanel(); };
-        menu.Items.Add("Aç", null, (_, _) => ShowWindow());
+        menu.Items.Add(L.Get("Open"), null, (_, _) => ShowWindow());
         menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add("Çıkış", null, (_, _) => window.Dispatcher.Invoke(window.ExitApplication));
+        menu.Items.Add(L.Get("Exit"), null, (_, _) => window.Dispatcher.Invoke(window.ExitApplication));
         icon = new Forms.NotifyIcon { Text = "MonitorDesk", Icon = System.Drawing.SystemIcons.Application, ContextMenuStrip = menu, Visible = true };
         icon.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); singleClick.Start(); } };
         icon.MouseDoubleClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); ShowWindow(); } };

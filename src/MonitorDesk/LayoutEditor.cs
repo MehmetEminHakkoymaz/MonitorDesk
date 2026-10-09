@@ -8,9 +8,9 @@ namespace MonitorDesk;
 
 internal sealed class LayoutEditor : UserControl
 {
-    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, Height = 190, ToolTip = "Drag screens to match your desk. Arrow keys to adjust; Shift for precision." };
+    private readonly Canvas surface = new() { Background = Brushes.Transparent, ClipToBounds = true, Height = 190, ToolTip = L.Get("Drag screens to match your desk. Arrow keys to adjust; Shift for precision.") };
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap, Margin = new(0, 8, 0, 8), FontSize = 12 };
-    private readonly Button preview = new() { Content = "Preview layout", Margin = new(12, 0, 0, 0) };
+    private readonly Button preview = new() { Content = L.Get("Preview layout"), Margin = new(12, 0, 0, 0) };
     private readonly List<ScreenPlacement> original;
     private List<ScreenPlacement> screens;
     private double scale = 0.1, offsetX, offsetY;
@@ -32,14 +32,14 @@ internal sealed class LayoutEditor : UserControl
         root.RowDefinitions.Add(new() { Height = GridLength.Auto });
         root.RowDefinitions.Add(new() { Height = GridLength.Auto });
         var heading = new StackPanel { Margin = new(0, 0, 0, 10) };
-        heading.Children.Add(new TextBlock { Text = "Arrange your screens", FontSize = 17, FontWeight = FontWeights.SemiBold });
+        heading.Children.Add(new TextBlock { Text = L.Get("Arrange your screens"), FontSize = 17, FontWeight = FontWeights.SemiBold });
         root.Children.Add(heading);
         var frame = new Border { Child = surface, BorderThickness = new(1), CornerRadius = new(10) };
         frame.SetResourceReference(Border.BorderBrushProperty, "Line"); frame.SetResourceReference(BackgroundProperty, "Page");
         Grid.SetRow(frame, 1); root.Children.Add(frame);
 
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-        var reset = new Button { Content = "Reset draft", Margin = new(0, 0, 12, 0) };
+        var reset = new Button { Content = L.Get("Reset draft"), Margin = new(0, 0, 12, 0) };
 
         reset.Click += (_, _) => { screens = original.ToList(); Draw(); };
 
@@ -65,11 +65,11 @@ internal sealed class LayoutEditor : UserControl
         offsetY = (surface.ActualHeight - height * scale) / 2 - top * scale;
         foreach (var screen in screens)
         {
-            var label = new TextBlock { Text = $"{screen.Number}" + (screen.Primary ? "\nPrimary" : ""), FontSize = 16, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            var label = new TextBlock { Text = $"{screen.Number}" + (screen.Primary ? L.Get("\nPrimary") : ""), FontSize = 16, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
             var tile = new Border { Child = label, Width = Math.Max(12, screen.Width * scale), Height = Math.Max(12, screen.Height * scale), BorderThickness = new(2), CornerRadius = new(6), Cursor = Cursors.SizeAll, Focusable = true,
-                ToolTip = $"Display {screen.Number}: {screen.Width} × {screen.Height}; position {screen.X}, {screen.Y}" };
+                ToolTip = L.Format("Display {0}: {1} × {2}; position {3}, {4}", screen.Number, screen.Width, screen.Height, screen.X, screen.Y) };
             tile.SetResourceReference(BackgroundProperty, "Card"); tile.SetResourceReference(Border.BorderBrushProperty, "Accent");
-            System.Windows.Automation.AutomationProperties.SetName(tile, $"Display {screen.Number}{(screen.Primary ? ", primary" : "")}. Use arrow keys to move.");
+            System.Windows.Automation.AutomationProperties.SetName(tile, L.Format("Display {0}{1}. Use arrow keys to move.", screen.Number, screen.Primary ? L.Get(", primary") : ""));
             Canvas.SetLeft(tile, offsetX + screen.X * scale); Canvas.SetTop(tile, offsetY + screen.Y * scale);
             tile.GotKeyboardFocus += (_, _) => tile.BorderThickness = new(4);
             tile.LostKeyboardFocus += (_, _) => tile.BorderThickness = new(2);
@@ -118,7 +118,7 @@ internal sealed class LayoutEditor : UserControl
     {
         string? error = LayoutGeometry.Validate(screens);
         bool changed = error == null && !LayoutGeometry.Normalize(screens).SequenceEqual(LayoutGeometry.Normalize(original));
-        status.Text = error ?? (changed ? "Ready · Confirm within 15 seconds to keep for this session." : "Drag to arrange. Preview to apply.");
+        status.Text = error != null ? L.Message(error) : (changed ? L.Get("Ready · Confirm within 15 seconds to keep for this session.") : L.Get("Drag to arrange. Preview to apply."));
         preview.IsEnabled = error == null && changed;
     }
 }
