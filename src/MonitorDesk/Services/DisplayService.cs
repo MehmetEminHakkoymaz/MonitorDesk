@@ -100,6 +100,7 @@ public sealed class DisplayService
 {
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly LevelReader levelReader = new();
+    private readonly DdcWriter ddcWriter = new();
     private readonly Func<List<WmiBrightness.Panel>> readPanels;
     public DisplayService() : this(WmiBrightness.Read) { }
     internal DisplayService(Func<List<WmiBrightness.Panel>> readPanels) => this.readPanels = readPanels;
@@ -210,9 +211,13 @@ public sealed class DisplayService
                     if (display.PhysicalIndex >= physical.Length || physical[display.PhysicalIndex].Description != display.Name)
                         throw new InvalidOperationException("Display configuration changed. Refresh and try again.");
                     nint handle = physical[display.PhysicalIndex].Handle;
-                    Thread.Sleep(150);
-                    bool ok = contrast ? Native.SetMonitorContrast(handle, value) : Native.SetMonitorBrightness(handle, value);
-                    if (!ok) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "The monitor did not accept this setting. Check its on-screen menu.");
+                    ddcWriter.Write(() =>
+                    {
+                        bool ok = contrast ? Native.SetMonitorContrast(handle, value) : Native.SetMonitorBrightness(handle, value);
+                        if (ok) return 0;
+                        int error = Marshal.GetLastWin32Error();
+                        return error != 0 ? error : 31;
+                    });
                 }
                 finally { if (physical.Length > 0) Native.DestroyPhysicalMonitors((uint)physical.Length, physical); }
             });

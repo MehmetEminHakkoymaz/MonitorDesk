@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 — Eye comfort and DDC recovery (unreleased)
+
+- Add an adjustable click-through warm overlay for all connected screens, removed on toggle-off or application close.
+- Keep the filter separate from Windows Night light and all hardware brightness/contrast settings; describe overlay limitations in both READMEs.
+- Increase read retry backoff and add bounded transient write retries with a post-write settling interval.
+- Preserve native error codes, skip retries for unsupported writes and retain explicit stale-value handling.
+- Pass 121 automated/read-only checks including simulated write recovery and failure boundaries. The user approved this version for commit and push; OMEN 25i hardware recovery and detailed warm-filter interaction tests have not been confirmed separately.
+
 ## Unreleased — Windows installer
 
 - Add an Inno Setup recipe and PowerShell/CMD build entry points for a single Windows x64 setup EXE.

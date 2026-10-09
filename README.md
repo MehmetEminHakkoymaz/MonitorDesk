@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.7.0 · Windows only**
+**Working title · v0.8.0 (development) · Windows only**
 
 ## Install
 
@@ -13,6 +13,8 @@ Installer packages can be published as assets on [GitHub Releases](https://githu
 The setup installs MonitorDesk for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
 ## Features
+
+- Toggle an adjustable warm color overlay using **Eye comfort**; monitor brightness/contrast remain unchanged.
 
 - Discover active displays, their current resolution, refresh rate and primary status.
 - Identify screens with temporary numbered overlays.
@@ -32,6 +34,10 @@ The main window combines the arrangement editor and compact display cards. Cards
 The workspace stays centered and capped at 1320 pixels when maximized. Lighting profiles sit beside screen arrangement in wider windows and move below it in narrower windows. Three sun icons have increasing fill for Night, Normal and High light; preset values are available in tooltips. Explanatory profile text is hidden until an operation needs a progress/result message. Sliders and scrollbars follow the selected theme.
 
 ### Lighting profiles
+
+**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing MonitorDesk removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off and is not saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
+
+DDC reads now use increasing retry delays. Brightness/contrast writes retry transient transport failures up to three times, then wait for firmware to settle before another command or read-back. Unsupported commands are not retried and stale values remain explicitly marked. This addresses the reported transient contrast loss after brightness writes on the OMEN 25i; a fix on that physical monitor is not yet confirmed. The development build passed 121 automated/read-only checks without changing hardware settings.
 
 Choose a button in **Lighting profiles** to immediately apply its preset to all connected monitors:
 

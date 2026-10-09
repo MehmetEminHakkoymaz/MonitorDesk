@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.7.0 · Yalnızca Windows**
+**Geçici proje adı · v0.8.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -32,6 +32,10 @@ Ana pencere, yerleşim düzenleyicisini ve kompakt ekran kartlarını bir araya 
 Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pikselle sınırlanır. Işık profilleri geniş pencerede ekran yerleşiminin yanında, dar pencerede altında görünür. Gece, normal ve yüksek ışık için doluluğu artan üç güneş simgesi kullanılır; profil değerleri araç ipuçlarında bulunur. Profil alanında yalnızca işlem sırasında ilerleme ve sonuç mesajları gösterilir. Kaydırıcılar ve kaydırma çubukları seçilen temaya uyum sağlar.
 
 ### Işık profilleri
+
+**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya MonitorDesk’i kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır ve sonraki oturuma kaydedilmez. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
+
+DDC okumalarında yeniden deneme aralıkları artırıldı. Parlaklık/kontrast yazmaları geçici iletişim hatalarında en fazla üç kez denenir; ardından başka komut veya doğrulama okumasından önce monitöre toparlanma süresi verilir. Desteklenmeyen komutlar tekrar denenmez, güncel olmayan değerler işaretlenir. Bu değişiklik OMEN 25i’de parlaklık yazmasından sonra kontrastın geçici kaybolması bildirimini ele alır; fiziksel monitörde düzeldiği henüz doğrulanmadı. Geliştirme sürümünde donanım ayarlarını değiştirmeden 121 otomatik/salt okunur kontrol geçti.
 
 **Lighting profiles** alanındaki bir düğmeye basınca ilgili profil bağlı tüm monitörlere hemen uygulanır:
 

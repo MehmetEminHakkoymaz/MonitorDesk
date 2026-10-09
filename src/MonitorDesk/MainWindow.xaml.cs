@@ -18,6 +18,8 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource profileCancellation = new();
     private readonly DispatcherTimer debounce = new() { Interval = TimeSpan.FromMilliseconds(750) };
     private readonly List<Window> labels = [];
+    private readonly WarmFilter warmFilter = new();
+    private bool warmEnabled;
     public MainWindow()
     {
         InitializeComponent();
@@ -39,7 +41,7 @@ public partial class MainWindow : Window
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
         Closing += (_, e) => { if (changingMode) { e.Cancel = true; modePreview?.Revert(); } };
-        Closed += (_, _) => { closing = true; profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
+        Closed += (_, _) => { closing = true; warmFilter.Dispose(); profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
     }
     private void DisplayChanged(object? sender, EventArgs e)
     {
@@ -96,6 +98,7 @@ public partial class MainWindow : Window
     }
     private void Render()
     {
+        if (warmEnabled) UpdateWarmFilter();
         Cards.Children.Clear();
         Summary.Text = $"{displays.Count} connected display{(displays.Count == 1 ? "" : "s")}";
         if (displays.Count == 0) Cards.Children.Add(Text("No active displays were found. Connect a screen and refresh.", 16, "Muted"));
@@ -291,6 +294,29 @@ public partial class MainWindow : Window
         return panel;
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
+    private void Warm_Click(object sender, RoutedEventArgs e)
+    {
+        warmEnabled = !warmEnabled;
+        UpdateWarmFilter();
+    }
+    private void WarmStrength_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (warmEnabled) UpdateWarmFilter();
+    }
+    private void UpdateWarmFilter()
+    {
+        try
+        {
+            if (warmEnabled) warmFilter.Show(displays, (int)WarmStrength.Value);
+            else warmFilter.Dispose();
+            WarmButton.Content = warmEnabled ? "Eye comfort · On" : "Eye comfort · Off";
+        }
+        catch (Exception ex)
+        {
+            warmEnabled = false; warmFilter.Dispose(); WarmButton.Content = "Eye comfort · Off";
+            Status.Text = "Could not apply warm filter: " + ex.Message;
+        }
+    }
     private void Theme_Click(object sender, RoutedEventArgs e)
     {
         light = !light;

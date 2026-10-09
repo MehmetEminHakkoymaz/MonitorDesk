@@ -10,7 +10,7 @@ internal sealed class LevelReader
         for (int attempt = 0; attempt < 3; attempt++)
         {
             // Pace DDC requests on the worker thread; never block the UI thread.
-            wait(attempt == 2 ? 300 : 150);
+            wait(attempt switch { 0 => 150, 1 => 350, _ => 700 });
             var reply = query();
             if (reply.Value is { } value)
             {

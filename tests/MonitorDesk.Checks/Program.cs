@@ -89,7 +89,7 @@ int attempts = 0;
 int transportError = unchecked((int)0xC0262582);
 var recovered = reader.Read("display2|contrast", () => ++attempts < 3 ? new(null, transportError) : new(new Level(0, 75, 100), 0));
 Check(attempts == 3 && recovered?.Current == 75 && !recovered.IsStale, "Transient transport failures recover within three attempts");
-Check(delays.SequenceEqual(new[] {150, 150, 300}), "DDC reads and retries are paced");
+Check(delays.SequenceEqual(new[] {150, 350, 700}), "DDC retries allow increasing firmware recovery time");
 attempts = 0;
 var stale = reader.Read("display2|contrast", () => { attempts++; return new(null, transportError); });
 Check(attempts == 3 && stale is { Current: 75, IsStale: true }, "Exhausted retries retain an explicitly stale last-known value");
@@ -108,6 +108,21 @@ try
 }
 catch (ArgumentOutOfRangeException) { Check(true, "Stale controls reject writes before hardware access"); }
 Console.WriteLine($"Total after DDC regression tests: {count} checks passed.");
+
+var writeDelays = new List<int>();
+var writer = new DdcWriter(writeDelays.Add);
+int writeAttempts = 0;
+writer.Write(() => ++writeAttempts < 3 ? transportError : 0);
+Check(writeAttempts == 3 && writeDelays.SequenceEqual(new[] { 200, 500, 1000, 350 }), "Transient writes recover with bounded retries and settle before read-back");
+writeAttempts = 0;
+try { writer.Write(() => { writeAttempts++; return transportError; }); throw new Exception("Failed writes reported success"); }
+catch (System.ComponentModel.Win32Exception ex) { Check(writeAttempts == 3 && ex.NativeErrorCode == transportError, "Exhausted writes preserve the native error and stop after three attempts"); }
+writeAttempts = 0;
+try { writer.Write(() => { writeAttempts++; return unchecked((int)0xC0262584); }); throw new Exception("Unsupported write accepted"); }
+catch (System.ComponentModel.Win32Exception) { Check(writeAttempts == 1, "Unsupported writes are not retried"); }
+writeAttempts = 0;
+writer.Write(() => { writeAttempts++; return 0; });
+Check(writeAttempts == 1, "Successful writes are not repeated");
 
 var currentMode = new Native.DevMode { Width = 1920, Height = 1080, Frequency = 60, BitsPerPel = 32 };
 Check(DisplayModes.Eligible(currentMode, currentMode), "Current progressive mode is eligible");
