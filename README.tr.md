@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.10.1 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.10.2 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -33,6 +33,10 @@ Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pi
 
 ### Sistem tepsisi
 
+İkinci kez açma uyarısı Windows arayüz dilini kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce gösterilir. Bu dil seçimi yalnızca uyarıya uygulanır; tüm uygulama arayüzünü çevirmemektedir.
+
+Her Windows kullanıcısı/oturumunda tek normal MonitorDesk örneği çalışır. Uygulama açıkken veya tepside gizliyken yeniden çalıştırmak, zaten açık olduğunu bildiren uyarıyı gösterir ve ikinci kopyayı kapatır. Gerçek çıkış kilidi bırakır; süreç sonlandırıldığında kalıcı kilit kalmaz. Tanılama, görüntü alma ve yaşam döngüsü kontrolleri bu başlangıç kilidinden bağımsızdır. Özelliği denemeden önce eski sürümü tepsiden Çıkış ile kapat; v0.10.2 öncesi sürümler bu kilidi kullanmaz.
+
 Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde tek satırlık parlaklık/kontrast kaydırıcıları ve ayrı **✓** uygulama düğmeleri bulunur. Onay simgesinin üzerinde işlem açıklaması, durum satırının üzerinde tam mesaj araç ipucunda görünür. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Genişliği 320 mantıksal piksel, maksimum yüksekliği 560 pikseldir; gerektiğinde kaydırılabilir. Tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder. Küçültülen v0.10.1 sürümünün derlemesi ve masaüstü aç/gizle/geri aç/çıkış kontrolü geçti; üç monitörlü görünüm görsel olarak incelendi.
 
 Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
@@ -40,6 +44,8 @@ Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi s
 v0.9.0 için 121 otomatik/salt okunur kontrol ve masaüstünde kapatınca gizleme, geri açma ve gerçek süreç çıkışını doğrulayan kontrol geçti. Sağ tık menüsü, filtrenin tepside korunması ve Explorer yeniden başlatma davranışının manuel testi henüz yapılmadı.
 
 ### Işık profilleri
+
+Eye comfort’ın seçili yoğunluğu, ana penceredeki kaydırıcının altında ve tepsi düğmesinde **değer / 90** olarak gösterilir; mod kapalıyken de görünür. Bu, filtrenin seçili yoğunluk seviyesidir; yüzde veya monitör parlaklığı değildir. Kaydırıcı değişince iki görünüm birlikte güncellenir.
 
 **Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya MonitorDesk’i kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır ve sonraki oturuma kaydedilmez. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
 

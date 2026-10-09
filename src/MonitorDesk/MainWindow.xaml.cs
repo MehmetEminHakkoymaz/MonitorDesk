@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     internal IReadOnlyList<Display> QuickDisplays => displays;
     internal bool IsBusy => busy;
     internal bool EyeComfortEnabled => warmEnabled;
+    internal int EyeComfortStrength => (int)WarmStrength.Value;
     internal void ExitApplication()
     {
         exitRequested = true;
@@ -340,7 +341,10 @@ public partial class MainWindow : Window
     }
     private void WarmStrength_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
+        // XAML can raise ValueChanged before the label is initialized.
+        if (WarmValue != null) WarmValue.Text = $"Strength: {(int)e.NewValue} / 90";
         if (warmEnabled) UpdateWarmFilter();
+        else QuickStateChanged?.Invoke(this, EventArgs.Empty);
     }
     private void UpdateWarmFilter()
     {

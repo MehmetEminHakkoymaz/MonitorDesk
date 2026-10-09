@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.2 — Duplicate launch protection (unreleased)
+
+- Hold a per-user/session named mutex throughout the app lifetime, including tray hiding, and warn on duplicate normal launches before creating another window or filter.
+- Release the lock on exit and recover ownership after an abandoned process; keep diagnostic runs isolated.
+- Localize the duplicate-launch notification using the Windows UI culture: Turkish for Turkish locales, English otherwise.
+- Display the selected Eye comfort intensity in the main window and tray toggle, updating it while enabled or disabled.
+- Pass 121 existing checks plus separate-process lock contention/release checks and inspect the tray value display. Manual duplicate-launch dialog testing is pending.
+
 ## 0.10.1 — Smaller tray panel (unreleased)
 
 - Reduce tray panel width from 390 to 320 logical pixels and maximum height from 800 to 560.

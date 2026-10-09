@@ -75,7 +75,8 @@ internal sealed class TrayPanel : Window
         }
         if (main.QuickDisplays.Count == 0) monitors.Children.Add(new TextBlock { Text = "No displays available. Refresh to retry.", TextWrapping = TextWrapping.Wrap });
         profiles.IsEnabled = !main.IsBusy;
-        eyeState.Text = main.EyeComfortEnabled ? "Eye comfort · On" : "Eye comfort · Off";
+        eyeState.Text = $"Eye comfort · {(main.EyeComfortEnabled ? "On" : "Off")} · {main.EyeComfortStrength} / 90";
+        eye.ToolTip = $"Warm filter {(main.EyeComfortEnabled ? "enabled" : "disabled")}. Selected strength: {main.EyeComfortStrength} / 90. Click to toggle.";
         eyeShape.SetResourceReference(System.Windows.Shapes.Path.StrokeProperty, main.EyeComfortEnabled ? "Accent" : "Muted");
         eye.SetResourceReference(Button.BorderBrushProperty, main.EyeComfortEnabled ? "Accent" : "Line");
     }

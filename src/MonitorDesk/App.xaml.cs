@@ -1,4 +1,5 @@
 using System.IO;
+using System.Globalization;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Media;
@@ -9,14 +10,39 @@ namespace MonitorDesk;
 public partial class App : Application
 {
     private TrayIcon? tray;
+    private SingleInstance? instance;
     protected override void OnExit(ExitEventArgs e)
     {
         tray?.Dispose();
+        instance?.Dispose();
         base.OnExit(e);
     }
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args.Length == 3 && e.Args[0] == "--instance-probe")
+        {
+            using var probeInstance = new SingleInstance(e.Args[1]);
+            File.WriteAllText(e.Args[2], probeInstance.Acquired ? "Acquired" : "Already running");
+            Shutdown();
+            return;
+        }
+        bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--tray-check";
+        if (!diagnostic)
+        {
+            instance = new SingleInstance();
+            if (!instance.Acquired)
+            {
+                bool turkish = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "tr";
+                string title = turkish ? "MonitorDesk zaten açık" : "MonitorDesk is already running";
+                string message = turkish
+                    ? "MonitorDesk zaten açık ve sistem tepsisinde çalışıyor.\n\nSistem tepsisindeki MonitorDesk simgesinden paneli açabilir veya simgeye çift tıklayarak ana pencereye dönebilirsin."
+                    : "MonitorDesk is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.";
+                MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                Shutdown();
+                return;
+            }
+        }
         if (e.Args.Length == 2 && e.Args[0] == "--probe")
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
