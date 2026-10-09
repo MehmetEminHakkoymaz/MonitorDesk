@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 — System tray (unreleased)
+
+- Hide the main window on close while keeping the app and warm filter running in the notification area.
+- Add double-click restore and an Aç/Çıkış context menu; explicit exit removes the filter and disposes the tray icon.
+- Preserve rollback of pending previews before hide/exit, normal minimization and Windows session shutdown.
+- Keep diagnostic probe/snapshot runs independent of tray hiding and fall back to normal closing if tray initialization fails.
+- Pass 121 automated/read-only checks and a desktop close/restore/process-exit lifecycle check. The user approved this version for commit and push; detailed manual menu and filter-retention tests have not been confirmed separately.
+
 ## 0.8.0 — Eye comfort and DDC recovery (unreleased)
 
 - Add an adjustable click-through warm overlay for all connected screens, removed on toggle-off or application close.

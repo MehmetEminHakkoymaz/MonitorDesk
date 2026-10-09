@@ -20,6 +20,14 @@ public partial class MainWindow : Window
     private readonly List<Window> labels = [];
     private readonly WarmFilter warmFilter = new();
     private bool warmEnabled;
+    internal bool HideOnClose { get; set; }
+    private bool exitRequested;
+    private bool hideAfterPreview;
+    internal void ExitApplication()
+    {
+        exitRequested = true;
+        Close();
+    }
     public MainWindow()
     {
         InitializeComponent();
@@ -40,7 +48,11 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
-        Closing += (_, e) => { if (changingMode) { e.Cancel = true; modePreview?.Revert(); } };
+        Closing += (_, e) =>
+        {
+            if (changingMode) { e.Cancel = true; hideAfterPreview = HideOnClose && !exitRequested; modePreview?.Revert(); return; }
+            if (HideOnClose && !exitRequested) { e.Cancel = true; CloseLabels(); Hide(); }
+        };
         Closed += (_, _) => { closing = true; warmFilter.Dispose(); profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
     }
     private void DisplayChanged(object? sender, EventArgs e)
@@ -259,6 +271,8 @@ public partial class MainWindow : Window
         }
         catch (Exception ex) { result = "Could not preview display mode: " + ex.Message; }
         finally { modePreview?.Dispose(); modePreview = null; changingMode = false; SetBusy(false); }
+        if (exitRequested) { Close(); return; }
+        if (hideAfterPreview) { hideAfterPreview = false; CloseLabels(); Hide(); }
         await RefreshAsync();
         debounce.Stop(); pending = false;
         Status.Text = result;

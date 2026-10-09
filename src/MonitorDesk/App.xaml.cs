@@ -8,6 +8,12 @@ using MonitorDesk.Services;
 namespace MonitorDesk;
 public partial class App : Application
 {
+    private TrayIcon? tray;
+    protected override void OnExit(ExitEventArgs e)
+    {
+        tray?.Dispose();
+        base.OnExit(e);
+    }
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -25,9 +31,31 @@ public partial class App : Application
         }
         var window = new MainWindow(); MainWindow = window;
         bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot");
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+        if (!snapshot)
+        {
+            try { tray = new TrayIcon(window); window.HideOnClose = true; }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceWarning("Tray icon unavailable; closing will exit: {0}", ex.Message); }
+        }
         if (snapshot && e.Args.Length >= 4 && int.TryParse(e.Args[2], out int width) && int.TryParse(e.Args[3], out int height))
         { window.Width = Math.Clamp(width, 680, 2560); window.Height = Math.Clamp(height, 520, 1600); }
         window.Show();
+        if (e.Args.Length == 2 && e.Args[0] == "--tray-check")
+        {
+            await window.InitialRead.Task;
+            try
+            {
+                if (tray == null) throw new InvalidOperationException("Tray initialization failed.");
+                window.Close();
+                if (window.IsVisible) throw new InvalidOperationException("Close did not hide the window.");
+                tray.ShowWindow();
+                if (!window.IsVisible) throw new InvalidOperationException("Tray did not restore the window.");
+                await File.WriteAllTextAsync(e.Args[1], "PASS close hides the window; tray restores it; explicit exit requested.");
+                window.ExitApplication();
+            }
+            catch (Exception ex) { await File.WriteAllTextAsync(e.Args[1], "FAIL " + ex.Message); Shutdown(1); }
+            return;
+        }
         if (snapshot)
         {
             // Render the actual WPF layout with real read-only display data for local QA.
