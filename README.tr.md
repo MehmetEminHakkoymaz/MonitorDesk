@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.10.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.10.1 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -33,7 +33,7 @@ Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pi
 
 ### Sistem tepsisi
 
-Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde parlaklık/kontrast kaydırıcıları ve ayrı **Apply** düğmeleri bulunur. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Gerektiğinde kaydırılabilir ve tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder.
+Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde tek satırlık parlaklık/kontrast kaydırıcıları ve ayrı **✓** uygulama düğmeleri bulunur. Onay simgesinin üzerinde işlem açıklaması, durum satırının üzerinde tam mesaj araç ipucunda görünür. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Genişliği 320 mantıksal piksel, maksimum yüksekliği 560 pikseldir; gerektiğinde kaydırılabilir. Tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder. Küçültülen v0.10.1 sürümünün derlemesi ve masaüstü aç/gizle/geri aç/çıkış kontrolü geçti; üç monitörlü görünüm görsel olarak incelendi.
 
 Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
 

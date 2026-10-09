@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.10.0 (development) · Windows only**
+**Working title · v0.10.1 (development) · Windows only**
 
 ## Install
 
@@ -35,7 +35,7 @@ The workspace stays centered and capped at 1320 pixels when maximized. Lighting 
 
 ### System tray
 
-Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with brightness and contrast sliders and explicit **Apply** buttons. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel scrolls when needed and opens above the taskbar on the clicked screen; double-click still opens the full window.
+Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with single-row brightness and contrast sliders and explicit **✓** apply buttons. Hover over a checkmark for its action, or over the status footer for the full message. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel is 320 logical pixels wide, capped at 560 pixels high, and scrolls when needed. It opens above the taskbar on the clicked screen; double-click still opens the full window. The compact v0.10.1 build and desktop open/hide/restore/exit check passed; its three-monitor layout was visually inspected.
 
 Closing the main window hides MonitorDesk in the Windows notification area. Double-click its icon, or right-click and choose **Aç** (Open), to restore the window. Choose **Çıkış** (Exit) to stop the app and remove the warm filter. The filter and display-change handling remain active while the window is hidden. Minimize still minimizes normally; closing an unconfirmed display preview restores it before hiding or exiting. Windows sign-out/shutdown ends the app normally. If tray initialization fails, closing exits so the app is not left running without an accessible icon.
 

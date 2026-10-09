@@ -41,7 +41,7 @@ internal sealed class TrayIcon : IDisposable
         if (panel.IsVisible) { panel.Hide(); return; }
         panelWorkArea = Forms.Screen.FromPoint(Forms.Cursor.Position).WorkingArea;
         double scale = System.Windows.Media.VisualTreeHelper.GetDpi(panel).DpiScaleY;
-        panel.MaxHeight = Math.Min(800, (panelWorkArea.Height - 24) / scale);
+        panel.MaxHeight = Math.Min(560, (panelWorkArea.Height - 24) / scale);
         panel.Render(); panel.Show(); panel.UpdateLayout();
         PositionPanel();
         panel.Activate();
@@ -52,7 +52,7 @@ internal sealed class TrayIcon : IDisposable
         // Native coordinates keep the popup inside the target monitor on mixed-DPI desktops.
         if (panelWorkArea.Width == 0) return;
         var dpi = System.Windows.Media.VisualTreeHelper.GetDpi(panel);
-        panel.MaxHeight = Math.Min(800, (panelWorkArea.Height - 24) / dpi.DpiScaleY);
+        panel.MaxHeight = Math.Min(560, (panelWorkArea.Height - 24) / dpi.DpiScaleY);
         int width = (int)Math.Ceiling(panel.ActualWidth * dpi.DpiScaleX);
         int height = (int)Math.Ceiling(panel.ActualHeight * dpi.DpiScaleY);
         Services.Native.SetWindowPos(new System.Windows.Interop.WindowInteropHelper(panel).Handle, -1,

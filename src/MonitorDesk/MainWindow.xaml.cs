@@ -312,12 +312,19 @@ public partial class MainWindow : Window
         {
             panel.Children.Clear();
             var row = new Grid();
-            row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
-            row.RowDefinitions.Add(new() { Height = GridLength.Auto }); row.RowDefinitions.Add(new() { Height = GridLength.Auto });
-            row.Children.Add(caption); Grid.SetColumn(value, 1); row.Children.Add(value);
-            slider.Margin = new(0, 6, 10, 2); Grid.SetRow(slider, 1); row.Children.Add(slider);
-            apply.Content = "Apply"; apply.Padding = new(8, 4, 8, 4); apply.Margin = new(0, 6, 0, 0);
-            Grid.SetColumn(apply, 1); Grid.SetRow(apply, 1); row.Children.Add(apply); panel.Children.Add(row);
+            row.ColumnDefinitions.Add(new() { Width = new GridLength(64) });
+            row.ColumnDefinitions.Add(new());
+            row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+            caption.FontSize = 11; caption.FontWeight = FontWeights.Normal; caption.VerticalAlignment = VerticalAlignment.Center;
+            value.FontSize = 10; value.VerticalAlignment = VerticalAlignment.Center; value.Margin = new(4, 0, 6, 0);
+            value.ToolTip = level.IsStale ? "Last-known value. Refresh to reconnect." : $"Hardware range: {level.Min}–{level.Max}";
+            row.Children.Add(caption); Grid.SetColumn(value, 2); row.Children.Add(value);
+            slider.Margin = new(0, 0, 2, 0); Grid.SetColumn(slider, 1); row.Children.Add(slider);
+            apply.Content = "✓"; apply.FontSize = 11; apply.Padding = new(5, 2, 5, 2); apply.Margin = new(0);
+            apply.ToolTip = $"Apply {name.ToLowerInvariant()} to display {display.Number}";
+            System.Windows.Automation.AutomationProperties.SetName(apply, $"Apply display {display.Number} {name}");
+            Grid.SetColumn(apply, 3); row.Children.Add(apply); panel.Children.Add(row);
         }
         else { panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply); }
         if (level.IsStale) panel.Children.Add(Text("Monitor did not respond. Refresh to reconnect.", 12, "Muted"));

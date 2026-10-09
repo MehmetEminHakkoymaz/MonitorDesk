@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.1 — Smaller tray panel (unreleased)
+
+- Reduce tray panel width from 390 to 320 logical pixels and maximum height from 800 to 560.
+- Put each brightness/contrast control on one row with a labeled, keyboard-accessible checkmark apply button.
+- Tighten monitor cards, use horizontal profile buttons and a smaller eye toggle; keep full status messages in a tooltip.
+- Build successfully and verify the three-monitor layout and desktop open/hide/restore/exit lifecycle without monitor writes. The user approved this version for commit and push.
+
 ## 0.10.0 — Tray quick controls (unreleased)
 
 - Add a single-left-click tray panel with vertically stacked monitor brightness/contrast controls and explicit apply actions.
