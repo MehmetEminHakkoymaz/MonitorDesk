@@ -39,9 +39,13 @@ public partial class MainWindow : Window
         exitRequested = true;
         Close();
     }
-    public MainWindow()
+    public MainWindow() : this(true) { }
+    internal MainWindow(bool remember)
     {
+        LoadPreferences(remember);
         InitializeComponent();
+        InitializePreferences();
+        if (remember) InitializeRecovery();
         foreach (var profile in LightingProfile.Presets)
         {
             var content = new StackPanel { Orientation = Orientation.Horizontal };
@@ -56,12 +60,17 @@ public partial class MainWindow : Window
         }
         Cards.SizeChanged += (_, _) => SizeCards();
         TopSections.SizeChanged += (_, _) => SizeSections();
-        Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
+        Loaded += async (_, _) =>
+        {
+            if (!InitialRead.Task.IsCompleted && !busy) { await RefreshAsync(); InitialRead.TrySetResult(); }
+            if (preferenceLoadError != null) Status.Text = preferenceLoadError;
+        };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
         levelTimer.Tick += async (_, _) => await ApplyLevelChangesAsync();
         Closing += (_, e) =>
         {
+            RememberWindow(); SavePreferences();
             if (changingMode) { e.Cancel = true; hideAfterPreview = HideOnClose && !exitRequested; modePreview?.Revert(); return; }
             if (HideOnClose && !exitRequested) { e.Cancel = true; CloseLabels(); Hide(); }
         };
@@ -87,7 +96,7 @@ public partial class MainWindow : Window
             displays = await service.ReadAsync();
             await RefreshLayoutAsync();
             if (closing) return;
-            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.") : L.Get("Ready · Brightness and contrast apply automatically. Display modes require Preview.");
+            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? L.Get("Some controls did not respond. Retrying automatically; last-known values remain disabled.") : L.Get("Ready · Brightness and contrast apply automatically. Display modes require Preview.");
         }
         catch (Exception ex) { Summary.Text = displays.Count == 0 ? L.Get("Display discovery failed") : L.Get("Showing previous display information"); Status.Text = L.Get("Could not refresh displays: ") + L.Message(ex.Message); }
         finally { SetBusy(false); }
@@ -123,6 +132,7 @@ public partial class MainWindow : Window
     }
     private void Render()
     {
+        recovery.Sync(displays, DateTime.UtcNow);
         if (warmEnabled) UpdateWarmFilter();
         Cards.Children.Clear();
         Summary.Text = L.Turkish ? $"{displays.Count} bağlı ekran" : $"{displays.Count} connected display{(displays.Count == 1 ? "" : "s")}";
@@ -347,7 +357,7 @@ public partial class MainWindow : Window
             levelTimer.Stop(); autoLevelsActive = false;
             Render(); SetBusy(false);
             Status.Text = levelError ?? (displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true)
-                ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.")
+                ? L.Get("Some controls did not respond. Retrying automatically; last-known values remain disabled.")
                 : L.Get("Monitor values read back. Device limits may affect the applied value."));
             levelError = null;
         }
@@ -389,7 +399,7 @@ public partial class MainWindow : Window
             panel.Children.Add(row);
         }
         else { panel.Children.Add(slider); panel.Children.Add(value); }
-        if (level.IsStale) panel.Children.Add(Text(L.Get("Monitor did not respond. Refresh to reconnect."), 12, "Muted"));
+        if (level.IsStale) panel.Children.Add(Text(L.Get("Monitor did not respond. Retrying automatically."), 12, "Muted"));
         return panel;
     }
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
@@ -406,6 +416,7 @@ public partial class MainWindow : Window
         if (WarmValue != null) WarmValue.Text = L.Format("Strength: {0} / 90", (int)e.NewValue);
         if (warmEnabled) UpdateWarmFilter();
         else QuickStateChanged?.Invoke(this, EventArgs.Empty);
+        SchedulePreferencesSave();
     }
     private void UpdateWarmFilter()
     {
@@ -425,6 +436,10 @@ public partial class MainWindow : Window
     private void Theme_Click(object sender, RoutedEventArgs e)
     {
         light = !light;
+        ApplyTheme(); SchedulePreferencesSave();
+    }
+    private void ApplyTheme()
+    {
         string[] keys = ["Page", "Card", "Ink", "Muted", "Line", "Accent"];
         string[] colors = light ? ["#F3F6FA", "#FFFFFF", "#172338", "#53627A", "#D9E1ED", "#087765"] : ["#0D111B", "#171E2D", "#F1F5FC", "#A2AEC5", "#2B364C", "#8BE5CE"];
         for (int i = 0; i < keys.Length; i++) Application.Current.Resources[keys[i]] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colors[i]));

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.14.0 — Automatic monitor recovery (unreleased)
+
+- Retry stale brightness/contrast reads automatically while open or hidden in the tray, targeting one affected monitor at a time and preserving healthy controls.
+- Retry after 5 seconds, then wait 15, 30 and 60 seconds after failed attempts finish; stop on recovery or disconnection and skip unsupported controls without stale values.
+- Defer recovery during mouse capture, hardware writes, profiles and display previews; serialize reads through the existing service gate and reserve UI controls during recovery.
+- Restore current values and enabled sliders on success; update English/Turkish status messages and documentation. Diagnostics do not start background recovery.
+- Pass 181 automated checks without hardware writes, including recovery deadlines, increasing backoff, cleanup and independent monitor schedules. Physical OMEN recovery requires user testing.
+
+## 0.13.0 — Preferences and Windows startup (unreleased)
+
+- Save theme, Eye comfort strength and normal window bounds/maximized state automatically in a per-user settings file; restore them on launch while keeping the warm filter off initially.
+- Recover saved window placement inside a connected monitor's work area and handle monitor DPI when restoring size.
+- Add a localized Preferences dialog with an opt-in current-user Windows startup entry that launches directly into the tray; suppress duplicate-instance warnings for automatic startup.
+- Remove this installation's startup entry during uninstall and keep diagnostics from saving preferences or changing startup registration.
+- Update both READMEs; pass 171 automated checks including atomic settings replacement, invalid data, disconnected-monitor geometry and mocked startup registration.
+- Inspect Turkish/English settings layouts, verify hidden start and tray restore/close/exit without display writes, and compile the installer uninstall code. Real sign-in, restart persistence and mixed-DPI restoration require manual testing.
+
 ## 0.12.1 — Faster slider feedback (unreleased)
 
 - Queue the first brightness/contrast change immediately instead of waiting for a quiet period.

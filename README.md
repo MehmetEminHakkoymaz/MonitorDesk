@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.12.1 (development) · Windows only**
+**Working title · v0.14.0 (development) · Windows only**
 
 ## Install
 
@@ -33,6 +33,14 @@ The main window combines the arrangement editor and compact display cards. Cards
 
 The workspace stays centered and capped at 1320 pixels when maximized. Lighting profiles sit beside screen arrangement in wider windows and move below it in narrower windows. Three sun icons have increasing fill for Night, Normal and High light; preset values are available in tooltips. Explanatory profile text is hidden until an operation needs a progress/result message. Sliders and scrollbars follow the selected theme.
 
+### Preferences and Windows startup
+
+Open **Preferences** from the top toolbar. Theme, Eye comfort strength, window position, size and maximized state are saved automatically to `%LOCALAPPDATA%\MonitorDesk\settings.json` and restored on the next launch. If a saved monitor is disconnected, the window is brought back into a connected screen's work area. Eye comfort starts off; its selected strength is remembered.
+
+Enable **Start with Windows in the system tray** to start MonitorDesk when your Windows account signs in, without opening the main window. This option is off by default and can be disabled in the same dialog. It registers the current executable in your account's Windows startup entries; enable it from the installed app for a stable executable path. Double-click the tray icon to open the main window. Uninstalling removes the startup entry belonging to that installation.
+
+The development build passed 171 automated checks, including settings round trips, invalid data, disconnected-screen geometry and startup commands with mocked registry access. Turkish and English settings layouts and hidden-start/tray-restore behavior were checked. Real Windows sign-in, restart persistence and mixed-DPI restoration still need manual testing. Diagnostics do not save user preferences or enable startup.
+
 ### System tray
 
 The app follows the Windows **display language** at startup: Turkish for Turkish locales, English otherwise. The main window, tray panel and menu, lighting profiles, tooltips, display-preview dialogs and app-generated status messages share this selection. Monitor names and external Windows/vendor error details remain as supplied. Restart MonitorDesk after changing the Windows display language; the regional date/number format alone does not switch the UI.
@@ -47,13 +55,17 @@ The v0.9.0 build passed 121 automated/read-only checks and a desktop lifecycle c
 
 ### Automatic sliders
 
+Previously readable controls that stop responding are retried automatically, including while the app is in the tray. Recovery reads only stale controls on one affected monitor at a time: first after 5 seconds, then 15, 30 and 60 seconds after unsuccessful attempts finish. Healthy and unsupported controls are not polled. Retries pause during slider interaction, writes, profiles and display previews; each recovery read temporarily reserves the shared controls to avoid competing commands. Successful reads restore current values and stop that monitor's retry schedule. Manual Refresh remains available. Native driver calls can still delay recovery or subsequent operations.
+
+The v0.14.0 development build passed 181 automated checks without hardware writes, including increasing retry intervals, recovery/disconnection cleanup and independent monitor deadlines. Physical recovery on the OMEN monitor still needs user testing.
+
 The first brightness/contrast change enters the hardware queue immediately. During dragging, the latest requested value is sampled at intervals of at least 250 ms per monitor/control; new input replaces pending intermediate values without postponing the dispatch deadline. Commands run sequentially with existing DDC recovery delays, so a busy or slower monitor can extend this interval. The final selected value remains queued after release. Both UI locations use the same queue. Sliders remain responsive during writes; read-back displays the actual value after input settles, so hardware-supported steps may differ from the request. Errors stop queued changes and report details; unavailable or stale controls stay disabled. Explicit exit discards unsent changes. Resolution, refresh rate, orientation and arrangement still use preview confirmation. The development build passed 155 automated checks without hardware writes; physical slider behavior needs user testing.
 
 ### Lighting profiles
 
 Eye comfort shows its selected strength as **value / 90** below the main window slider and in the tray toggle, including while disabled. This is the filter's selected intensity level, not a percentage or a monitor brightness value. Changing the slider keeps both displays synchronized.
 
-**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing MonitorDesk removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off and is not saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
+**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing MonitorDesk removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off; the selected strength is saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
 
 DDC reads now use increasing retry delays. Brightness/contrast writes retry transient transport failures up to three times, then wait for firmware to settle before another command or read-back. Unsupported commands are not retried and stale values remain explicitly marked. This addresses the reported transient contrast loss after brightness writes on the OMEN 25i; a fix on that physical monitor is not yet confirmed. The development build passed 121 automated/read-only checks without changing hardware settings.
 

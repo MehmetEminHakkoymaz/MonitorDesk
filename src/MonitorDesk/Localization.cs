@@ -14,6 +14,15 @@ internal static class L
     internal static bool Turkish => uiCulture.TwoLetterISOLanguageName == "tr";
     private static readonly Dictionary<string, string> TurkishText = new(StringComparer.Ordinal)
     {
+        ["Preferences"] = "Ayarlar",
+        ["Theme, Eye comfort strength and window position are saved automatically."] = "Tema, göz konforu yoğunluğu ve pencere konumu otomatik kaydedilir.",
+        ["Start with Windows in the system tray"] = "Windows ile sistem tepsisinde başlat",
+        ["Starts when you sign in. Open the window from the tray icon."] = "Oturum açtığında başlar. Pencereyi tepsi simgesinden açabilirsin.",
+        ["Close"] = "Kapat",
+        ["Could not load preferences; defaults are in use: "] = "Ayarlar okunamadı; varsayılanlar kullanılıyor: ",
+        ["Could not save preferences: "] = "Ayarlar kaydedilemedi: ",
+        ["Could not read Windows startup preference: "] = "Windows başlangıç ayarı okunamadı: ",
+        ["Could not change Windows startup preference: "] = "Windows başlangıç ayarı değiştirilemedi: ",
         ["Ready · Brightness and contrast apply automatically. Display modes require Preview."] = "Hazır · Parlaklık ve kontrast otomatik uygulanır. Ekran modları için Önizle kullan.",
         ["Monitor values read back. Device limits may affect the applied value."] = "Monitör değerleri yeniden okundu. Donanım sınırları uygulanan değeri etkileyebilir.",
         ["Applies automatically while dragging. Intermediate values are combined; the final value is retained."] = "Sürüklerken otomatik uygulanır. Ara değerler birleştirilir; son seçilen değer korunur.",
@@ -65,6 +74,9 @@ internal static class L
         ["Apply "] = "Uygula: ",
         ["Last-known value. Refresh to reconnect."] = "Son bilinen değer. Yeniden bağlanmak için yenile.",
         ["Monitor did not respond. Refresh to reconnect."] = "Monitör yanıt vermedi. Yeniden bağlanmak için yenile.",
+        ["Monitor did not respond. Retrying automatically."] = "Monitör yanıt vermedi. Otomatik yeniden deneniyor.",
+        ["Monitor connection restored. Controls are ready."] = "Monitör bağlantısı yeniden kuruldu. Ayarlar hazır.",
+        ["Some controls did not respond. Retrying automatically; last-known values remain disabled."] = "Bazı ayarlar yanıt vermedi. Otomatik yeniden deneniyor; son bilinen değerler devre dışı kalır.",
         ["Could not apply warm filter: "] = "Sıcak filtre uygulanamadı: ",
         ["MonitorDesk quick controls"] = "MonitorDesk hızlı ayarlar",
         ["Refresh displays"] = "Ekranları yenile",
@@ -172,6 +184,7 @@ internal static class L
         result.Controls.Count(c => c.Status == "Skipped"), result.Controls.Count(c => c.Status is "Failed" or "Different value" or "Unverified"));
     private static readonly Dictionary<string, string> MarkupKeys = new()
     {
+        ["Preferences"] = "Preferences",
         ["Tagline"] = "Your workspace, in balance.",
         ["Identify"] = "Identify",
         ["Refresh"] = "Refresh",

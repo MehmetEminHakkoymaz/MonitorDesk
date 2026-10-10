@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.12.1 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.14.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -31,6 +31,14 @@ Ana pencere, yerleşim düzenleyicisini ve kompakt ekran kartlarını bir araya 
 
 Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pikselle sınırlanır. Işık profilleri geniş pencerede ekran yerleşiminin yanında, dar pencerede altında görünür. Gece, normal ve yüksek ışık için doluluğu artan üç güneş simgesi kullanılır; profil değerleri araç ipuçlarında bulunur. Profil alanında yalnızca işlem sırasında ilerleme ve sonuç mesajları gösterilir. Kaydırıcılar ve kaydırma çubukları seçilen temaya uyum sağlar.
 
+### Ayarlar ve Windows ile başlatma
+
+Üst araç çubuğundan **Ayarlar** düğmesini aç. Tema, göz konforu yoğunluğu, pencerenin konumu, boyutu ve tam ekran durumu otomatik olarak `%LOCALAPPDATA%\MonitorDesk\settings.json` dosyasına kaydedilir ve sonraki açılışta geri yüklenir. Önceden kullanılan monitör artık bağlı değilse pencere bağlı bir ekranın görünür alanına alınır. Göz konforu başlangıçta kapalıdır; seçtiğin yoğunluk hatırlanır.
+
+**Windows ile sistem tepsisinde başlat** seçeneğini açarsan Windows hesabında oturum açıldığında MonitorDesk, ana pencereyi göstermeden tepside başlar. Varsayılan olarak kapalıdır; aynı ekrandan kapatabilirsin. Bu seçenek mevcut uygulama dosyasını hesabının Windows başlangıç kayıtlarına ekler; dosya yolunun sabit kalması için kurulu uygulamadan etkinleştir. Ana pencereyi açmak için tepsi simgesine çift tıkla. Uygulama kaldırıldığında o kuruluma ait başlangıç kaydı temizlenir.
+
+Geliştirme sürümünde 171 otomatik kontrol geçti: ayarların kaydedilip okunması, geçersiz veriler, bağlantısı kesilen ekranların koordinatları ve taklit edilmiş kayıt defteri üzerinden başlangıç komutları sınandı. Türkçe/İngilizce ayarlar ekranları ile gizli başlangıç ve tepsiden geri açma davranışı kontrol edildi. Gerçek Windows oturum açılışı, yeniden açılışta ayarların korunması ve farklı DPI değerlerinde konum geri yükleme manuel test edilmelidir. Tanılama çalıştırmaları kullanıcı ayarlarını kaydetmez ve otomatik başlangıcı etkinleştirmez.
+
 ### Sistem tepsisi
 
 Uygulama açılışta Windows **görüntüleme dilini** kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce açılır. Ana pencere, tepsi paneli ve menüsü, ışık profilleri, araç ipuçları, ekran önizleme pencereleri ve uygulamanın durum mesajları aynı dili kullanır. Monitör adları ve Windows/üreticiden gelen harici hata ayrıntıları aynen korunur. Windows görüntüleme dilini değiştirdikten sonra MonitorDesk’i yeniden başlat; yalnızca bölgesel tarih/sayı biçimini değiştirmek arayüz dilini değiştirmez.
@@ -45,13 +53,17 @@ v0.9.0 için 121 otomatik/salt okunur kontrol ve masaüstünde kapatınca gizlem
 
 ### Otomatik kaydırıcılar
 
+Daha önce okunabilen parlaklık/kontrast kontrolleri yanıt vermemeye başlarsa uygulama tepsideyken de otomatik yeniden denenir. Her seferinde yalnızca sorunlu bir monitörün güncel olmayan kontrolleri okunur: ilk deneme 5 saniye sonra, sonraki denemeler başarısız okuma tamamlandıktan 15, 30 ve 60 saniye sonra yapılır. Sağlıklı ve desteklenmeyen kontroller sürekli sorgulanmaz. Kaydırıcı kullanımı, ayar yazma, profil ve ekran önizlemesi sırasında denemeler ertelenir; toparlanma okuması sırasında komutların çakışmaması için ayar kontrolleri kısa süreliğine devre dışı bırakılır. Başarılı okumada güncel değerler ve kaydırıcılar geri gelir; o monitör için denemeler durur. Manuel Yenile kullanılmaya devam edilebilir. Takılan bir sürücü çağrısı toparlanmayı ve sonraki işlemleri geciktirebilir.
+
+v0.14.0 geliştirme sürümünde donanıma yazma yapmadan 181 otomatik kontrol geçti. Artan bekleme aralıkları, toparlanma/bağlantı kesilmesi temizliği ve monitörlerin bağımsız deneme zamanları sınandı. OMEN monitörün gerçek toparlanma davranışı kullanıcı tarafından test edilmelidir.
+
 İlk parlaklık/kontrast değişikliği donanım kuyruğuna bekletilmeden alınır. Sürükleme sırasında her monitör/ayar için en az 250 ms aralıklarla son istenen değer gönderilir; yeni hareketler gönderim zamanını ötelemek yerine bekleyen ara değeri değiştirir. Komutlar mevcut DDC toparlanma süreleriyle sırayla gönderilir; meşgul veya yavaş bir monitör bu aralığı uzatabilir. Kaydırıcı bırakıldığında son seçilen değer kuyrukta korunur. Ana pencere ve tepsi aynı kuyruğu kullanır. Yazma sırasında kaydırıcılar kullanılabilir; hareket durulduğunda yeniden okunan gerçek değer gösterilir, dolayısıyla donanımın desteklediği adımlar istenen değerden farklı olabilir. Hata durumunda bekleyen değişiklikler durdurulur ve ayrıntı gösterilir; kullanılamayan veya güncel olmayan kontroller kapalı kalır. Uygulamadan gerçek çıkış, gönderilmemiş değişiklikleri iptal eder. Çözünürlük, tazeleme hızı, yönlendirme ve yerleşim için önizleme onayı devam eder. Geliştirme sürümü donanıma yazmadan 155 otomatik kontrolü geçti; fiziksel kaydırıcı davranışı kullanıcı tarafından test edilmelidir.
 
 ### Işık profilleri
 
 Eye comfort’ın seçili yoğunluğu, ana penceredeki kaydırıcının altında ve tepsi düğmesinde **değer / 90** olarak gösterilir; mod kapalıyken de görünür. Bu, filtrenin seçili yoğunluk seviyesidir; yüzde veya monitör parlaklığı değildir. Kaydırıcı değişince iki görünüm birlikte güncellenir.
 
-**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya MonitorDesk’i kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır ve sonraki oturuma kaydedilmez. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
+**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya MonitorDesk’i kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır; seçili yoğunluk sonraki oturum için kaydedilir. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
 
 DDC okumalarında yeniden deneme aralıkları artırıldı. Parlaklık/kontrast yazmaları geçici iletişim hatalarında en fazla üç kez denenir; ardından başka komut veya doğrulama okumasından önce monitöre toparlanma süresi verilir. Desteklenmeyen komutlar tekrar denenmez, güncel olmayan değerler işaretlenir. Bu değişiklik OMEN 25i’de parlaklık yazmasından sonra kontrastın geçici kaybolması bildirimini ele alır; fiziksel monitörde düzeldiği henüz doğrulanmadı. Geliştirme sürümünde donanım ayarlarını değiştirmeden 121 otomatik/salt okunur kontrol geçti.
 

@@ -107,7 +107,12 @@ public sealed class DisplayService
     public async Task<List<Display>> ReadAsync()
     {
         await gate.WaitAsync();
-        try { return await Task.Run(Read); } finally { gate.Release(); }
+        try { return await Task.Run(() => Read()); } finally { gate.Release(); }
+    }
+    internal async Task<List<Display>> RecoverAsync(IReadOnlyList<Display> previous, string target)
+    {
+        await gate.WaitAsync();
+        try { return await Task.Run(() => Read(previous, target)); } finally { gate.Release(); }
     }
     private static List<(nint Handle, Native.MonitorInfo Info)> Logical()
     {
@@ -146,9 +151,10 @@ public sealed class DisplayService
         int error = ok ? 0 : Marshal.GetLastWin32Error();
         return ok && max > min && current >= min && current <= max ? new(new Level(min, current, max), 0) : new(null, ok ? unchecked((int)0xC0262585) : error);
     }
-    private List<Display> Read()
+    private List<Display> Read(IReadOnlyList<Display>? previous = null, string? target = null)
     {
-        var panels = WmiBrightness.ReadSafely(readPanels);
+        var panels = previous == null || previous.Any(d => RecoverySchedule.Key(d) == target && d.WmiInstance != null && d.Brightness?.IsStale == true)
+            ? WmiBrightness.ReadSafely(readPanels) : [];
         var result = new List<Display>();
         var connected = new HashSet<string>(StringComparer.Ordinal);
         int number = 0;
@@ -156,6 +162,12 @@ public sealed class DisplayService
         {
             number++;
             string id = Identity(info.Device);
+            var oldDisplays = previous?.Where(d => d.Id == id && d.Device == info.Device).ToArray();
+            if (previous != null && (oldDisplays == null || !oldDisplays.Any(d => RecoverySchedule.Key(d) == target)))
+            {
+                if (oldDisplays != null) result.AddRange(oldDisplays);
+                continue;
+            }
             string key = WmiKey(id);
             var panel = panels.FirstOrDefault(p => p.Instance.Equals(key, StringComparison.OrdinalIgnoreCase) || p.Instance.StartsWith(key + "_", StringComparison.OrdinalIgnoreCase));
             var mode = new Native.DevMode { Size = (ushort)Marshal.SizeOf<Native.DevMode>() };
@@ -166,24 +178,30 @@ public sealed class DisplayService
                 int count = Math.Max(1, physical.Length);
                 for (int index = 0; index < count; index++)
                 {
+                    var old = oldDisplays?.FirstOrDefault(d => d.PhysicalIndex == index);
+                    if (previous != null && (old == null || RecoverySchedule.Key(old) != target))
+                    {
+                        if (old != null) result.Add(old);
+                        continue;
+                    }
                     string controlKey = $"{id}|{index}";
                     string brightnessKey = controlKey + "|brightness", contrastKey = controlKey + "|contrast";
                     connected.Add(brightnessKey); connected.Add(contrastKey);
-                    var brightness = panel != null ? new Level(0, panel.Value, 100) : physical.Length > 0
+                    var brightness = old != null && old.Brightness?.IsStale != true ? old.Brightness : panel != null ? new Level(0, panel.Value, 100) : physical.Length > 0
                         ? levelReader.Read(brightnessKey, () => ReadLevel(physical[index].Handle, false)) : levelReader.Unavailable(brightnessKey);
-                    var contrast = physical.Length > 0
+                    var contrast = old != null && old.Contrast?.IsStale != true ? old.Contrast : physical.Length > 0
                         ? levelReader.Read(contrastKey, () => ReadLevel(physical[index].Handle, true)) : levelReader.Unavailable(contrastKey);
                     string name = physical.Length > 0 ? physical[index].Description : "Windows display";
                     string note = panel != null ? "Built-in brightness · Windows WMI" : brightness != null || contrast != null ? "Hardware controls · DDC/CI" : "Hardware controls unavailable. Check DDC/CI in the monitor menu and your cable or dock.";
                     result.Add(new Display(id, info.Device, name, number, (info.Flags & 1) != 0,
                         info.Monitor.Left, info.Monitor.Top, hasMode ? (int)mode.Width : info.Monitor.Right - info.Monitor.Left,
                         hasMode ? (int)mode.Height : info.Monitor.Bottom - info.Monitor.Top, hasMode ? mode.Frequency : 0,
-                        index, brightness, contrast, panel?.Instance, note, hasMode ? mode.Orientation : 0));
+                        index, brightness, contrast, panel?.Instance ?? old?.WmiInstance, old?.WmiInstance != null ? old.Note : note, hasMode ? mode.Orientation : 0));
                 }
             }
             finally { if (physical.Length > 0) Native.DestroyPhysicalMonitors((uint)physical.Length, physical); }
         }
-        levelReader.Retain(connected);
+        if (previous == null) levelReader.Retain(connected);
         return result;
     }
     public async Task SetAsync(Display display, bool contrast, uint value)

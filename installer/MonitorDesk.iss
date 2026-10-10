@@ -47,3 +47,14 @@ Name: "{autoprograms}\MonitorDesk"; Filename: "{app}\MonitorDesk.exe"; WorkingDi
 
 [Run]
 Filename: "{app}\MonitorDesk.exe"; Description: "Launch MonitorDesk"; Flags: nowait postinstall skipifsilent
+
+[Code]
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  Command: String;
+begin
+  if CurUninstallStep = usUninstall then
+    if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'MonitorDesk', Command) then
+      if Pos(Lowercase('"' + ExpandConstant('{app}\MonitorDesk.exe') + '"'), Lowercase(Command)) = 1 then
+        RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'MonitorDesk');
+end;

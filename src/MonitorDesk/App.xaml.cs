@@ -27,7 +27,7 @@ public partial class App : Application
             Shutdown();
             return;
         }
-        bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--tray-check";
+        bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--preferences-snapshot" or "--tray-check";
         // Let read-only UI diagnostics render both languages without changing Windows settings.
         if (diagnostic && e.Args.FirstOrDefault(a => a.StartsWith("--ui-culture=", StringComparison.Ordinal)) is { } culture)
             CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture["--ui-culture=".Length..]);
@@ -38,6 +38,7 @@ public partial class App : Application
             instance = new SingleInstance();
             if (!instance.Acquired)
             {
+                if (e.Args.Contains("--startup")) { Shutdown(); return; }
                 string title = L.Get("MonitorDesk is already running");
                 string message = L.Get("MonitorDesk is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.");
                 MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
@@ -57,8 +58,8 @@ public partial class App : Application
             catch (Exception ex) { await File.WriteAllTextAsync(e.Args[1], JsonSerializer.Serialize(new { Error = ex.Message })); Shutdown(1); }
             return;
         }
-        var window = new MainWindow(); MainWindow = window;
-        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot" || e.Args[0] == "--tray-snapshot");
+        var window = new MainWindow(remember: !diagnostic); MainWindow = window;
+        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot" || e.Args[0] == "--tray-snapshot" || e.Args[0] == "--preferences-snapshot");
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         if (!snapshot)
         {
@@ -67,13 +68,26 @@ public partial class App : Application
         }
         if (snapshot && e.Args.Length >= 4 && int.TryParse(e.Args[2], out int width) && int.TryParse(e.Args[3], out int height))
         { window.Width = Math.Clamp(width, 680, 2560); window.Height = Math.Clamp(height, 520, 1600); }
-        window.Show();
-        if (e.Args.Length == 2 && e.Args[0] == "--tray-check")
+        bool startHidden = tray != null && ((!diagnostic && e.Args.Contains("--tray")) ||
+            (diagnostic && e.Args[0] == "--tray-check" && e.Args.Contains("--start-hidden")));
+        if (startHidden)
+        {
+            await window.StartInTrayAsync();
+            if (!diagnostic) return;
+        }
+        else window.Show();
+        if (e.Args.Length >= 2 && e.Args[0] == "--tray-check")
         {
             await window.InitialRead.Task;
             try
             {
                 if (tray == null) throw new InvalidOperationException("Tray initialization failed.");
+                if (startHidden)
+                {
+                    if (window.IsVisible) throw new InvalidOperationException("Tray startup displayed the main window.");
+                    tray.ShowWindow();
+                    if (!window.IsVisible) throw new InvalidOperationException("Hidden-start window could not be restored.");
+                }
                 window.Close();
                 if (window.IsVisible) throw new InvalidOperationException("Close did not hide the window.");
                 tray.TogglePanel();
@@ -82,7 +96,7 @@ public partial class App : Application
                 if (tray.IsPanelVisible) throw new InvalidOperationException("Quick panel did not hide.");
                 tray.ShowWindow();
                 if (!window.IsVisible) throw new InvalidOperationException("Tray did not restore the window.");
-                await File.WriteAllTextAsync(e.Args[1], "PASS close hides the window; quick panel opens and hides; tray restores the main window; explicit exit requested.");
+                await File.WriteAllTextAsync(e.Args[1], (startHidden ? "PASS starts hidden and restores from tray; " : "PASS ") + "close hides the window; quick panel opens and hides; tray restores the main window; explicit exit requested.");
                 window.ExitApplication();
             }
             catch (Exception ex) { await File.WriteAllTextAsync(e.Args[1], "FAIL " + ex.Message); Shutdown(1); }
@@ -92,9 +106,15 @@ public partial class App : Application
         {
             // Render the actual WPF layout with real read-only display data for local QA.
             await window.InitialRead.Task;
-            if (e.Args.Contains("--light")) window.Toolbar.Children.OfType<System.Windows.Controls.Button>().Last().RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
+            if (e.Args.Contains("--light")) window.ThemeButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            if (e.Args[0] == "--tray-snapshot")
+            if (e.Args[0] == "--preferences-snapshot")
+            {
+                var dialog = window.CreateSettingsDialog(); dialog.Show();
+                await dialog.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                SaveSnapshot(dialog, e.Args[1]); dialog.Close();
+            }
+            else if (e.Args[0] == "--tray-snapshot")
             {
                 window.Hide();
                 var quick = new TrayPanel(window); quick.Show();
