@@ -9,12 +9,21 @@ internal static class LevelChangeChecks
         var queue = new LevelChanges();
         var now = DateTime.UtcNow;
         queue.Queue(display, false, 60, now);
+        check(queue.TryTake(now, out var change) && change!.Value == 60,
+            "The first slider change is ready immediately without a debounce delay");
+        queue.Queue(display, false, 70, now.AddMilliseconds(50));
         queue.Queue(display, false, 80, now.AddMilliseconds(100));
-        check(queue.Count == 1 && !queue.TryTake(now.AddMilliseconds(349), out _), "Rapid slider changes coalesce and reset the quiet period");
-        check(queue.TryTake(now.AddMilliseconds(350), out var change) && change!.Value == 80 && queue.Count == 0,
-            "Only the newest slider value is sent after the pause");
+        check(queue.Count == 1 && !queue.TryTake(now.AddMilliseconds(249), out _), "Rapid slider changes coalesce within the dispatch interval");
+        queue.Queue(display, false, 90, now.AddMilliseconds(240));
+        check(queue.TryTake(now.AddMilliseconds(250), out change) && change!.Value == 90 && queue.Count == 0,
+            "Continuous dragging keeps the deadline and sends the latest value without waiting for a pause");
+        queue.Queue(display, false, 65, now.AddMilliseconds(300));
+        queue.Queue(display, false, 55, now.AddMilliseconds(450));
+        check(queue.TryTake(now.AddMilliseconds(800), out change) && change!.Value == 55,
+            "Input arriving during a slower hardware write keeps only the newest next value");
+        now = now.AddSeconds(2);
         queue.Queue(display, false, 50, now);
-        check(queue.TryTake(now.AddMilliseconds(250), out change) && change!.Value == 50,
+        check(queue.TryTake(now, out change) && change!.Value == 50,
             "Returning to the original value still queues a write after an in-flight change");
         queue.Queue(display, false, 40, now);
         queue.Queue(display, true, 60, now);

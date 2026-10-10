@@ -300,6 +300,7 @@ public partial class MainWindow : Window
         Toolbar.IsEnabled = LayoutHost.IsEnabled = ProfileButtons.IsEnabled = false;
         QuickStateChanged?.Invoke(this, EventArgs.Empty);
         levelTimer.Start();
+        _ = ApplyLevelChangesAsync();
     }
 
     private async Task ApplyLevelChangesAsync()
@@ -363,7 +364,7 @@ public partial class MainWindow : Window
         var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10, IsEnabled = !level.IsStale };
         System.Windows.Automation.AutomationProperties.SetName(slider, L.Format("Display {0} {1}", display.Number, name));
         var value = Text(level.IsStale ? L.Format("Last known: {0} / {1} · Not current", level.Current, level.Max) : $"{level.Current} / {level.Max}", 12, "Muted");
-        slider.ToolTip = L.Get("Applies automatically after a brief pause. No Apply button needed.");
+        slider.ToolTip = L.Get("Applies automatically while dragging. Intermediate values are combined; the final value is retained.");
         uint lastSelected = level.Current;
         slider.ValueChanged += (_, _) =>
         {

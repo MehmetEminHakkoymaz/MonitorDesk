@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.12.0 (development) · Windows only**
+**Working title · v0.12.1 (development) · Windows only**
 
 ## Install
 
@@ -23,7 +23,7 @@ The setup installs MonitorDesk for your Windows account, creates desktop and Sta
 - Show unavailable controls honestly, without simulated values or software dimming.
 - Refresh after display configuration changes.
 - Light and dark themes, per-monitor DPI awareness and keyboard-accessible controls.
-- Adjust brightness and contrast directly with sliders in the main window and tray panel; changes apply automatically after a brief pause.
+- Adjust brightness and contrast directly with sliders in the main window and tray panel; changes apply automatically while dragging.
 - Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
 - Preview landscape, portrait, landscape (flipped) and portrait (flipped) orientation.
 - Arrange extended displays by dragging numbered tiles, with edge snapping and timed rollback.
@@ -47,7 +47,7 @@ The v0.9.0 build passed 121 automated/read-only checks and a desktop lifecycle c
 
 ### Automatic sliders
 
-Brightness and contrast apply after approximately 250 ms without further value changes. Rapid input keeps only the newest request per monitor/control, and hardware commands run sequentially with existing DDC recovery delays. Both UI locations use the same queue. Sliders remain responsive during writes; read-back displays the actual value after input settles, so hardware-supported steps may differ from the request. Errors stop queued changes and report details; unavailable or stale controls stay disabled. Explicit exit discards unsent changes. Resolution, refresh rate, orientation and arrangement still use preview confirmation. The development build passed 153 automated checks without hardware writes; physical slider behavior needs user testing.
+The first brightness/contrast change enters the hardware queue immediately. During dragging, the latest requested value is sampled at intervals of at least 250 ms per monitor/control; new input replaces pending intermediate values without postponing the dispatch deadline. Commands run sequentially with existing DDC recovery delays, so a busy or slower monitor can extend this interval. The final selected value remains queued after release. Both UI locations use the same queue. Sliders remain responsive during writes; read-back displays the actual value after input settles, so hardware-supported steps may differ from the request. Errors stop queued changes and report details; unavailable or stale controls stay disabled. Explicit exit discards unsent changes. Resolution, refresh rate, orientation and arrangement still use preview confirmation. The development build passed 155 automated checks without hardware writes; physical slider behavior needs user testing.
 
 ### Lighting profiles
 

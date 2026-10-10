@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.12.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.12.1 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -21,7 +21,7 @@ Kurulum, MonitorDesk’i Windows kullanıcı hesabına yükler; masaüstü ve Ba
 - Kullanılamayan kontrolleri açıkça belirtir; sahte değer veya yazılımsal karartma kullanmaz.
 - Ekran yapılandırması değiştiğinde bilgileri yeniler.
 - Açık/koyu tema, monitör başına DPI farkındalığı ve klavyeyle erişilebilir kontroller sunar.
-- Ana pencere ve tepsi panelindeki kaydırıcılarla parlaklık ve kontrastı doğrudan ayarlar; kısa bir duraklamadan sonra değişiklik otomatik uygulanır.
+- Ana pencere ve tepsi panelindeki kaydırıcılarla parlaklık ve kontrastı doğrudan ayarlar; sürükleme sırasında değişiklik otomatik uygulanır.
 - Desteklenen çözünürlük ve tazeleme hızlarını 15 saniyelik onay süresiyle önizler.
 - Yatay, dikey, ters yatay ve ters dikey yönleri önizler.
 - Genişletilmiş ekranları sürükleyerek konumlandırmayı, kenar hizalamayı ve süre sonunda geri dönmeyi destekler.
@@ -45,7 +45,7 @@ v0.9.0 için 121 otomatik/salt okunur kontrol ve masaüstünde kapatınca gizlem
 
 ### Otomatik kaydırıcılar
 
-Parlaklık ve kontrast, değerin yaklaşık 250 ms boyunca değişmemesinin ardından uygulanır. Hızlı hareketlerde her monitör/ayar için yalnızca son istek tutulur; donanım komutları mevcut DDC toparlanma süreleriyle sırayla gönderilir. Ana pencere ve tepsi aynı kuyruğu kullanır. Yazma sırasında kaydırıcılar kullanılabilir; hareket durulduğunda yeniden okunan gerçek değer gösterilir, dolayısıyla donanımın desteklediği adımlar istenen değerden farklı olabilir. Hata durumunda bekleyen değişiklikler durdurulur ve ayrıntı gösterilir; kullanılamayan veya güncel olmayan kontroller kapalı kalır. Uygulamadan gerçek çıkış, gönderilmemiş değişiklikleri iptal eder. Çözünürlük, tazeleme hızı, yönlendirme ve yerleşim için önizleme onayı devam eder. Geliştirme sürümü donanıma yazmadan 153 otomatik kontrolü geçti; fiziksel kaydırıcı davranışı kullanıcı tarafından test edilmelidir.
+İlk parlaklık/kontrast değişikliği donanım kuyruğuna bekletilmeden alınır. Sürükleme sırasında her monitör/ayar için en az 250 ms aralıklarla son istenen değer gönderilir; yeni hareketler gönderim zamanını ötelemek yerine bekleyen ara değeri değiştirir. Komutlar mevcut DDC toparlanma süreleriyle sırayla gönderilir; meşgul veya yavaş bir monitör bu aralığı uzatabilir. Kaydırıcı bırakıldığında son seçilen değer kuyrukta korunur. Ana pencere ve tepsi aynı kuyruğu kullanır. Yazma sırasında kaydırıcılar kullanılabilir; hareket durulduğunda yeniden okunan gerçek değer gösterilir, dolayısıyla donanımın desteklediği adımlar istenen değerden farklı olabilir. Hata durumunda bekleyen değişiklikler durdurulur ve ayrıntı gösterilir; kullanılamayan veya güncel olmayan kontroller kapalı kalır. Uygulamadan gerçek çıkış, gönderilmemiş değişiklikleri iptal eder. Çözünürlük, tazeleme hızı, yönlendirme ve yerleşim için önizleme onayı devam eder. Geliştirme sürümü donanıma yazmadan 155 otomatik kontrolü geçti; fiziksel kaydırıcı davranışı kullanıcı tarafından test edilmelidir.
 
 ### Işık profilleri
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.1 — Faster slider feedback (unreleased)
+
+- Queue the first brightness/contrast change immediately instead of waiting for a quiet period.
+- Sample the newest pending value at intervals of at least 250 ms per control while dragging; continuous input replaces intermediate values without postponing the dispatch deadline.
+- Start the shared writer immediately when available, retain the final value after release, and preserve sequential commands and existing DDC retry/settle delays.
+- Update English/Turkish tooltips and documentation; add immediate-first, continuous-drag and slow-write scheduling regression checks.
+- Pass 155 automated checks without hardware writes. Physical response speed and OMEN reliability require user testing.
+
 ## 0.12.0 — Automatic brightness and contrast (unreleased)
 
 - Apply brightness and contrast directly from sliders in the main window and tray panel; remove their Apply/checkmark buttons.
