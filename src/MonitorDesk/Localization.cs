@@ -14,6 +14,9 @@ internal static class L
     internal static bool Turkish => uiCulture.TwoLetterISOLanguageName == "tr";
     private static readonly Dictionary<string, string> TurkishText = new(StringComparer.Ordinal)
     {
+        ["Ready · Brightness and contrast apply automatically. Display modes require Preview."] = "Hazır · Parlaklık ve kontrast otomatik uygulanır. Ekran modları için Önizle kullan.",
+        ["Monitor values read back. Device limits may affect the applied value."] = "Monitör değerleri yeniden okundu. Donanım sınırları uygulanan değeri etkileyebilir.",
+        ["Applies automatically after a brief pause. No Apply button needed."] = "Kısa bir duraklamanın ardından otomatik uygulanır. Uygula düğmesine gerek yok.",
         ["Your workspace, in balance."] = "Çalışma alanın dengede.",
         ["Identify"] = "Tanımla",
         ["Refresh"] = "Yenile",

@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.11.0 (development) · Windows only**
+**Working title · v0.12.0 (development) · Windows only**
 
 ## Install
 
@@ -23,7 +23,7 @@ The setup installs MonitorDesk for your Windows account, creates desktop and Sta
 - Show unavailable controls honestly, without simulated values or software dimming.
 - Refresh after display configuration changes.
 - Light and dark themes, per-monitor DPI awareness and keyboard-accessible controls.
-- Apply changes explicitly; moving a slider alone does not alter the monitor.
+- Adjust brightness and contrast directly with sliders in the main window and tray panel; changes apply automatically after a brief pause.
 - Preview supported resolutions and refresh rates with a 15-second confirmation timeout.
 - Preview landscape, portrait, landscape (flipped) and portrait (flipped) orientation.
 - Arrange extended displays by dragging numbered tiles, with edge snapping and timed rollback.
@@ -39,11 +39,15 @@ The app follows the Windows **display language** at startup: Turkish for Turkish
 
 Only one normal MonitorDesk instance runs per Windows user/session. Launching it again while it is open or hidden in the tray shows an already-running message and exits the second copy. Explicit exit releases the lock; a terminated process does not leave a permanent lock. Diagnostic probes, snapshots and lifecycle checks are isolated from this startup guard. Exit any older app version before testing this feature, since versions before v0.10.2 do not acquire the lock.
 
-Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with single-row brightness and contrast sliders and explicit **✓** apply buttons. Hover over a checkmark for its action, or over the status footer for the full message. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel is 320 logical pixels wide, capped at 560 pixels high, and scrolls when needed. It opens above the taskbar on the clicked screen; double-click still opens the full window. The compact v0.10.1 build and desktop open/hide/restore/exit check passed; its three-monitor layout was visually inspected.
+Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with single-row brightness and contrast sliders that apply automatically. Hover over the status footer for the full message. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel is 320 logical pixels wide, capped at 560 pixels high, and scrolls when needed. It opens above the taskbar on the clicked screen; double-click still opens the full window. The compact v0.10.1 build and desktop open/hide/restore/exit check passed; its three-monitor layout was visually inspected.
 
 Closing the main window hides MonitorDesk in the Windows notification area. Double-click its icon, or right-click and choose **Aç** (Open), to restore the window. Choose **Çıkış** (Exit) to stop the app and remove the warm filter. The filter and display-change handling remain active while the window is hidden. Minimize still minimizes normally; closing an unconfirmed display preview restores it before hiding or exiting. Windows sign-out/shutdown ends the app normally. If tray initialization fails, closing exits so the app is not left running without an accessible icon.
 
 The v0.9.0 build passed 121 automated/read-only checks and a desktop lifecycle check covering close-to-hide, restore and explicit process exit. Manual right-click menu, filter retention and Explorer restart checks remain pending.
+
+### Automatic sliders
+
+Brightness and contrast apply after approximately 250 ms without further value changes. Rapid input keeps only the newest request per monitor/control, and hardware commands run sequentially with existing DDC recovery delays. Both UI locations use the same queue. Sliders remain responsive during writes; read-back displays the actual value after input settles, so hardware-supported steps may differ from the request. Errors stop queued changes and report details; unavailable or stale controls stay disabled. Explicit exit discards unsent changes. Resolution, refresh rate, orientation and arrangement still use preview confirmation. The development build passed 153 automated checks without hardware writes; physical slider behavior needs user testing.
 
 ### Lighting profiles
 
@@ -108,7 +112,7 @@ The v0.11.0 setup EXE was built with Inno Setup 6.7.3 after passing 143 automate
 
 ## Hardware limitations
 
-Enable DDC/CI in the monitor's own menu. Some docks, adapters, drivers, HDR modes and monitor presets block or restrict controls. A readable value does not guarantee the device will accept writes. Apply reports command errors and reads current values again.
+Enable DDC/CI in the monitor's own menu. Some docks, adapters, drivers, HDR modes and monitor presets block or restrict controls. A readable value does not guarantee the device will accept writes. Automatic slider changes report command errors and read current values again.
 
 WMI brightness is used only when an active provider matches the display device identity. Built-in panel brightness is snapped to a supported level. Contrast is not available through WMI. WMI and DDC/CI operations run off the UI thread and are serialized. A stuck driver call can delay further operations; a hard driver timeout is not implemented in this release.
 

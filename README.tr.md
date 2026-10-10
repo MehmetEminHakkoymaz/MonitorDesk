@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.11.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.12.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -21,7 +21,7 @@ Kurulum, MonitorDesk’i Windows kullanıcı hesabına yükler; masaüstü ve Ba
 - Kullanılamayan kontrolleri açıkça belirtir; sahte değer veya yazılımsal karartma kullanmaz.
 - Ekran yapılandırması değiştiğinde bilgileri yeniler.
 - Açık/koyu tema, monitör başına DPI farkındalığı ve klavyeyle erişilebilir kontroller sunar.
-- Değişiklikleri açık bir uygulama adımıyla gönderir; kaydırıcıyı hareket ettirmek tek başına monitör ayarını değiştirmez.
+- Ana pencere ve tepsi panelindeki kaydırıcılarla parlaklık ve kontrastı doğrudan ayarlar; kısa bir duraklamadan sonra değişiklik otomatik uygulanır.
 - Desteklenen çözünürlük ve tazeleme hızlarını 15 saniyelik onay süresiyle önizler.
 - Yatay, dikey, ters yatay ve ters dikey yönleri önizler.
 - Genişletilmiş ekranları sürükleyerek konumlandırmayı, kenar hizalamayı ve süre sonunda geri dönmeyi destekler.
@@ -37,11 +37,15 @@ Uygulama açılışta Windows **görüntüleme dilini** kullanır: Türkçe dil 
 
 Her Windows kullanıcısı/oturumunda tek normal MonitorDesk örneği çalışır. Uygulama açıkken veya tepside gizliyken yeniden çalıştırmak, zaten açık olduğunu bildiren uyarıyı gösterir ve ikinci kopyayı kapatır. Gerçek çıkış kilidi bırakır; süreç sonlandırıldığında kalıcı kilit kalmaz. Tanılama, görüntü alma ve yaşam döngüsü kontrolleri bu başlangıç kilidinden bağımsızdır. Özelliği denemeden önce eski sürümü tepsiden Çıkış ile kapat; v0.10.2 öncesi sürümler bu kilidi kullanmaz.
 
-Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde tek satırlık parlaklık/kontrast kaydırıcıları ve ayrı **✓** uygulama düğmeleri bulunur. Onay simgesinin üzerinde işlem açıklaması, durum satırının üzerinde tam mesaj araç ipucunda görünür. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Genişliği 320 mantıksal piksel, maksimum yüksekliği 560 pikseldir; gerektiğinde kaydırılabilir. Tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder. Küçültülen v0.10.1 sürümünün derlemesi ve masaüstü aç/gizle/geri aç/çıkış kontrolü geçti; üç monitörlü görünüm görsel olarak incelendi.
+Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde otomatik uygulanan tek satırlık parlaklık/kontrast kaydırıcıları bulunur. Durum satırının üzerinde tam mesaj araç ipucunda görünür. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Genişliği 320 mantıksal piksel, maksimum yüksekliği 560 pikseldir; gerektiğinde kaydırılabilir. Tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder. Küçültülen v0.10.1 sürümünün derlemesi ve masaüstü aç/gizle/geri aç/çıkış kontrolü geçti; üç monitörlü görünüm görsel olarak incelendi.
 
 Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
 
 v0.9.0 için 121 otomatik/salt okunur kontrol ve masaüstünde kapatınca gizleme, geri açma ve gerçek süreç çıkışını doğrulayan kontrol geçti. Sağ tık menüsü, filtrenin tepside korunması ve Explorer yeniden başlatma davranışının manuel testi henüz yapılmadı.
+
+### Otomatik kaydırıcılar
+
+Parlaklık ve kontrast, değerin yaklaşık 250 ms boyunca değişmemesinin ardından uygulanır. Hızlı hareketlerde her monitör/ayar için yalnızca son istek tutulur; donanım komutları mevcut DDC toparlanma süreleriyle sırayla gönderilir. Ana pencere ve tepsi aynı kuyruğu kullanır. Yazma sırasında kaydırıcılar kullanılabilir; hareket durulduğunda yeniden okunan gerçek değer gösterilir, dolayısıyla donanımın desteklediği adımlar istenen değerden farklı olabilir. Hata durumunda bekleyen değişiklikler durdurulur ve ayrıntı gösterilir; kullanılamayan veya güncel olmayan kontroller kapalı kalır. Uygulamadan gerçek çıkış, gönderilmemiş değişiklikleri iptal eder. Çözünürlük, tazeleme hızı, yönlendirme ve yerleşim için önizleme onayı devam eder. Geliştirme sürümü donanıma yazmadan 153 otomatik kontrolü geçti; fiziksel kaydırıcı davranışı kullanıcı tarafından test edilmelidir.
 
 ### Işık profilleri
 

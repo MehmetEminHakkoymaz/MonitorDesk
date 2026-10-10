@@ -60,13 +60,18 @@ internal sealed class TrayPanel : Window
         Render();
     }
 
-    private void QuickStateChanged(object? sender, EventArgs e) { if (IsVisible) Render(); }
+    private void QuickStateChanged(object? sender, EventArgs e)
+    {
+        if (!IsVisible) return;
+        if (main.AutomaticLevelsActive) UpdateState();
+        else Render();
+    }
     internal void Render()
     {
         monitors.Children.Clear();
         foreach (var display in main.QuickDisplays)
         {
-            var controls = new StackPanel { IsEnabled = !main.IsBusy };
+            var controls = new StackPanel { IsEnabled = !main.ControlsBusy };
             controls.Children.Add(new TextBlock { Text = L.Format("Display {0} · {1}", display.Number, display.Name), FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = display.Name, Margin = new(0, 0, 0, 6) });
             controls.Children.Add(main.Control(display, false, true));
             var contrast = main.Control(display, true, true); contrast.Margin = new(0, 4, 0, 0); controls.Children.Add(contrast);
@@ -74,6 +79,10 @@ internal sealed class TrayPanel : Window
             card.SetResourceReference(Border.BackgroundProperty, "Card"); monitors.Children.Add(card);
         }
         if (main.QuickDisplays.Count == 0) monitors.Children.Add(new TextBlock { Text = L.Get("No displays available. Refresh to retry."), TextWrapping = TextWrapping.Wrap });
+        UpdateState();
+    }
+    private void UpdateState()
+    {
         profiles.IsEnabled = !main.IsBusy;
         eyeState.Text = L.Format("Eye comfort · {0} · {1} / 90", L.Get(main.EyeComfortEnabled ? "On" : "Off"), main.EyeComfortStrength);
         eye.ToolTip = L.Format("Warm filter {0}. Selected strength: {1} / 90. Click to toggle.", L.Get(main.EyeComfortEnabled ? "enabled" : "disabled"), main.EyeComfortStrength);

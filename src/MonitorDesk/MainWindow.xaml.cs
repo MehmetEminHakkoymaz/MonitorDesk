@@ -17,6 +17,10 @@ public partial class MainWindow : Window
     private ModePreview? modePreview;
     private readonly CancellationTokenSource profileCancellation = new();
     private readonly DispatcherTimer debounce = new() { Interval = TimeSpan.FromMilliseconds(750) };
+    private readonly DispatcherTimer levelTimer = new() { Interval = TimeSpan.FromMilliseconds(100) };
+    private readonly LevelChanges levelChanges = new();
+    private bool levelTickRunning, autoLevelsActive;
+    private string? levelError;
     private readonly List<Window> labels = [];
     private readonly WarmFilter warmFilter = new();
     private bool warmEnabled;
@@ -25,7 +29,9 @@ public partial class MainWindow : Window
     private bool hideAfterPreview;
     internal event EventHandler? QuickStateChanged;
     internal IReadOnlyList<Display> QuickDisplays => displays;
-    internal bool IsBusy => busy;
+    internal bool IsBusy => busy || autoLevelsActive;
+    internal bool ControlsBusy => busy;
+    internal bool AutomaticLevelsActive => autoLevelsActive;
     internal bool EyeComfortEnabled => warmEnabled;
     internal int EyeComfortStrength => (int)WarmStrength.Value;
     internal void ExitApplication()
@@ -53,12 +59,13 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => { await RefreshAsync(); InitialRead.TrySetResult(); };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };
+        levelTimer.Tick += async (_, _) => await ApplyLevelChangesAsync();
         Closing += (_, e) =>
         {
             if (changingMode) { e.Cancel = true; hideAfterPreview = HideOnClose && !exitRequested; modePreview?.Revert(); return; }
             if (HideOnClose && !exitRequested) { e.Cancel = true; CloseLabels(); Hide(); }
         };
-        Closed += (_, _) => { closing = true; warmFilter.Dispose(); profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
+        Closed += (_, _) => { closing = true; levelTimer.Stop(); levelChanges.Clear(); warmFilter.Dispose(); profileCancellation.Cancel(); SystemEvents.DisplaySettingsChanged -= DisplayChanged; debounce.Stop(); CloseLabels(); };
     }
     private void DisplayChanged(object? sender, EventArgs e)
     {
@@ -73,14 +80,14 @@ public partial class MainWindow : Window
     }
     public async Task RefreshAsync()
     {
-        if (busy) { pending = true; return; }
+        if (IsBusy) { pending = true; return; }
         SetBusy(true); Status.Text = L.Get("Reading displays and supported hardware controls…");
         try
         {
             displays = await service.ReadAsync();
             await RefreshLayoutAsync();
             if (closing) return;
-            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.") : L.Get("Ready · Changes apply only when you choose Apply or Preview.");
+            Render(); Status.Text = displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true) ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.") : L.Get("Ready · Brightness and contrast apply automatically. Display modes require Preview.");
         }
         catch (Exception ex) { Summary.Text = displays.Count == 0 ? L.Get("Display discovery failed") : L.Get("Showing previous display information"); Status.Text = L.Get("Could not refresh displays: ") + L.Message(ex.Message); }
         finally { SetBusy(false); }
@@ -92,7 +99,7 @@ public partial class MainWindow : Window
     }
     internal async Task ApplyProfileAsync(LightingProfile profile)
     {
-        if (busy) return;
+        if (IsBusy) return;
         SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed; ProfileStatus.Visibility = Visibility.Visible;
         ProfileStatus.Text = Status.Text = L.Format("Reading current controls before applying {0}…", L.Get(profile.Name));
         try
@@ -247,6 +254,7 @@ public partial class MainWindow : Window
     }
     private async Task PreviewChangeAsync(Func<ModePreview> apply, string description)
     {
+        if (IsBusy) return;
         changingMode = true; SetBusy(true); CloseLabels();
         Status.Text = L.Format("Testing {0}…", description);
         string result;
@@ -284,6 +292,67 @@ public partial class MainWindow : Window
         Status.Text = L.Message(result);
     }
 
+    private void QueueLevel(Display display, bool contrast, uint value)
+    {
+        if (closing || busy || levelError != null) return;
+        levelChanges.Queue(display, contrast, value, DateTime.UtcNow);
+        autoLevelsActive = true;
+        Toolbar.IsEnabled = LayoutHost.IsEnabled = ProfileButtons.IsEnabled = false;
+        QuickStateChanged?.Invoke(this, EventArgs.Empty);
+        levelTimer.Start();
+    }
+
+    private async Task ApplyLevelChangesAsync()
+    {
+        if (closing || busy || levelTickRunning) return;
+        levelTickRunning = true;
+        try
+        {
+            if (levelChanges.TryTake(DateTime.UtcNow, out var change))
+            {
+                string name = L.Get(change!.Contrast ? "Contrast" : "Brightness");
+                Status.Text = L.Format("Applying {0} to display {1}…", name, change.Display.Number);
+                try
+                {
+                    var current = displays.FirstOrDefault(d => d.Id == change.Display.Id &&
+                        (!change.Contrast && change.Display.WmiInstance != null
+                            ? d.WmiInstance == change.Display.WmiInstance
+                            : d.Device == change.Display.Device && d.PhysicalIndex == change.Display.PhysicalIndex))
+                        ?? throw new InvalidOperationException("Display configuration changed. Refresh and try again.");
+                    await service.SetAsync(current, change.Contrast, change.Value);
+                }
+                catch (Exception ex)
+                {
+                    levelChanges.Clear();
+                    levelError = L.Format("Could not update {0}: {1} Refresh before trying again.", name, L.Message(ex.Message));
+                    Status.Text = levelError;
+                }
+                return;
+            }
+            // Do not replace a slider while it is held, or while newer changes are waiting.
+            if (levelChanges.Count != 0 || System.Windows.Input.Mouse.Captured is Slider or System.Windows.Controls.Primitives.Thumb) return;
+            try { displays = await service.ReadAsync(); }
+            catch (Exception ex)
+            {
+                levelError ??= L.Get("Could not refresh displays: ") + L.Message(ex.Message);
+                displays = displays.Select(d => d with { Brightness = d.Brightness is { } b ? b with { IsStale = true } : null,
+                    Contrast = d.Contrast is { } c ? c with { IsStale = true } : null }).ToList();
+            }
+            if (closing) return;
+            // Input can arrive during read-back. Keep the newest request and the live slider.
+            if (levelChanges.Count != 0 || System.Windows.Input.Mouse.Captured is Slider or System.Windows.Controls.Primitives.Thumb) return;
+            await RefreshLayoutAsync();
+            if (closing || levelChanges.Count != 0 || System.Windows.Input.Mouse.Captured is Slider or System.Windows.Controls.Primitives.Thumb) return;
+            levelTimer.Stop(); autoLevelsActive = false;
+            Render(); SetBusy(false);
+            Status.Text = levelError ?? (displays.Any(d => d.Brightness?.IsStale == true || d.Contrast?.IsStale == true)
+                ? L.Get("Some controls did not respond. Last-known values are marked and disabled; refresh to retry.")
+                : L.Get("Monitor values read back. Device limits may affect the applied value."));
+            levelError = null;
+        }
+        finally { levelTickRunning = false; }
+    }
+
     internal StackPanel Control(Display display, bool contrast, bool compact = false)
     {
         string name = contrast ? L.Get("Contrast") : L.Get("Brightness");
@@ -294,20 +363,15 @@ public partial class MainWindow : Window
         var slider = new Slider { Minimum = level.Min, Maximum = level.Max, Value = level.Current, SmallChange = 1, LargeChange = 10, IsEnabled = !level.IsStale };
         System.Windows.Automation.AutomationProperties.SetName(slider, L.Format("Display {0} {1}", display.Number, name));
         var value = Text(level.IsStale ? L.Format("Last known: {0} / {1} · Not current", level.Current, level.Max) : $"{level.Current} / {level.Max}", 12, "Muted");
-        var apply = new Button { Content = L.Get("Apply ") + name.ToLowerInvariant(), HorizontalAlignment = HorizontalAlignment.Left, Margin = new(0, 12, 0, 0), IsEnabled = false };
-        slider.ValueChanged += (_, _) => { value.Text = $"{Math.Round(slider.Value)} / {level.Max}"; apply.IsEnabled = !level.IsStale && (uint)Math.Round(slider.Value) != level.Current; };
-        apply.Click += async (_, _) =>
+        slider.ToolTip = L.Get("Applies automatically after a brief pause. No Apply button needed.");
+        uint lastSelected = level.Current;
+        slider.ValueChanged += (_, _) =>
         {
-            SetBusy(true); Status.Text = L.Format("Applying {0} to display {1}…", name, display.Number);
-            try
-            {
-                await service.SetAsync(display, contrast, (uint)Math.Round(slider.Value));
-                displays = await service.ReadAsync();
-            await RefreshLayoutAsync();
-                if (!closing) { Render(); Status.Text = L.Format("{0} command sent. Display values have been read back.", name); }
-            }
-            catch (Exception ex) { Status.Text = L.Format("Could not update {0}: {1} Refresh before trying again.", name, L.Message(ex.Message)); }
-            finally { SetBusy(false); }
+            uint selected = (uint)Math.Round(slider.Value);
+            value.Text = $"{selected} / {level.Max}";
+            if (level.IsStale || selected == lastSelected) return;
+            lastSelected = selected;
+            QueueLevel(display, contrast, selected);
         };
         if (compact)
         {
@@ -316,18 +380,14 @@ public partial class MainWindow : Window
             row.ColumnDefinitions.Add(new() { Width = new GridLength(64) });
             row.ColumnDefinitions.Add(new());
             row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
-            row.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
             caption.FontSize = 11; caption.FontWeight = FontWeights.Normal; caption.VerticalAlignment = VerticalAlignment.Center;
             value.FontSize = 10; value.VerticalAlignment = VerticalAlignment.Center; value.Margin = new(4, 0, 6, 0);
             value.ToolTip = level.IsStale ? L.Get("Last-known value. Refresh to reconnect.") : L.Format("Hardware range: {0}–{1}", level.Min, level.Max);
             row.Children.Add(caption); Grid.SetColumn(value, 2); row.Children.Add(value);
             slider.Margin = new(0, 0, 2, 0); Grid.SetColumn(slider, 1); row.Children.Add(slider);
-            apply.Content = "✓"; apply.FontSize = 11; apply.Padding = new(5, 2, 5, 2); apply.Margin = new(0);
-            apply.ToolTip = L.Format("Apply {0} to display {1}", name, display.Number);
-            System.Windows.Automation.AutomationProperties.SetName(apply, L.Format("Apply display {0} {1}", display.Number, name));
-            Grid.SetColumn(apply, 3); row.Children.Add(apply); panel.Children.Add(row);
+            panel.Children.Add(row);
         }
-        else { panel.Children.Add(slider); panel.Children.Add(value); panel.Children.Add(apply); }
+        else { panel.Children.Add(slider); panel.Children.Add(value); }
         if (level.IsStale) panel.Children.Add(Text(L.Get("Monitor did not respond. Refresh to reconnect."), 12, "Muted"));
         return panel;
     }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.12.0 — Automatic brightness and contrast (unreleased)
+
+- Apply brightness and contrast directly from sliders in the main window and tray panel; remove their Apply/checkmark buttons.
+- Coalesce rapid input into the latest value per hardware control after a 250 ms pause, then write sequentially with existing DDC retry/settle pacing.
+- Keep sliders available during writes and retain newer input arriving during a write/read-back. Rebuild monitor controls only after pending changes and mouse capture finish.
+- Preserve hardware bounds and stale-control protection, read back actual monitor values, stop pending writes on an error, and discard unsent requests on explicit exit.
+- Keep lighting profiles and display-mode previews from racing automatic changes; update English and Turkish status text and documentation.
+- Pass 153 automated checks without hardware writes, including rapid-input coalescing, returning to the original value, separate control queues, WMI aliases and stale/range guards. Physical slider testing is pending.
+
 ## 0.11.0 — Automatic interface language (unreleased)
 
 - Select Turkish for Turkish Windows display languages and English for other languages at startup.

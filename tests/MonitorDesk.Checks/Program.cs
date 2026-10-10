@@ -213,3 +213,5 @@ await ProfileChecks.Run(Check);
 Console.WriteLine($"Total including profiles: {count} checks passed. No display settings were changed.");
 LocalizationChecks.Run(Check);
 Console.WriteLine($"Total including localization: {count} checks passed. No display settings were changed.");
+LevelChangeChecks.Run(Check);
+Console.WriteLine($"Total including automatic sliders: {count} checks passed. No display settings were changed.");
