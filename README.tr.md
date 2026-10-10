@@ -10,7 +10,7 @@ Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve
 
 ## Kurulum
 
-Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **Monilivo-Setup-0.18.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
+[Monilivo-Setup-0.18.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe) dosyasını bu depodan **Download raw file** düğmesiyle indirip çalıştır. [SHA-256 doğrulama dosyası](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
 
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 

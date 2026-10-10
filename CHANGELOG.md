@@ -2,6 +2,7 @@
 
 ## 0.18.0 — Remember Eye comfort state (unreleased)
 
+- Build and include the self-contained Windows x64 setup EXE and SHA-256 checksum in the repository; link both READMEs to the download. The packaged application passes its read-only startup check; actual installation/upgrade remains a user test.
 - Remove the obsolete Run-MonitorDesk.cmd wrapper; use Run-Monilivo.cmd for local development.
 - Save Eye comfort's on/off state immediately when toggled, alongside its remembered strength.
 - Restore the last state after display discovery on both normal launch and Windows startup in the system tray; exiting still removes the current overlays.
