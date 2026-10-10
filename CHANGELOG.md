@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.18.0 — Remember Eye comfort state (unreleased)
+
+- Remove the obsolete Run-MonitorDesk.cmd wrapper; use Run-Monilivo.cmd for local development.
+- Save Eye comfort's on/off state immediately when toggled, alongside its remembered strength.
+- Restore the last state after display discovery on both normal launch and Windows startup in the system tray; exiting still removes the current overlays.
+- Keep older settings compatible: a missing on/off value defaults to off without losing existing preferences. Read-only diagnostics continue to ignore saved settings.
+- Update the preferences description and both READMEs. Physical exit/relaunch and Windows restart behavior require user testing.
+- Pass 198 automated checks and verify hidden tray startup, panel open/hide, main-window restoration and explicit exit.
+
 ## 0.17.0 — Monilivo (unreleased)
 
 - Rename the product, executable metadata, main window, tray and duplicate-instance messages to Monilivo while keeping source namespaces and the GitHub repository stable.

@@ -29,6 +29,10 @@ public partial class MainWindow
         light = preferences.LightTheme; ApplyTheme();
         WarmStrength.Value = preferences.EyeStrength;
         WarmValue.Text = L.Format("Strength: {0} / 90", preferences.EyeStrength);
+        // Restore the state now; Render creates overlays after display discovery,
+        // including when startup keeps the main window hidden in the tray.
+        warmEnabled = preferences.EyeEnabled;
+        WarmButton.Content = warmEnabled ? L.Get("Eye comfort · On") : L.Get("Eye comfort · Off");
         if (preferences.Window is { } place) { Width = place.Width; Height = place.Height; WindowStartupLocation = WindowStartupLocation.Manual; }
         SourceInitialized += (_, _) =>
         {
@@ -78,7 +82,7 @@ public partial class MainWindow
     {
         savePreferencesTimer.Stop();
         if (preferencesStore == null) return;
-        preferences = preferences with { LightTheme = light, EyeStrength = (int)WarmStrength.Value };
+        preferences = preferences with { LightTheme = light, EyeStrength = (int)WarmStrength.Value, EyeEnabled = warmEnabled };
         try { preferencesStore.Save(preferences); }
         catch (Exception ex) { Status.Text = L.Get("Could not save preferences: ") + ex.Message; }
     }
@@ -94,7 +98,7 @@ public partial class MainWindow
     {
         var body = new StackPanel { Margin = new(24) };
         body.Children.Add(Text(L.Get("Preferences"), 22));
-        var explanation = Text(L.Get("Theme, Eye comfort strength and window position are saved automatically."), 13, "Muted");
+        var explanation = Text(L.Get("Theme, Eye comfort state and strength, and window position are saved automatically."), 13, "Muted");
         explanation.Margin = new(0, 12, 0, 20); body.Children.Add(explanation);
         var start = new CheckBox { Content = L.Get("Start with Windows in the system tray"), IsEnabled = startupRegistration != null };
         start.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Ink");

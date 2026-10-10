@@ -14,9 +14,15 @@ internal static class PreferencesChecks
         {
             var store = new PreferencesStore(path);
             check(store.Load() == new Preferences(), "Missing preferences use defaults without creating a file");
-            var saved = new Preferences(true, 67, new(-1280, 25, 950, 750), true);
+            var saved = new Preferences(true, 67, new(-1280, 25, 950, 750), true, EyeEnabled: true);
             store.Save(saved);
-            check(store.Load() == saved, "Theme, eye intensity, window bounds and maximized state survive a settings round trip");
+            check(store.Load() == saved, "Theme, enabled eye comfort and intensity, window bounds and maximized state survive a settings round trip");
+            store.Save(saved with { EyeEnabled = false });
+            check(!store.Load().EyeEnabled && store.Load().EyeStrength == 67, "Turning eye comfort off persists without losing its selected strength");
+            File.WriteAllText(path, "{\"LightTheme\":true,\"EyeStrength\":22,\"Maximized\":true}");
+            var legacy = store.Load();
+            check(!legacy.EyeEnabled && legacy.LightTheme && legacy.EyeStrength == 22 && legacy.Maximized,
+                "Older preferences keep their values and default eye comfort to off");
             store.Save(saved with { EyeStrength = 100 });
             check(store.Load().EyeStrength == 90 && Directory.GetFiles(dir).Length == 1, "Atomic preference replacement validates intensity and leaves no temporary files");
             File.WriteAllText(path, "{}");

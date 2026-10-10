@@ -1,16 +1,16 @@
 # Monilivo
 
-Previously named **MonitorDesk**. Existing settings and custom profiles remain in `%LOCALAPPDATA%\MonitorDesk` for compatibility. The installer keeps the same upgrade identity and updates old shortcuts/startup commands to `Monilivo.exe`; source folders and the GitHub repository retain their existing names. Use **Run-Monilivo.cmd** for local development; **Run-MonitorDesk.cmd** remains a compatibility launcher.
+Previously named **MonitorDesk**. Existing settings and custom profiles remain in `%LOCALAPPDATA%\MonitorDesk` for compatibility. The installer keeps the same upgrade identity and updates old shortcuts/startup commands to `Monilivo.exe`; source folders and the GitHub repository retain their existing names. Use **Run-Monilivo.cmd** for local development.
 
 **English** | [Türkçe](README.tr.md)
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.17.0 (development) · Windows only**
+**Working title · v0.18.0 (development) · Windows only**
 
 ## Install
 
-Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download the setup EXE from the latest published release and run it. The current local build produces **Monilivo-Setup-0.17.0-win-x64.exe**; it must be uploaded as a release asset separately. GitHub's source ZIP is not an installer.
+Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download the setup EXE from the latest published release and run it. The current local build produces **Monilivo-Setup-0.18.0-win-x64.exe**; it must be uploaded as a release asset separately. GitHub's source ZIP is not an installer.
 
 The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
@@ -39,7 +39,7 @@ The workspace stays centered and capped at 1320 pixels when maximized. Lighting 
 
 ### Preferences and Windows startup
 
-Open **Preferences** from the top toolbar. Theme, Eye comfort strength, window position, size and maximized state are saved automatically to `%LOCALAPPDATA%\MonitorDesk\settings.json` and restored on the next launch. If a saved monitor is disconnected, the window is brought back into a connected screen's work area. Eye comfort starts off; its selected strength is remembered.
+Open **Preferences** from the top toolbar. Theme, Eye comfort strength, window position, size and maximized state are saved automatically to `%LOCALAPPDATA%\MonitorDesk\settings.json` and restored on the next launch. If a saved monitor is disconnected, the window is brought back into a connected screen's work area. Eye comfort remembers both its on/off state and selected strength, including when starting in the system tray with Windows.
 
 Enable **Start with Windows in the system tray** to start Monilivo when your Windows account signs in, without opening the main window. This option is off by default and can be disabled in the same dialog. It registers the current executable in your account's Windows startup entries; enable it from the installed app for a stable executable path. Double-click the tray icon to open the main window. Uninstalling removes the startup entry belonging to that installation.
 
@@ -73,7 +73,7 @@ Custom profiles are stored in `%LOCALAPPDATA%\MonitorDesk\profiles.json` and res
 
 Eye comfort shows its selected strength as **value / 90** below the main window slider and in the tray toggle, including while disabled. This is the filter's selected intensity level, not a percentage or a monitor brightness value. Changing the slider keeps both displays synchronized.
 
-**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing Monilivo removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off; the selected strength is saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
+**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing Monilivo removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. Its on/off state and selected strength are saved between sessions. If it was on when Monilivo exited, the overlay is restored on the next launch, including Windows startup in the tray. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
 
 DDC reads now use increasing retry delays. Brightness/contrast writes retry transient transport failures up to three times, then wait for firmware to settle before another command or read-back. Unsupported commands are not retried and stale values remain explicitly marked. This addresses the reported transient contrast loss after brightness writes on the OMEN 25i; a fix on that physical monitor is not yet confirmed. The development build passed 121 automated/read-only checks without changing hardware settings.
 
@@ -124,7 +124,7 @@ Then run **Build-Installer.cmd** from the repository root, or:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.17.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
 
 Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
 

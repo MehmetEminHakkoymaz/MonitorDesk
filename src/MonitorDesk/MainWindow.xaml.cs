@@ -419,6 +419,8 @@ public partial class MainWindow : Window
     {
         warmEnabled = !warmEnabled;
         UpdateWarmFilter();
+        // Persist toggles immediately so a restart need not wait for the debounce.
+        SavePreferences();
     }
     private void WarmStrength_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
     {

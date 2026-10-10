@@ -6,7 +6,7 @@ namespace MonitorDesk.Services;
 
 internal record WindowPlacement(int Left, int Top, double Width, double Height);
 internal record Preferences(bool LightTheme = false, int EyeStrength = 40,
-    WindowPlacement? Window = null, bool Maximized = false)
+    WindowPlacement? Window = null, bool Maximized = false, bool EyeEnabled = false)
 {
     internal Preferences Validated() => this with
     {

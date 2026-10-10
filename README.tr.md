@@ -1,16 +1,16 @@
 # Monilivo
 
-Önceki adı **MonitorDesk**. Mevcut ayarlar ve özel profiller uyumluluk için `%LOCALAPPDATA%\MonitorDesk` klasöründe korunur. Kurulum aynı güncelleme kimliğini kullanır; eski kısayolları ve başlangıç komutlarını `Monilivo.exe` için günceller. Kaynak klasörler ve GitHub deposu mevcut adlarını korur. Yerel geliştirmede **Run-Monilivo.cmd** dosyasını kullan; eski **Run-MonitorDesk.cmd** de yeni uygulamayı açmaya devam eder.
+Önceki adı **MonitorDesk**. Mevcut ayarlar ve özel profiller uyumluluk için `%LOCALAPPDATA%\MonitorDesk` klasöründe korunur. Kurulum aynı güncelleme kimliğini kullanır; eski kısayolları ve başlangıç komutlarını `Monilivo.exe` için günceller. Kaynak klasörler ve GitHub deposu mevcut adlarını korur. Yerel geliştirmede **Run-Monilivo.cmd** dosyasını kullan.
 
 [English](README.md) | **Türkçe**
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.17.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.18.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
-Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **Monilivo-Setup-0.17.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
+Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **Monilivo-Setup-0.18.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
 
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
@@ -37,7 +37,7 @@ Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pi
 
 ### Ayarlar ve Windows ile başlatma
 
-Üst araç çubuğundan **Ayarlar** düğmesini aç. Tema, göz konforu yoğunluğu, pencerenin konumu, boyutu ve tam ekran durumu otomatik olarak `%LOCALAPPDATA%\MonitorDesk\settings.json` dosyasına kaydedilir ve sonraki açılışta geri yüklenir. Önceden kullanılan monitör artık bağlı değilse pencere bağlı bir ekranın görünür alanına alınır. Göz konforu başlangıçta kapalıdır; seçtiğin yoğunluk hatırlanır.
+Üst araç çubuğundan **Ayarlar** düğmesini aç. Tema, göz konforu yoğunluğu, pencerenin konumu, boyutu ve tam ekran durumu otomatik olarak `%LOCALAPPDATA%\MonitorDesk\settings.json` dosyasına kaydedilir ve sonraki açılışta geri yüklenir. Önceden kullanılan monitör artık bağlı değilse pencere bağlı bir ekranın görünür alanına alınır. Göz konforunun açık/kapalı durumu ve seçtiğin yoğunluk hatırlanır; Windows ile sistem tepsisinde başlarken de geri yüklenir.
 
 **Windows ile sistem tepsisinde başlat** seçeneğini açarsan Windows hesabında oturum açıldığında Monilivo, ana pencereyi göstermeden tepside başlar. Varsayılan olarak kapalıdır; aynı ekrandan kapatabilirsin. Bu seçenek mevcut uygulama dosyasını hesabının Windows başlangıç kayıtlarına ekler; dosya yolunun sabit kalması için kurulu uygulamadan etkinleştir. Ana pencereyi açmak için tepsi simgesine çift tıkla. Uygulama kaldırıldığında o kuruluma ait başlangıç kaydı temizlenir.
 
@@ -71,7 +71,7 @@ Profiller `%LOCALAPPDATA%\MonitorDesk\profiles.json` dosyasında saklanır ve so
 
 Eye comfort’ın seçili yoğunluğu, ana penceredeki kaydırıcının altında ve tepsi düğmesinde **değer / 90** olarak gösterilir; mod kapalıyken de görünür. Bu, filtrenin seçili yoğunluk seviyesidir; yüzde veya monitör parlaklığı değildir. Kaydırıcı değişince iki görünüm birlikte güncellenir.
 
-**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya Monilivo’yu kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır; seçili yoğunluk sonraki oturum için kaydedilir. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
+**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya Monilivo’yu kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Açık/kapalı durumu ve seçili yoğunluk sonraki oturum için kaydedilir. Monilivo kapanırken açıksa, Windows ile tepside başlatma dahil sonraki açılışta katman yeniden açılır. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
 
 DDC okumalarında yeniden deneme aralıkları artırıldı. Parlaklık/kontrast yazmaları geçici iletişim hatalarında en fazla üç kez denenir; ardından başka komut veya doğrulama okumasından önce monitöre toparlanma süresi verilir. Desteklenmeyen komutlar tekrar denenmez, güncel olmayan değerler işaretlenir. Bu değişiklik OMEN 25i’de parlaklık yazmasından sonra kontrastın geçici kaybolması bildirimini ele alır; fiziksel monitörde düzeldiği henüz doğrulanmadı. Geliştirme sürümünde donanım ayarlarını değiştirmeden 121 otomatik/salt okunur kontrol geçti.
 
@@ -122,7 +122,7 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.17.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 

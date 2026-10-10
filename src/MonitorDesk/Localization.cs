@@ -33,7 +33,7 @@ internal static class L
         ["Could not save custom profiles: "] = "Özel profiller kaydedilemedi: ",
         ["Profile saving is disabled in diagnostics."] = "Tanılama sırasında profil kaydetme kapalıdır.",
         ["Preferences"] = "Ayarlar",
-        ["Theme, Eye comfort strength and window position are saved automatically."] = "Tema, göz konforu yoğunluğu ve pencere konumu otomatik kaydedilir.",
+        ["Theme, Eye comfort state and strength, and window position are saved automatically."] = "Tema, göz konforunun açık/kapalı durumu ve yoğunluğu ile pencere konumu otomatik kaydedilir.",
         ["Start with Windows in the system tray"] = "Windows ile sistem tepsisinde başlat",
         ["Starts when you sign in. Open the window from the tray icon."] = "Oturum açtığında başlar. Pencereyi tepsi simgesinden açabilirsin.",
         ["Close"] = "Kapat",
