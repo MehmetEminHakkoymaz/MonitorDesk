@@ -22,13 +22,13 @@ internal sealed class TrayPanel : Window
     internal TrayPanel(MainWindow main)
     {
         this.main = main;
-        Title = L.Get("MonitorDesk quick controls"); Width = 320; MaxHeight = 560;
+        Title = L.Get("Monilivo quick controls"); Width = 320; MaxHeight = 560;
         SizeToContent = SizeToContent.Height; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false; Topmost = true; FontFamily = new("Segoe UI"); FontSize = 12;
         SetResourceReference(BackgroundProperty, "Page");
         var body = new StackPanel();
         var header = new Grid { Margin = new(0, 0, 0, 10) };
-        header.Children.Add(new TextBlock { Text = "MonitorDesk", FontSize = 15, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
+        header.Children.Add(new TextBlock { Text = "Monilivo", FontSize = 15, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
         var refresh = new Button { Content = "↻", Padding = new(7, 3, 7, 3), ToolTip = L.Get("Refresh displays"), HorizontalAlignment = HorizontalAlignment.Right };
         refresh.Click += async (_, _) => await main.RefreshAsync();
         header.Children.Add(refresh); body.Children.Add(header); body.Children.Add(monitors);

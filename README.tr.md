@@ -1,18 +1,22 @@
-# MonitorDesk
+# Monilivo
+
+Önceki adı **MonitorDesk**. Mevcut ayarlar ve özel profiller uyumluluk için `%LOCALAPPDATA%\MonitorDesk` klasöründe korunur. Kurulum aynı güncelleme kimliğini kullanır; eski kısayolları ve başlangıç komutlarını `Monilivo.exe` için günceller. Kaynak klasörler ve GitHub deposu mevcut adlarını korur. Yerel geliştirmede **Run-Monilivo.cmd** dosyasını kullan; eski **Run-MonitorDesk.cmd** de yeni uygulamayı açmaya devam eder.
 
 [English](README.md) | **Türkçe**
 
-Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
+Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.15.1 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.17.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
-Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **MonitorDesk-Setup-0.11.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
+Kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasına dosya olarak eklenebilir. Yayınlanan son sürümdeki setup EXE dosyasını indirip çalıştır. Güncel yerel derleme **Monilivo-Setup-0.17.0-win-x64.exe** dosyasını oluşturur; bu dosya ayrıca sürüm eki olarak yüklenmelidir. GitHub’ın kaynak kod ZIP dosyası kurulum paketi değildir.
 
-Kurulum, MonitorDesk’i Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
+Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
 ## Özellikler
+
+Uygulama dosyası, ana pencere ve sistem tepsisi artık monitör/ışık simgesini kullanır. Yeni kurulumlarda masaüstü/Başlat kısayolları ve kurulum EXE’si de bu simgeyi gösterir. Düzenlenebilir vektör kaynak `src/MonitorDesk/Assets/MonitorDesk.svg` dosyasındadır; dokuz boyutlu Windows simgesini `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1` ile yeniden oluşturabilirsin. Sabitlenmiş kısayollar veya Windows simge önbelleği, kısayol yeniden oluşturulana kadar eski simgeyi gösterebilir.
 
 - Bağlı ekranları, geçerli çözünürlüklerini, tazeleme hızlarını ve birincil ekran durumunu gösterir.
 - Ekranları geçici numara etiketleriyle tanımlar.
@@ -35,19 +39,19 @@ Pencere büyütüldüğünde çalışma alanı ortalanır ve genişliği 1320 pi
 
 Üst araç çubuğundan **Ayarlar** düğmesini aç. Tema, göz konforu yoğunluğu, pencerenin konumu, boyutu ve tam ekran durumu otomatik olarak `%LOCALAPPDATA%\MonitorDesk\settings.json` dosyasına kaydedilir ve sonraki açılışta geri yüklenir. Önceden kullanılan monitör artık bağlı değilse pencere bağlı bir ekranın görünür alanına alınır. Göz konforu başlangıçta kapalıdır; seçtiğin yoğunluk hatırlanır.
 
-**Windows ile sistem tepsisinde başlat** seçeneğini açarsan Windows hesabında oturum açıldığında MonitorDesk, ana pencereyi göstermeden tepside başlar. Varsayılan olarak kapalıdır; aynı ekrandan kapatabilirsin. Bu seçenek mevcut uygulama dosyasını hesabının Windows başlangıç kayıtlarına ekler; dosya yolunun sabit kalması için kurulu uygulamadan etkinleştir. Ana pencereyi açmak için tepsi simgesine çift tıkla. Uygulama kaldırıldığında o kuruluma ait başlangıç kaydı temizlenir.
+**Windows ile sistem tepsisinde başlat** seçeneğini açarsan Windows hesabında oturum açıldığında Monilivo, ana pencereyi göstermeden tepside başlar. Varsayılan olarak kapalıdır; aynı ekrandan kapatabilirsin. Bu seçenek mevcut uygulama dosyasını hesabının Windows başlangıç kayıtlarına ekler; dosya yolunun sabit kalması için kurulu uygulamadan etkinleştir. Ana pencereyi açmak için tepsi simgesine çift tıkla. Uygulama kaldırıldığında o kuruluma ait başlangıç kaydı temizlenir.
 
 Geliştirme sürümünde 171 otomatik kontrol geçti: ayarların kaydedilip okunması, geçersiz veriler, bağlantısı kesilen ekranların koordinatları ve taklit edilmiş kayıt defteri üzerinden başlangıç komutları sınandı. Türkçe/İngilizce ayarlar ekranları ile gizli başlangıç ve tepsiden geri açma davranışı kontrol edildi. Gerçek Windows oturum açılışı, yeniden açılışta ayarların korunması ve farklı DPI değerlerinde konum geri yükleme manuel test edilmelidir. Tanılama çalıştırmaları kullanıcı ayarlarını kaydetmez ve otomatik başlangıcı etkinleştirmez.
 
 ### Sistem tepsisi
 
-Uygulama açılışta Windows **görüntüleme dilini** kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce açılır. Ana pencere, tepsi paneli ve menüsü, ışık profilleri, araç ipuçları, ekran önizleme pencereleri ve uygulamanın durum mesajları aynı dili kullanır. Monitör adları ve Windows/üreticiden gelen harici hata ayrıntıları aynen korunur. Windows görüntüleme dilini değiştirdikten sonra MonitorDesk’i yeniden başlat; yalnızca bölgesel tarih/sayı biçimini değiştirmek arayüz dilini değiştirmez.
+Uygulama açılışta Windows **görüntüleme dilini** kullanır: Türkçe dil ayarlarında Türkçe, diğer dillerde İngilizce açılır. Ana pencere, tepsi paneli ve menüsü, ışık profilleri, araç ipuçları, ekran önizleme pencereleri ve uygulamanın durum mesajları aynı dili kullanır. Monitör adları ve Windows/üreticiden gelen harici hata ayrıntıları aynen korunur. Windows görüntüleme dilini değiştirdikten sonra Monilivo’yu yeniden başlat; yalnızca bölgesel tarih/sayı biçimini değiştirmek arayüz dilini değiştirmez.
 
-Her Windows kullanıcısı/oturumunda tek normal MonitorDesk örneği çalışır. Uygulama açıkken veya tepside gizliyken yeniden çalıştırmak, zaten açık olduğunu bildiren uyarıyı gösterir ve ikinci kopyayı kapatır. Gerçek çıkış kilidi bırakır; süreç sonlandırıldığında kalıcı kilit kalmaz. Tanılama, görüntü alma ve yaşam döngüsü kontrolleri bu başlangıç kilidinden bağımsızdır. Özelliği denemeden önce eski sürümü tepsiden Çıkış ile kapat; v0.10.2 öncesi sürümler bu kilidi kullanmaz.
+Her Windows kullanıcısı/oturumunda tek normal Monilivo örneği çalışır. Uygulama açıkken veya tepside gizliyken yeniden çalıştırmak, zaten açık olduğunu bildiren uyarıyı gösterir ve ikinci kopyayı kapatır. Gerçek çıkış kilidi bırakır; süreç sonlandırıldığında kalıcı kilit kalmaz. Tanılama, görüntü alma ve yaşam döngüsü kontrolleri bu başlangıç kilidinden bağımsızdır. Özelliği denemeden önce eski sürümü tepsiden Çıkış ile kapat; v0.10.2 öncesi sürümler bu kilidi kullanmaz.
 
 Tepsi simgesine tek sol tık, kompakt hızlı ayar panelini açıp kapatır. Monitörler alt alta sıralanır; her birinde otomatik uygulanan tek satırlık parlaklık/kontrast kaydırıcıları bulunur. Durum satırının üzerinde tam mesaj araç ipucunda görünür. Monitörlerin altında üç ışık profili, onların altında göz simgeli **Eye comfort · On/Off** düğmesi yer alır. Panel, ana pencereyle aynı monitör servisini, işlem durumunu ve sıcak filtreyi kullanır. Dışarı tıklamak veya Escape paneli gizler. Genişliği 320 mantıksal piksel, maksimum yüksekliği 560 pikseldir; gerektiğinde kaydırılabilir. Tıklanan ekranda görev çubuğunun üstüne yerleşir; çift tık tam pencereyi açmaya devam eder. Küçültülen v0.10.1 sürümünün derlemesi ve masaüstü aç/gizle/geri aç/çıkış kontrolü geçti; üç monitörlü görünüm görsel olarak incelendi.
 
-Ana pencereyi kapatmak MonitorDesk’i Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
+Ana pencereyi kapatmak Monilivo’yu Windows bildirim alanına gizler. Tepsi simgesine çift tıklayarak veya sağ tık menüsündeki **Aç** seçeneğiyle pencereyi geri getir. **Çıkış**, uygulamayı tamamen kapatır ve sıcak renk filtresini kaldırır. Pencere gizliyken filtre ve ekran değişikliği takibi çalışmaya devam eder. Küçült düğmesi normal küçültme davranışını korur; onaylanmamış ekran önizlemesi varsa gizlenmeden veya çıkmadan önce geri alınır. Windows oturumu kapatıldığında uygulama da kapanır. Tepsi simgesi oluşturulamazsa kapat düğmesi uygulamadan çıkar; erişilemez bir arka plan süreci bırakılmaz.
 
 v0.9.0 için 121 otomatik/salt okunur kontrol ve masaüstünde kapatınca gizleme, geri açma ve gerçek süreç çıkışını doğrulayan kontrol geçti. Sağ tık menüsü, filtrenin tepside korunması ve Explorer yeniden başlatma davranışının manuel testi henüz yapılmadı.
 
@@ -67,7 +71,7 @@ Profiller `%LOCALAPPDATA%\MonitorDesk\profiles.json` dosyasında saklanır ve so
 
 Eye comfort’ın seçili yoğunluğu, ana penceredeki kaydırıcının altında ve tepsi düğmesinde **değer / 90** olarak gösterilir; mod kapalıyken de görünür. Bu, filtrenin seçili yoğunluk seviyesidir; yüzde veya monitör parlaklığı değildir. Kaydırıcı değişince iki görünüm birlikte güncellenir.
 
-**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya MonitorDesk’i kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır; seçili yoğunluk sonraki oturum için kaydedilir. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
+**Eye comfort**, bağlı ekranlarda tıklamaları engellemeyen sıcak renkli bir katmanı açıp kapatır. Kaydırıcıyla yoğunluğu ayarlanır; modu kapatmak veya Monilivo’yu kapatmak katmanı kaldırır. Windows Night light’tan bağımsızdır; gamma kalibrasyonunu, monitörün renk sıcaklığını, parlaklığını veya kontrastını değiştirmez. Başlangıçta kapalıdır; seçili yoğunluk sonraki oturum için kaydedilir. Katman, Windows Night light’ın renk dönüşümünü birebir uygulamak yerine sıcak bir renk karıştırır; özel tam ekran oyunlarında veya Windows güvenli masaüstünde görünmeyebilir ve ekran görüntülerine dahil olabilir. Fiziksel kullanım, farklı DPI değerleri ve tam ekran davranışı kullanıcı tarafından test edilmelidir.
 
 DDC okumalarında yeniden deneme aralıkları artırıldı. Parlaklık/kontrast yazmaları geçici iletişim hatalarında en fazla üç kez denenir; ardından başka komut veya doğrulama okumasından önce monitöre toparlanma süresi verilir. Desteklenmeyen komutlar tekrar denenmez, güncel olmayan değerler işaretlenir. Bu değişiklik OMEN 25i’de parlaklık yazmasından sonra kontrastın geçici kaybolması bildirimini ele alır; fiziksel monitörde düzeldiği henüz doğrulanmadı. Geliştirme sürümünde donanım ayarlarını değiştirmeden 121 otomatik/salt okunur kontrol geçti.
 
@@ -99,10 +103,10 @@ dotnet run --project src/MonitorDesk -c Release --no-build
 Dağıtılabilir bir klasör oluşturmak için:
 
 ```powershell
-dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/MonitorDesk
+dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/Monilivo
 ```
 
-`artifacts/MonitorDesk/MonitorDesk.exe` dosyasını çalıştır. Bu derleme framework’e bağımlıdır: hedef bilgisayarda .NET 10 Windows Desktop Runtime bulunmalıdır. Yönetici yetkisi istenmez.
+`artifacts/Monilivo/Monilivo.exe` dosyasını çalıştır. Bu derleme framework’e bağımlıdır: hedef bilgisayarda .NET 10 Windows Desktop Runtime bulunmalıdır. Yönetici yetkisi istenmez.
 
 ### Kurulum EXE’sini oluşturma
 
@@ -118,7 +122,7 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/MonitorDesk-Setup-0.11.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.17.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 
@@ -174,8 +178,8 @@ Sürüm yayımlamadan önce yapılacak manuel kontroller:
 `Services/Native.cs`, Windows API’leriyle iletişim katmanını içerir. `Services/DisplayService.cs`, yeteneklerin okunmasını, fiziksel monitör tanıtıcılarının güvenli temizlenmesini ve yazma işlemlerinin sıraya alınmasını yönetir. `MainWindow`, kartları gerçek yeteneklere göre oluşturur. `App` ayrıca yerel, salt okunur tanılama modlarını destekler:
 
 ```powershell
-MonitorDesk.exe --probe C:\path\displays.json
-MonitorDesk.exe --snapshot C:\path\window.png
+Monilivo.exe --probe C:\path\displays.json
+Monilivo.exe --snapshot C:\path\window.png
 ```
 
 ## Yol haritası

@@ -8,6 +8,7 @@ internal sealed class TrayIcon : IDisposable
     private readonly MainWindow window;
     private readonly Forms.ContextMenuStrip menu = new();
     private readonly Forms.NotifyIcon icon;
+    private readonly System.Drawing.Icon applicationIcon;
     private readonly TrayPanel panel;
     private readonly System.Windows.Threading.DispatcherTimer singleClick = new();
     private System.Drawing.Rectangle panelWorkArea;
@@ -23,7 +24,10 @@ internal sealed class TrayIcon : IDisposable
         menu.Items.Add(L.Get("Open"), null, (_, _) => ShowWindow());
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add(L.Get("Exit"), null, (_, _) => window.Dispatcher.Invoke(window.ExitApplication));
-        icon = new Forms.NotifyIcon { Text = "MonitorDesk", Icon = System.Drawing.SystemIcons.Application, ContextMenuStrip = menu, Visible = true };
+        using (var resource = Application.GetResourceStream(new Uri("pack://application:,,,/Assets/MonitorDesk.ico")).Stream)
+        using (var source = new System.Drawing.Icon(resource, Forms.SystemInformation.SmallIconSize))
+            applicationIcon = (System.Drawing.Icon)source.Clone();
+        icon = new Forms.NotifyIcon { Text = "Monilivo", Icon = applicationIcon, ContextMenuStrip = menu, Visible = true };
         icon.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); singleClick.Start(); } };
         icon.MouseDoubleClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); ShowWindow(); } };
     }
@@ -61,6 +65,6 @@ internal sealed class TrayIcon : IDisposable
 
     public void Dispose()
     {
-        singleClick.Stop(); panel.Close(); icon.Visible = false; icon.Dispose(); menu.Dispose();
+        singleClick.Stop(); panel.Close(); icon.Visible = false; icon.Dispose(); applicationIcon.Dispose(); menu.Dispose();
     }
 }

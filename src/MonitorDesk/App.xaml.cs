@@ -39,8 +39,8 @@ public partial class App : Application
             if (!instance.Acquired)
             {
                 if (e.Args.Contains("--startup")) { Shutdown(); return; }
-                string title = L.Get("MonitorDesk is already running");
-                string message = L.Get("MonitorDesk is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.");
+                string title = L.Get("Monilivo is already running");
+                string message = L.Get("Monilivo is already running in the system tray.\n\nClick its tray icon to open the quick controls, or double-click it to restore the main window.");
                 MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
                 Shutdown();
                 return;

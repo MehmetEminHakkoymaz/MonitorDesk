@@ -1,18 +1,22 @@
-# MonitorDesk
+# Monilivo
+
+Previously named **MonitorDesk**. Existing settings and custom profiles remain in `%LOCALAPPDATA%\MonitorDesk` for compatibility. The installer keeps the same upgrade identity and updates old shortcuts/startup commands to `Monilivo.exe`; source folders and the GitHub repository retain their existing names. Use **Run-Monilivo.cmd** for local development; **Run-MonitorDesk.cmd** remains a compatibility launcher.
 
 **English** | [Türkçe](README.tr.md)
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.15.1 (development) · Windows only**
+**Working title · v0.17.0 (development) · Windows only**
 
 ## Install
 
-Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download the setup EXE from the latest published release and run it. The current local build produces **MonitorDesk-Setup-0.11.0-win-x64.exe**; it must be uploaded as a release asset separately. GitHub's source ZIP is not an installer.
+Installer packages can be published as assets on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases). Download the setup EXE from the latest published release and run it. The current local build produces **Monilivo-Setup-0.17.0-win-x64.exe**; it must be uploaded as a release asset separately. GitHub's source ZIP is not an installer.
 
-The setup installs MonitorDesk for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
+The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
 ## Features
+
+The app has its own monitor/light icon in the executable, main window and system tray. New installations use it for desktop/Start menu shortcuts and the setup EXE. The editable vector source is `src/MonitorDesk/Assets/MonitorDesk.svg`; regenerate its nine-size Windows icon with `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1`. Pinned shortcuts or Windows' icon cache may retain an older icon until the shortcut is recreated.
 
 - Toggle an adjustable warm color overlay using **Eye comfort**; monitor brightness/contrast remain unchanged.
 
@@ -37,19 +41,19 @@ The workspace stays centered and capped at 1320 pixels when maximized. Lighting 
 
 Open **Preferences** from the top toolbar. Theme, Eye comfort strength, window position, size and maximized state are saved automatically to `%LOCALAPPDATA%\MonitorDesk\settings.json` and restored on the next launch. If a saved monitor is disconnected, the window is brought back into a connected screen's work area. Eye comfort starts off; its selected strength is remembered.
 
-Enable **Start with Windows in the system tray** to start MonitorDesk when your Windows account signs in, without opening the main window. This option is off by default and can be disabled in the same dialog. It registers the current executable in your account's Windows startup entries; enable it from the installed app for a stable executable path. Double-click the tray icon to open the main window. Uninstalling removes the startup entry belonging to that installation.
+Enable **Start with Windows in the system tray** to start Monilivo when your Windows account signs in, without opening the main window. This option is off by default and can be disabled in the same dialog. It registers the current executable in your account's Windows startup entries; enable it from the installed app for a stable executable path. Double-click the tray icon to open the main window. Uninstalling removes the startup entry belonging to that installation.
 
 The development build passed 171 automated checks, including settings round trips, invalid data, disconnected-screen geometry and startup commands with mocked registry access. Turkish and English settings layouts and hidden-start/tray-restore behavior were checked. Real Windows sign-in, restart persistence and mixed-DPI restoration still need manual testing. Diagnostics do not save user preferences or enable startup.
 
 ### System tray
 
-The app follows the Windows **display language** at startup: Turkish for Turkish locales, English otherwise. The main window, tray panel and menu, lighting profiles, tooltips, display-preview dialogs and app-generated status messages share this selection. Monitor names and external Windows/vendor error details remain as supplied. Restart MonitorDesk after changing the Windows display language; the regional date/number format alone does not switch the UI.
+The app follows the Windows **display language** at startup: Turkish for Turkish locales, English otherwise. The main window, tray panel and menu, lighting profiles, tooltips, display-preview dialogs and app-generated status messages share this selection. Monitor names and external Windows/vendor error details remain as supplied. Restart Monilivo after changing the Windows display language; the regional date/number format alone does not switch the UI.
 
-Only one normal MonitorDesk instance runs per Windows user/session. Launching it again while it is open or hidden in the tray shows an already-running message and exits the second copy. Explicit exit releases the lock; a terminated process does not leave a permanent lock. Diagnostic probes, snapshots and lifecycle checks are isolated from this startup guard. Exit any older app version before testing this feature, since versions before v0.10.2 do not acquire the lock.
+Only one normal Monilivo instance runs per Windows user/session. Launching it again while it is open or hidden in the tray shows an already-running message and exits the second copy. Explicit exit releases the lock; a terminated process does not leave a permanent lock. Diagnostic probes, snapshots and lifecycle checks are isolated from this startup guard. Exit any older app version before testing this feature, since versions before v0.10.2 do not acquire the lock.
 
 Single-click the tray icon to toggle a compact quick-control panel. Monitors are stacked vertically with single-row brightness and contrast sliders that apply automatically. Hover over the status footer for the full message. Three lighting presets sit below the monitors, followed by an eye-shaped **Eye comfort · On/Off** toggle. It shares the main window's service, busy state and warm filter. Click outside or press Escape to hide the panel. The panel is 320 logical pixels wide, capped at 560 pixels high, and scrolls when needed. It opens above the taskbar on the clicked screen; double-click still opens the full window. The compact v0.10.1 build and desktop open/hide/restore/exit check passed; its three-monitor layout was visually inspected.
 
-Closing the main window hides MonitorDesk in the Windows notification area. Double-click its icon, or right-click and choose **Aç** (Open), to restore the window. Choose **Çıkış** (Exit) to stop the app and remove the warm filter. The filter and display-change handling remain active while the window is hidden. Minimize still minimizes normally; closing an unconfirmed display preview restores it before hiding or exiting. Windows sign-out/shutdown ends the app normally. If tray initialization fails, closing exits so the app is not left running without an accessible icon.
+Closing the main window hides Monilivo in the Windows notification area. Double-click its icon, or right-click and choose **Aç** (Open), to restore the window. Choose **Çıkış** (Exit) to stop the app and remove the warm filter. The filter and display-change handling remain active while the window is hidden. Minimize still minimizes normally; closing an unconfirmed display preview restores it before hiding or exiting. Windows sign-out/shutdown ends the app normally. If tray initialization fails, closing exits so the app is not left running without an accessible icon.
 
 The v0.9.0 build passed 121 automated/read-only checks and a desktop lifecycle check covering close-to-hide, restore and explicit process exit. Manual right-click menu, filter retention and Explorer restart checks remain pending.
 
@@ -69,7 +73,7 @@ Custom profiles are stored in `%LOCALAPPDATA%\MonitorDesk\profiles.json` and res
 
 Eye comfort shows its selected strength as **value / 90** below the main window slider and in the tray toggle, including while disabled. This is the filter's selected intensity level, not a percentage or a monitor brightness value. Changing the slider keeps both displays synchronized.
 
-**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing MonitorDesk removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off; the selected strength is saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
+**Eye comfort** toggles a click-through amber overlay across the connected screens. Use its slider to adjust strength; turning it off or closing Monilivo removes the overlay. It is separate from Windows Night light and does not modify gamma calibration, monitor color temperature, brightness or contrast. It starts off; the selected strength is saved between sessions. An overlay blends a warm tint rather than reproducing Windows Night light's color transform; it may not cover exclusive fullscreen games or Windows secure desktop and can appear in screen captures. Physical interaction, mixed-DPI coverage and fullscreen behavior require user testing.
 
 DDC reads now use increasing retry delays. Brightness/contrast writes retry transient transport failures up to three times, then wait for firmware to settle before another command or read-back. Unsupported commands are not retried and stale values remain explicitly marked. This addresses the reported transient contrast loss after brightness writes on the OMEN 25i; a fix on that physical monitor is not yet confirmed. The development build passed 121 automated/read-only checks without changing hardware settings.
 
@@ -101,10 +105,10 @@ No third-party NuGet packages are required. NuGet.Config clears package feeds de
 To create a distributable folder:
 
 ```powershell
-dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/MonitorDesk
+dotnet publish src/MonitorDesk -c Release --no-restore -o artifacts/Monilivo
 ```
 
-Run `artifacts/MonitorDesk/MonitorDesk.exe`. This is a framework-dependent build: the target PC needs the .NET 10 Windows Desktop Runtime. Administrator rights are not requested.
+Run `artifacts/Monilivo/Monilivo.exe`. This is a framework-dependent build: the target PC needs the .NET 10 Windows Desktop Runtime. Administrator rights are not requested.
 
 ### Build the setup EXE
 
@@ -120,7 +124,7 @@ Then run **Build-Installer.cmd** from the repository root, or:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/MonitorDesk-Setup-0.11.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.17.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
 
 Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
 
@@ -176,8 +180,8 @@ Manual checks before a release:
 `Services/Native.cs` contains the Windows interop boundary. `Services/DisplayService.cs` owns capability reads, safe physical handle cleanup and serialized writes. `MainWindow` builds cards from actual capabilities; `App` also supports local read-only diagnostic modes:
 
 ```powershell
-MonitorDesk.exe --probe C:\path\displays.json
-MonitorDesk.exe --snapshot C:\path\window.png
+Monilivo.exe --probe C:\path\displays.json
+Monilivo.exe --snapshot C:\path\window.png
 ```
 
 ## Roadmap

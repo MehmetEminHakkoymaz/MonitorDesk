@@ -151,7 +151,7 @@ internal sealed class WindowsLayoutBackend : ILayoutBackend
     private static void Check(int error)
     {
         if (error != 0) throw new Win32Exception(error, error == 5
-            ? "Windows denied access to the interactive display session. Open MonitorDesk directly from your Windows desktop and try again."
+            ? "Windows denied access to the interactive display session. Open Monilivo directly from your Windows desktop and try again."
             : $"Windows display layout operation failed (code {error}).");
     }
     public LayoutSnapshot Read()

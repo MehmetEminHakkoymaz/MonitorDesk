@@ -1,8 +1,8 @@
-<Window x:Class="MonitorDesk.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:MonitorDesk" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="MonitorDesk · v0.15.1" Width="1280" Height="920" MinWidth="680" MinHeight="520" Background="{DynamicResource Page}" FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen">
+<Window x:Class="MonitorDesk.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:MonitorDesk" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Monilivo · v0.17.0" Width="1280" Height="920" MinWidth="680" MinHeight="520" Background="{DynamicResource Page}" FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen" Icon="Assets/MonitorDesk.ico">
  <Grid Margin="24,24" MaxWidth="1320">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid Margin="0,0,0,18">
-   <StackPanel><TextBlock Text="MonitorDesk" FontSize="25" FontWeight="SemiBold"/><TextBlock Text="{loc:Tr Key=Tagline}" Foreground="{DynamicResource Muted}" Margin="0,3,0,0"/></StackPanel>
+   <StackPanel><TextBlock Text="Monilivo" FontSize="25" FontWeight="SemiBold"/><TextBlock Text="{loc:Tr Key=Tagline}" Foreground="{DynamicResource Muted}" Margin="0,3,0,0"/></StackPanel>
    <StackPanel x:Name="Toolbar" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"><Button Content="{loc:Tr Key=Identify}" Click="Identify_Click" Margin="0,0,8,0"/><Button Content="{loc:Tr Key=Refresh}" Click="Refresh_Click" Margin="0,0,8,0"/><Button x:Name="ThemeButton" Content="{loc:Tr Key=Theme}" Click="Theme_Click" Margin="0,0,8,0"/><Button Content="{loc:Tr Key=Preferences}" Click="Settings_Click"/></StackPanel>
   </Grid>
   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="WorkspaceScroll">

@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.17.0 — Monilivo (unreleased)
+
+- Rename the product, executable metadata, main window, tray and duplicate-instance messages to Monilivo while keeping source namespaces and the GitHub repository stable.
+- Publish Monilivo.exe and Monilivo-Setup packages; add Run-Monilivo.cmd and retain the old launcher as a compatibility wrapper.
+- Keep the settings/profile storage paths, single-instance mutex and startup registry value stable so saved data and duplicate protection survive the name change.
+- Retain the installer's upgrade identity; replace old shortcuts/executable files and migrate an existing startup command belonging to the upgraded installation. Startup remains opt-in.
+- Update both READMEs. Real installed upgrade/shortcut/startup migration requires user testing.
+- Pass 196 automated checks, verify Monilivo executable metadata and the tray lifecycle, inspect the renamed Turkish main window, and compile the installer upgrade/uninstall code without running an installation.
+
+## 0.16.0 — Application icon (unreleased)
+
+- Add an original monitor/light vector mark and a nine-resolution ICO (16–256 pixels) with a reproducible native Windows rendering script.
+- Embed the icon in the executable and WPF main window; use the bundled icon in the notification area and dispose its native resources on exit.
+- Use the same icon for the setup executable; installed desktop/Start menu shortcuts and the uninstall entry use the application's embedded icon.
+- Verify executable icon extraction, tray open/hide/restore/exit and Inno Setup compilation. Installed shortcut refresh and taskbar appearance require user testing.
+
 ## 0.15.1 — Compact custom tray profiles (unreleased)
 
 - Arrange custom profile buttons in three columns in the tray panel, matching preset button sizing; additional profiles continue onto new rows and long names remain available in tooltips.

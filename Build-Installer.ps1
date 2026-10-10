@@ -13,7 +13,7 @@ $installerScript = Join-Path $repoRoot 'installer/MonitorDesk.iss'
 $restoreConfig = Join-Path $repoRoot 'installer/NuGet.Config'
 
 if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    throw 'Install the .NET 10 SDK to build MonitorDesk. End users do not need the SDK or runtime.'
+    throw 'Install the .NET 10 SDK to build Monilivo. End users do not need the SDK or runtime.'
 }
 if (-not $CompilerPath) {
     $compilerCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
@@ -49,7 +49,7 @@ $env:DOTNET_CLI_HOME = Join-Path $repoRoot 'artifacts/dotnet-home'
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 Push-Location $repoRoot
 try {
-    Write-Host 'Building and checking MonitorDesk without changing display settings...'
+    Write-Host 'Building and checking Monilivo without changing display settings...'
     & dotnet restore $checksPath --configfile (Join-Path $repoRoot 'NuGet.Config')
     if ($LASTEXITCODE -ne 0) { throw 'Check project restore failed.' }
     & dotnet build $checksPath -c Release --no-restore
@@ -62,7 +62,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Runtime restore failed. Internet access to nuget.org is required on the build machine.' }
     & dotnet publish $projectPath -c Release -r win-x64 --self-contained true --no-restore -o $publishPath -p:PublishTrimmed=false -p:PublishSingleFile=false -p:DebugType=None -p:DebugSymbols=false
     if ($LASTEXITCODE -ne 0) { throw 'Self-contained publish failed.' }
-    foreach ($requiredFile in @('MonitorDesk.exe', 'coreclr.dll', 'hostfxr.dll', 'PresentationFramework.dll')) {
+    foreach ($requiredFile in @('Monilivo.exe', 'coreclr.dll', 'hostfxr.dll', 'PresentationFramework.dll')) {
         if (-not (Test-Path -LiteralPath (Join-Path $publishPath $requiredFile) -PathType Leaf)) {
             throw "Self-contained publish is incomplete: missing $requiredFile."
         }
@@ -70,7 +70,7 @@ try {
 
     # Confirm the staged executable starts with its bundled runtime and reads displays.
     $probePath = Join-Path $stagePath 'probe.json'
-    $probe = Start-Process -FilePath (Join-Path $publishPath 'MonitorDesk.exe') -ArgumentList @('--probe', ('"' + $probePath + '"')) -WindowStyle Hidden -PassThru
+    $probe = Start-Process -FilePath (Join-Path $publishPath 'Monilivo.exe') -ArgumentList @('--probe', ('"' + $probePath + '"')) -WindowStyle Hidden -PassThru
     if (-not $probe.WaitForExit(60000)) {
         $probe.Kill()
         throw 'The packaged app did not finish the read-only startup check within 60 seconds.'
@@ -83,7 +83,7 @@ try {
     Write-Host 'Compiling the single setup EXE...'
     & $CompilerPath "/DAppVersion=$appVersion" "/DPublishDir=$publishPath" "/DInstallerOutput=$installerOutput" $installerScript
     if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compilation failed.' }
-    $setupPath = Join-Path $installerOutput "MonitorDesk-Setup-$appVersion-win-x64.exe"
+    $setupPath = Join-Path $installerOutput "Monilivo-Setup-$appVersion-win-x64.exe"
     if (-not (Test-Path -LiteralPath $setupPath -PathType Leaf)) { throw 'Installer output was not found.' }
     $checksum = Get-FileHash -LiteralPath $setupPath -Algorithm SHA256
     $checksum.Hash.ToLowerInvariant() + '  ' + [IO.Path]::GetFileName($setupPath) | Set-Content -LiteralPath ($setupPath + '.sha256') -Encoding ascii
