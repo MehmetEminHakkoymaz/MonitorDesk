@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.1 — Compact custom tray profiles (unreleased)
+
+- Arrange custom profile buttons in three columns in the tray panel, matching preset button sizing; additional profiles continue onto new rows and long names remain available in tooltips.
+
+## 0.15.0 — Custom monitor profiles (unreleased)
+
+- Create named profiles with separate brightness/contrast percentages for each monitor; leave unchecked controls unchanged and save without applying.
+- Persist custom profiles in a per-user JSON file using validated atomic replacement; restore them on launch and support editing, renaming and deletion.
+- Show custom apply buttons in the main window and compact tray panel; retain disconnected monitor targets and match device identities/physical indices instead of display numbers.
+- Reuse fresh capability reads, sequential hardware writes, stale/unsupported control guards and per-control read-back verification.
+- Localize the editor and update both READMEs; pass 196 automated checks without hardware writes, including storage, validation, distinct monitor values and skipped/disconnected targets. Physical profile behavior requires user testing.
+- Inspect the Turkish editor with fixed Save/Cancel actions and an isolated sample profile button in the tray panel without saving user data or changing monitors.
+
 ## 0.14.0 — Automatic monitor recovery (unreleased)
 
 - Retry stale brightness/contrast reads automatically while open or hidden in the tray, targeting one affected monitor at a time and preserving healthy controls.

@@ -27,7 +27,7 @@ public partial class App : Application
             Shutdown();
             return;
         }
-        bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--preferences-snapshot" or "--tray-check";
+        bool diagnostic = e.Args.Length >= 2 && e.Args[0] is "--probe" or "--snapshot" or "--layout-snapshot" or "--tray-snapshot" or "--preferences-snapshot" or "--profile-editor-snapshot" or "--tray-check";
         // Let read-only UI diagnostics render both languages without changing Windows settings.
         if (diagnostic && e.Args.FirstOrDefault(a => a.StartsWith("--ui-culture=", StringComparison.Ordinal)) is { } culture)
             CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture["--ui-culture=".Length..]);
@@ -59,7 +59,7 @@ public partial class App : Application
             return;
         }
         var window = new MainWindow(remember: !diagnostic); MainWindow = window;
-        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot" || e.Args[0] == "--tray-snapshot" || e.Args[0] == "--preferences-snapshot");
+        bool snapshot = e.Args.Length >= 2 && (e.Args[0] == "--snapshot" || e.Args[0] == "--layout-snapshot" || e.Args[0] == "--tray-snapshot" || e.Args[0] == "--preferences-snapshot" || e.Args[0] == "--profile-editor-snapshot");
         ShutdownMode = ShutdownMode.OnMainWindowClose;
         if (!snapshot)
         {
@@ -106,11 +106,13 @@ public partial class App : Application
         {
             // Render the actual WPF layout with real read-only display data for local QA.
             await window.InitialRead.Task;
+            if (e.Args.Contains("--sample-profile")) window.SetDiagnosticProfiles([
+                new LightingProfile("Demo profile", 0, 0, window.QuickDisplays.Select(d => new MonitorProfile(d.Id, d.PhysicalIndex, 50, 65)).ToList())]);
             if (e.Args.Contains("--light")) window.ThemeButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
             await window.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            if (e.Args[0] == "--preferences-snapshot")
+            if (e.Args[0] is "--preferences-snapshot" or "--profile-editor-snapshot")
             {
-                var dialog = window.CreateSettingsDialog(); dialog.Show();
+                var dialog = e.Args[0] == "--profile-editor-snapshot" ? window.CreateProfileEditor() : window.CreateSettingsDialog(); dialog.Show();
                 await dialog.Dispatcher.InvokeAsync(() => { }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 SaveSnapshot(dialog, e.Args[1]); dialog.Close();
             }

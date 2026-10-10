@@ -4,7 +4,7 @@
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.14.0 (development) · Windows only**
+**Working title · v0.15.1 (development) · Windows only**
 
 ## Install
 
@@ -62,6 +62,10 @@ The v0.14.0 development build passed 181 automated checks without hardware write
 The first brightness/contrast change enters the hardware queue immediately. During dragging, the latest requested value is sampled at intervals of at least 250 ms per monitor/control; new input replaces pending intermediate values without postponing the dispatch deadline. Commands run sequentially with existing DDC recovery delays, so a busy or slower monitor can extend this interval. The final selected value remains queued after release. Both UI locations use the same queue. Sliders remain responsive during writes; read-back displays the actual value after input settles, so hardware-supported steps may differ from the request. Errors stop queued changes and report details; unavailable or stale controls stay disabled. Explicit exit discards unsent changes. Resolution, refresh rate, orientation and arrangement still use preview confirmation. The development build passed 155 automated checks without hardware writes; physical slider behavior needs user testing.
 
 ### Lighting profiles
+
+Choose **+ New profile** to create a named custom profile with separate brightness and contrast percentages for each connected monitor. Uncheck a control to leave it unchanged. Saving stores the profile without applying it. Custom profiles appear as buttons below the three presets in the main window and tray panel; click a button to apply it. Use the pencil button in the main window to edit, rename or delete a profile. Values for disconnected monitors are retained when editing; monitors absent from the profile remain unchanged. Profiles match monitor device identities and physical indices rather than display numbers.
+
+Custom profiles are stored in `%LOCALAPPDATA%\MonitorDesk\profiles.json` and restored on launch. Applying uses fresh capability reads, sequential writes and read-back verification; unavailable/stale controls are skipped. The v0.15.0 development build passed 196 automated checks, including persistence, invalid data, separate monitor values, excluded controls and disconnected devices. Real monitor profile application needs user testing.
 
 Eye comfort shows its selected strength as **value / 90** below the main window slider and in the tray toggle, including while disabled. This is the filter's selected intensity level, not a percentage or a monitor brightness value. Changing the slider keeps both displays synchronized.
 
@@ -179,7 +183,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 ## Roadmap
 
 - Persist confirmed display modes across Windows sessions.
-- Customizable profiles and scheduled lighting changes.
+- Scheduled lighting changes.
 - System tray controls and keyboard shortcuts.
 - Additional interface languages and an optional manual language selector.
 - Final product name and distributable installer.

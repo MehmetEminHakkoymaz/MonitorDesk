@@ -13,6 +13,7 @@ internal sealed class TrayPanel : Window
 {
     private readonly MainWindow main;
     private readonly StackPanel monitors = new();
+    private readonly UniformGrid customProfiles = new() { Columns = 3, Margin = new(0, 0, 0, 8) };
     private readonly UniformGrid profiles = new() { Columns = 3, Margin = new(0, 4, 0, 8) };
     private readonly Button eye = new() { Height = 32 };
     private readonly TextBlock eyeState = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -42,6 +43,7 @@ internal sealed class TrayPanel : Window
             button.Click += async (_, _) => await main.ApplyProfileAsync(profile); profiles.Children.Add(button);
         }
         body.Children.Add(profiles);
+        body.Children.Add(customProfiles);
         var eyeContent = new StackPanel { Orientation = Orientation.Horizontal };
         eyeShape.Margin = new(0);
         eyeContent.Children.Add(new Viewbox { Width = 22, Height = 18, Child = eyeShape, Margin = new(0, 0, 8, 0) }); eyeContent.Children.Add(eyeState); eye.Content = eyeContent;
@@ -68,6 +70,13 @@ internal sealed class TrayPanel : Window
     }
     internal void Render()
     {
+        customProfiles.Children.Clear();
+        foreach (var profile in main.CustomProfiles)
+        {
+            var button = new Button { Content = new TextBlock { Text = profile.Name, TextTrimming = TextTrimming.CharacterEllipsis },
+                Height = 34, Padding = new(4, 3, 4, 3), Margin = new(0, 0, 4, 4), ToolTip = profile.Name };
+            button.Click += async (_, _) => await main.ApplyProfileAsync(profile); customProfiles.Children.Add(button);
+        }
         monitors.Children.Clear();
         foreach (var display in main.QuickDisplays)
         {
@@ -84,6 +93,7 @@ internal sealed class TrayPanel : Window
     private void UpdateState()
     {
         profiles.IsEnabled = !main.IsBusy;
+        customProfiles.IsEnabled = !main.IsBusy;
         eyeState.Text = L.Format("Eye comfort · {0} · {1} / 90", L.Get(main.EyeComfortEnabled ? "On" : "Off"), main.EyeComfortStrength);
         eye.ToolTip = L.Format("Warm filter {0}. Selected strength: {1} / 90. Click to toggle.", L.Get(main.EyeComfortEnabled ? "enabled" : "disabled"), main.EyeComfortStrength);
         eyeShape.SetResourceReference(System.Windows.Shapes.Path.StrokeProperty, main.EyeComfortEnabled ? "Accent" : "Muted");

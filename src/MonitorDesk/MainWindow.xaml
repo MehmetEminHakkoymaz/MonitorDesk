@@ -1,4 +1,4 @@
-<Window x:Class="MonitorDesk.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:MonitorDesk" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="MonitorDesk · v0.14.0" Width="1280" Height="920" MinWidth="680" MinHeight="520" Background="{DynamicResource Page}" FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen">
+<Window x:Class="MonitorDesk.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:loc="clr-namespace:MonitorDesk" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="MonitorDesk · v0.15.1" Width="1280" Height="920" MinWidth="680" MinHeight="520" Background="{DynamicResource Page}" FontFamily="Segoe UI" FontSize="13" WindowStartupLocation="CenterScreen">
  <Grid Margin="24,24" MaxWidth="1320">
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid Margin="0,0,0,18">

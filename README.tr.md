@@ -4,7 +4,7 @@
 
 Her ekranı kendine göre ayarla. MonitorDesk, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.14.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.15.1 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -60,6 +60,10 @@ v0.14.0 geliştirme sürümünde donanıma yazma yapmadan 181 otomatik kontrol g
 İlk parlaklık/kontrast değişikliği donanım kuyruğuna bekletilmeden alınır. Sürükleme sırasında her monitör/ayar için en az 250 ms aralıklarla son istenen değer gönderilir; yeni hareketler gönderim zamanını ötelemek yerine bekleyen ara değeri değiştirir. Komutlar mevcut DDC toparlanma süreleriyle sırayla gönderilir; meşgul veya yavaş bir monitör bu aralığı uzatabilir. Kaydırıcı bırakıldığında son seçilen değer kuyrukta korunur. Ana pencere ve tepsi aynı kuyruğu kullanır. Yazma sırasında kaydırıcılar kullanılabilir; hareket durulduğunda yeniden okunan gerçek değer gösterilir, dolayısıyla donanımın desteklediği adımlar istenen değerden farklı olabilir. Hata durumunda bekleyen değişiklikler durdurulur ve ayrıntı gösterilir; kullanılamayan veya güncel olmayan kontroller kapalı kalır. Uygulamadan gerçek çıkış, gönderilmemiş değişiklikleri iptal eder. Çözünürlük, tazeleme hızı, yönlendirme ve yerleşim için önizleme onayı devam eder. Geliştirme sürümü donanıma yazmadan 155 otomatik kontrolü geçti; fiziksel kaydırıcı davranışı kullanıcı tarafından test edilmelidir.
 
 ### Işık profilleri
+
+**+ Yeni profil** ile bir ad verip bağlı her monitör için farklı parlaklık ve kontrast yüzdeleri seçebilirsin. İşaretini kaldırdığın ayarlar değişmez. Kaydetmek profili uygulamadan saklar. Özel profiller ana pencerede ve tepsi panelinde üç hazır profilin altında düğme olarak görünür; düğmeye tıklayarak uygula. Ana penceredeki kalem düğmesinden düzenleyebilir, adını değiştirebilir veya silebilirsin. Düzenleme sırasında bağlı olmayan monitörlerin kayıtlı değerleri korunur; profile dahil olmayan monitörler değişmez. Eşleştirme ekran numarası yerine monitör cihaz kimliği ve fiziksel indeks üzerinden yapılır.
+
+Profiller `%LOCALAPPDATA%\MonitorDesk\profiles.json` dosyasında saklanır ve sonraki açılışta geri gelir. Uygulamadan önce güncel destek bilgileri okunur, komutlar sırayla gönderilir ve değerler yeniden okunarak doğrulanır; desteklenmeyen veya güncel olmayan ayarlar atlanır. v0.15.0 geliştirme sürümünde 196 otomatik kontrol geçti; kaydetme, geçersiz veri, monitör başına farklı değerler, seçilmeyen ayarlar ve bağlı olmayan cihazlar sınandı. Gerçek monitörlerde profil uygulama kullanıcı tarafından test edilmelidir.
 
 Eye comfort’ın seçili yoğunluğu, ana penceredeki kaydırıcının altında ve tepsi düğmesinde **değer / 90** olarak gösterilir; mod kapalıyken de görünür. Bu, filtrenin seçili yoğunluk seviyesidir; yüzde veya monitör parlaklığı değildir. Kaydırıcı değişince iki görünüm birlikte güncellenir.
 
@@ -177,7 +181,7 @@ MonitorDesk.exe --snapshot C:\path\window.png
 ## Yol haritası
 
 - Onaylanan ekran modlarını Windows oturumları arasında kalıcı olarak saklama.
-- Özelleştirilebilir profiller ve zamanlanmış ışık değişiklikleri.
+- Zamanlanmış ışık değişiklikleri.
 - Sistem tepsisi kontrolleri ve klavye kısayolları.
 - Ek arayüz dilleri ve isteğe bağlı manuel dil seçimi.
 - Nihai ürün adı ve dağıtılabilir kurulum programı.

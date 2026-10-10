@@ -1,6 +1,7 @@
 namespace MonitorDesk.Services;
 
-internal record LightingProfile(string Name, int Brightness, int Contrast)
+internal record MonitorProfile(string Id, int PhysicalIndex, int? Brightness, int? Contrast);
+internal record LightingProfile(string Name, int Brightness, int Contrast, List<MonitorProfile>? Monitors = null)
 {
     internal static IReadOnlyList<LightingProfile> Presets { get; } =
     [new("Night", 25, 60), new("Normal", 55, 70), new("High light", 90, 75)];
@@ -28,6 +29,7 @@ internal sealed class LightingProfiles(Func<Task<List<Display>>> read, Func<Disp
     {
         if (profile.Brightness is < 0 or > 100 || profile.Contrast is < 0 or > 100)
             throw new ArgumentOutOfRangeException(nameof(profile));
+        if (profile.Monitors != null) CustomProfileStore.Validate(profile);
         cancellation.ThrowIfCancellationRequested();
         var displays = await read(); // Never write using a cached UI capability snapshot.
         var results = new List<ProfileControlResult>();
@@ -38,20 +40,28 @@ internal sealed class LightingProfiles(Func<Task<List<Display>>> read, Func<Disp
             {
                 cancellation.ThrowIfCancellationRequested();
                 if (visited.Any(v => v.Contrast == contrast && SameControl(v.Display, display, contrast))) continue;
-                visited.Add((display, contrast));
                 string name = contrast ? "contrast" : "brightness";
+                var saved = profile.Monitors?.FirstOrDefault(m => m.Id == display.Id && m.PhysicalIndex == display.PhysicalIndex);
+                int? percent = profile.Monitors == null ? (contrast ? profile.Contrast : profile.Brightness)
+                    : contrast ? saved?.Contrast : saved?.Brightness;
+                if (percent == null)
+                {
+                    results.Add(new(display, contrast, null, "Skipped", "Not included in this profile."));
+                    continue;
+                }
+                visited.Add((display, contrast));
                 var level = contrast ? display.Contrast : display.Brightness;
                 if (level == null || level.IsStale || level.Max <= level.Min)
                 {
                     results.Add(new(display, contrast, null, "Skipped", level?.IsStale == true ? "Monitor did not respond; last-known value is not current." : "Control unavailable."));
                     continue;
                 }
-                uint target = MapPercent(level, contrast ? profile.Contrast : profile.Brightness);
+                uint target = MapPercent(level, percent.Value);
                 if (target == level.Current)
                 {
                     results.Add(new(display, contrast, target, "Already set", $"Current value is {target}.")); continue;
                 }
-                progress?.Report($"Applying {profile.Name.ToLowerInvariant()} · Display {display.Number} {name}…");
+                progress?.Report($"Applying {(profile.Monitors == null ? profile.Name.ToLowerInvariant() : profile.Name)} · Display {display.Number} {name}…");
                 try
                 {
                     await write(display, contrast, target);

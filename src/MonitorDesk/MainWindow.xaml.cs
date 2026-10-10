@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         InitializePreferences();
         if (remember) InitializeRecovery();
+        InitializeCustomProfiles(remember);
         foreach (var profile in LightingProfile.Presets)
         {
             var content = new StackPanel { Orientation = Orientation.Horizontal };
@@ -84,6 +85,7 @@ public partial class MainWindow : Window
     private void SetBusy(bool value)
     {
         busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value; ProfileButtons.IsEnabled = !value;
+        customProfileButtons.IsEnabled = !IsBusy;
         QuickStateChanged?.Invoke(this, EventArgs.Empty);
         if (!value && pending && !closing) { pending = false; debounce.Start(); }
     }
@@ -110,19 +112,25 @@ public partial class MainWindow : Window
     {
         if (IsBusy) return;
         SetBusy(true); ProfileDetails.Visibility = Visibility.Collapsed; ProfileStatus.Visibility = Visibility.Visible;
-        ProfileStatus.Text = Status.Text = L.Format("Reading current controls before applying {0}…", L.Get(profile.Name));
+        string profileName = profile.Monitors == null ? L.Get(profile.Name) : profile.Name;
+        ProfileStatus.Text = Status.Text = L.Format("Reading current controls before applying {0}…", profileName);
         try
         {
             var profiles = new LightingProfiles(service.ReadAsync, service.SetAsync);
             var result = await profiles.ApplyAsync(profile, new Progress<string>(message =>
             {
-                if (!closing) ProfileStatus.Text = Status.Text = L.Message(message);
+                if (!closing) ProfileStatus.Text = Status.Text = profile.Monitors == null ? L.Message(message) : L.Format("Applying {0}…", profileName);
             }), profileCancellation.Token);
             if (closing) return;
             if (result.ReadBack != null) { displays = result.ReadBack; Render(); await RefreshLayoutAsync(); }
             else { displays = displays.Select(d => d with { Brightness = d.Brightness is { } b ? b with { IsStale = true } : null, Contrast = d.Contrast is { } c ? c with { IsStale = true } : null }).ToList(); Render(); }
-            ProfileStatus.Text = Status.Text = result.Controls.Count == 0 ? L.Get("No connected monitors were found.") : $"{L.Get(profile.Name)} · {L.ProfileSummary(result)}";
+            ProfileStatus.Text = Status.Text = result.Controls.Count == 0 ? L.Get("No connected monitors were found.") : $"{profileName} · {L.ProfileSummary(result)}";
             ProfileReport.Text = string.Join(Environment.NewLine, result.Controls.Select(c => $"{L.Format("Display {0} · {1}", c.Display.Number, c.Contrast ? L.Get("Contrast") : L.Get("Brightness"))} · {L.Get(c.Status)}: {L.Message(c.Detail)}"));
+            if (profile.Monitors != null)
+            {
+                int missing = profile.Monitors.Count(m => !result.Controls.Any(c => c.Display.Id == m.Id && c.Display.PhysicalIndex == m.PhysicalIndex));
+                if (missing > 0) ProfileReport.Text += Environment.NewLine + L.Format("{0} saved monitor(s) are disconnected and were skipped.", missing);
+            }
             if (result.ReadError != null) ProfileReport.Text += Environment.NewLine + L.Get("Read-back failed: ") + L.Message(result.ReadError);
             ProfileDetails.Visibility = Visibility.Visible;
         }
@@ -132,6 +140,7 @@ public partial class MainWindow : Window
     }
     private void Render()
     {
+        RenderCustomProfiles();
         recovery.Sync(displays, DateTime.UtcNow);
         if (warmEnabled) UpdateWarmFilter();
         Cards.Children.Clear();
@@ -308,6 +317,7 @@ public partial class MainWindow : Window
         levelChanges.Queue(display, contrast, value, DateTime.UtcNow);
         autoLevelsActive = true;
         Toolbar.IsEnabled = LayoutHost.IsEnabled = ProfileButtons.IsEnabled = false;
+        customProfileButtons.IsEnabled = false;
         QuickStateChanged?.Invoke(this, EventArgs.Empty);
         levelTimer.Start();
         _ = ApplyLevelChangesAsync();
