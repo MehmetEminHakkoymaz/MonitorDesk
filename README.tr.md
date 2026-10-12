@@ -6,7 +6,7 @@
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.19.2 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.20.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -15,6 +15,12 @@ Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
 ## Özellikler
+
+### Güncellemeler
+
+**Ayarlar → Güncellemeler** bölümünden **Şimdi kontrol et** veya **İndirme sayfası** düğmesini kullan. Otomatik kontrol açılışta bir kez ve uygulama çalışırken 12 saatte bir yapılır; istersen kutunun işaretini kaldırarak kapatabilirsin. Daha yeni kararlı GitHub sürümü bulunduğunda ana pencerede indirme alanı ve tepside bildirim görünür; tıklamak indirme sayfasını açar. Kurulumu kendin yaparsın. Kontrol internet gerektirir, GitHub hesabı istemez ve 12 saniyede zaman aşımına uğrar; hata olduğunda monitör ayarlarını kullanmaya devam edebilirsin.
+
+Yalnızca yayınlanmış kararlı sürümler kontrol edilir; commit, tek başına etiket ve ön sürümler bildirim oluşturmaz ([GitHub sürüm API'si](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)). Yeni sürümü dağıtırken setup dosyasıyla bir GitHub Release yayınlanmalıdır. Salt okunur arayüz tanılamaları internete bağlanmaz ve ayarları kaydetmez.
 
 ### Saatli aydınlatma
 

@@ -6,7 +6,7 @@ Previously named **MonitorDesk**. Existing settings and custom profiles remain i
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.19.2 (development) · Windows only**
+**Working title · v0.20.0 (development) · Windows only**
 
 ## Install
 
@@ -15,6 +15,12 @@ Download [Monilivo-Setup-0.18.0-win-x64.exe](artifacts/installers/Monilivo-Setup
 The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
 ## Features
+
+### Updates
+
+Open **Preferences → Updates** to use **Check now** or **Download page**. Automatic checks run once at startup and every 12 hours while Monilivo is running; disable them with the checkbox if preferred. A newer stable GitHub Release shows a main-window banner and a tray notification; clicking opens its download page. Installation remains manual. Public release checks require internet, use no GitHub login, and time out after 12 seconds; errors leave monitor controls available.
+
+Only published stable releases are considered, not commits, bare tags or prereleases ([GitHub release API](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)). Publish a GitHub Release with the setup asset when distributing a newer version. Read-only UI diagnostics do not check online or save preferences.
 
 ### Scheduled lighting
 

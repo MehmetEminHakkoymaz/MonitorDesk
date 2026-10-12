@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0 — Update checks (unreleased)
+
+- Add a localized Updates card with installed version, manual check, download-page action and persistent automatic-check preference.
+- Check the public latest stable GitHub Release at startup and every 12 hours while running, using a 12-second timeout, no credentials and no blocking monitor operations. Diagnostics skip network checks.
+- Compare numeric release versions, excluding drafts and prereleases; show an available-update banner and a tray notification opening a URL constructed only from the fixed repository. Download and installation stay manual.
+- Report connection, timeout and rate-limit failures without claiming the app is up to date.
+- Pass 227 automated checks, inspect the Turkish Updates card, verify tray lifecycle and read the live GitHub latest-release response (v0.11.0). Newer-release parsing/notification eligibility is covered with simulated responses.
+
 ## 0.19.2 — Preferences checkboxes (unreleased)
 
 - Style the startup and scheduled-lighting checkboxes with rounded outlines, theme accent fills and checkmarks, hover highlights, keyboard focus rings and disabled states.

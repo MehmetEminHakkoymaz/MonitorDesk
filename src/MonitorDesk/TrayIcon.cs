@@ -28,9 +28,13 @@ internal sealed class TrayIcon : IDisposable
         using (var source = new System.Drawing.Icon(resource, Forms.SystemInformation.SmallIconSize))
             applicationIcon = (System.Drawing.Icon)source.Clone();
         icon = new Forms.NotifyIcon { Text = "Monilivo", Icon = applicationIcon, ContextMenuStrip = menu, Visible = true };
+        window.UpdateAvailable += NotifyUpdate;
+        icon.BalloonTipClicked += (_, _) => window.OpenReleasePage();
         icon.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); singleClick.Start(); } };
         icon.MouseDoubleClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); ShowWindow(); } };
     }
+    private void NotifyUpdate(object? sender, EventArgs e)
+        => icon.ShowBalloonTip(8000, L.Get("Update available"), L.Format("Monilivo {0} is available. Click to open the download page.", window.AvailableUpdateLabel), Forms.ToolTipIcon.Info);
 
     internal void ShowWindow() => window.Dispatcher.Invoke(() =>
     {
@@ -65,6 +69,7 @@ internal sealed class TrayIcon : IDisposable
 
     public void Dispose()
     {
+        window.UpdateAvailable -= NotifyUpdate;
         singleClick.Stop(); panel.Close(); icon.Visible = false; icon.Dispose(); applicationIcon.Dispose(); menu.Dispose();
     }
 }

@@ -47,6 +47,7 @@ public partial class MainWindow : Window
         InitializePreferences();
         if (remember) InitializeRecovery();
         if (remember) InitializeLightingSchedule();
+        if (remember) InitializeUpdateChecks();
         InitializeCustomProfiles(remember);
         foreach (var profile in LightingProfile.Presets)
         {
@@ -67,6 +68,7 @@ public partial class MainWindow : Window
             if (!InitialRead.Task.IsCompleted && !busy) { await RefreshAsync(); InitialRead.TrySetResult(); }
             if (preferenceLoadError != null) Status.Text = preferenceLoadError;
             await EvaluateLightingScheduleAsync();
+            if (preferences.AutoCheckUpdates) await CheckUpdatesAsync();
         };
         SystemEvents.DisplaySettingsChanged += DisplayChanged;
         debounce.Tick += async (_, _) => { debounce.Stop(); await RefreshAsync(); };

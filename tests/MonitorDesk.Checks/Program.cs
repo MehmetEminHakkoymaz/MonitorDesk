@@ -217,6 +217,7 @@ LevelChangeChecks.Run(Check);
 Console.WriteLine($"Total including automatic sliders: {count} checks passed. No display settings were changed.");
 PreferencesChecks.Run(Check);
 ScheduleChecks.Run(Check);
+await UpdateChecks.Run(Check);
 RecoveryChecks.Run(Check);
 await CustomProfileChecks.Run(Check);
 Console.WriteLine($"Total including preferences: {count} checks passed. No real settings or startup entries were changed.");

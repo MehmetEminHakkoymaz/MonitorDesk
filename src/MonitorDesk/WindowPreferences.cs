@@ -92,6 +92,7 @@ public partial class MainWindow
         await RefreshAsync(); InitialRead.TrySetResult();
         if (preferenceLoadError != null) Status.Text = preferenceLoadError;
         await EvaluateLightingScheduleAsync();
+        if (preferences.AutoCheckUpdates) await CheckUpdatesAsync();
     }
     private void Settings_Click(object sender, RoutedEventArgs e)
         => CreateSettingsDialog().ShowDialog();
@@ -122,6 +123,7 @@ public partial class MainWindow
         };
         startupCard.Children.Add(start); startupCard.Children.Add(detail); body.Children.Add(SettingsCard(startupCard));
         AddLightingScheduleSettings(body);
+        AddUpdateSettings(body);
         var footer = new Grid { Margin = new(24, 0, 24, 20) };
         footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var remembered = Text(L.Get("Appearance and Eye comfort are remembered automatically."), 12, "Muted");

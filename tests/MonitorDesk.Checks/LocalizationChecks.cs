@@ -22,6 +22,7 @@ internal static class LocalizationChecks
                 check(L.Message("OMEN 25i: vendor error 42") == "OMEN 25i: vendor error 42", locale + " preserves unknown vendor details");
                 check(L.ProfileSummary(new ProfileApplyResult([], null, null)) == "0 uygulandı · 0 zaten ayarlı · 0 atlandı · 0 kontrol edilmeli", locale + " localizes profile summary without changing status identifiers");
                 check(new TrExtension { Key = "Identify" }.ProvideValue(null!) as string == "Tanımla", locale + " resolves XAML translation");
+                check(new TrExtension { Key = "DownloadPage" }.ProvideValue(null!) as string == "İndirme sayfası", locale + " resolves the update banner download label");
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
                 check(L.Get("Display mode") == "Ekran modu", locale + " keeps selected language when callback culture differs");
             }
