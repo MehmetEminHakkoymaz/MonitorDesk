@@ -6,7 +6,7 @@
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.18.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.19.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -15,6 +15,12 @@ Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
 ## Özellikler
+
+### Saatli aydınlatma
+
+**Ayarlar** bölümünde **Gece / Normal profilini otomatik değiştir** seçeneğini aç, `22:00` ve `07:00` gibi iki farklı yerel saat girip **Zamanlamayı kaydet** düğmesine bas. Varsayılan saatler Gece için 22:00, Normal için 07:00'dır. Gece profili göz konforunu seçili yoğunlukta açar; Normal profili kapatır. Etkin zamanlamayı kaydettiğinde, kontroller boşta ise şu anki saate uygun profil hemen uygulanır. Elle yaptığın değişiklikler sonraki geçişe kadar korunur.
+
+Monilivo tepside de olsa çalışmalıdır. Oturum açtıktan sonra devam etmesi için **Windows ile sistem tepsisinde başlat** seçeneğini aç. Açılış ve uyku sonrası güncel saat dilimi uygulanır; meşgul monitör işlemlerinin bitmesi beklenir. Donanım hataları mevcut profil sonuçlarında gösterilir; tüm profil sürekli yeniden uygulanmaz. Yukarıdaki v0.18.0 kurulum paketi bu geliştirme özelliğini henüz içermez.
 
 Uygulama dosyası, ana pencere ve sistem tepsisi artık monitör/ışık simgesini kullanır. Yeni kurulumlarda masaüstü/Başlat kısayolları ve kurulum EXE’si de bu simgeyi gösterir. Düzenlenebilir vektör kaynak `src/MonitorDesk/Assets/MonitorDesk.svg` dosyasındadır; dokuz boyutlu Windows simgesini `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1` ile yeniden oluşturabilirsin. Sabitlenmiş kısayollar veya Windows simge önbelleği, kısayol yeniden oluşturulana kadar eski simgeyi gösterebilir.
 

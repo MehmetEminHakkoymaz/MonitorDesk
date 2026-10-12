@@ -6,7 +6,7 @@ Previously named **MonitorDesk**. Existing settings and custom profiles remain i
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.18.0 (development) · Windows only**
+**Working title · v0.19.0 (development) · Windows only**
 
 ## Install
 
@@ -15,6 +15,12 @@ Download [Monilivo-Setup-0.18.0-win-x64.exe](artifacts/installers/Monilivo-Setup
 The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
 ## Features
+
+### Scheduled lighting
+
+In **Preferences**, enable **Switch Night / Normal automatically**, enter two different local times in `HH:mm` format, then select **Save schedule**. Defaults are Night at 22:00 and Normal at 07:00. Night applies the Night lighting preset and enables Eye comfort at its selected strength; Normal applies the Normal preset and turns Eye comfort off. Saving an enabled schedule applies the current period immediately when controls are idle. Manual changes remain until the next scheduled boundary.
+
+Monilivo must be running, including in the tray. Enable **Start with Windows in the system tray** to keep this active after signing in. Startup and waking from sleep catch up to the latest period; busy monitor operations defer the switch. Hardware failures are reported through the existing profile results rather than repeatedly applying the entire profile. The linked v0.18.0 installer predates this development feature.
 
 The app has its own monitor/light icon in the executable, main window and system tray. New installations use it for desktop/Start menu shortcuts and the setup EXE. The editable vector source is `src/MonitorDesk/Assets/MonitorDesk.svg`; regenerate its nine-size Windows icon with `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1`. Pinned shortcuts or Windows' icon cache may retain an older icon until the shortcut is recreated.
 

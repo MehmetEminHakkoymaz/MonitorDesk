@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.19.0 — Scheduled lighting (unreleased)
+
+- Add opt-in local-time Night/Normal scheduling in Preferences, defaulting to 22:00/07:00, with validated distinct HH:mm times and persistent settings.
+- Night applies the Night preset and enables Eye comfort at its current strength; Normal applies its preset and disables the overlay.
+- Apply the current period on enabled schedule save and startup (including hidden tray startup); a 15-second timer catches up after sleep and waits for busy hardware/display previews.
+- Apply once per period to preserve manual adjustments until the next boundary and avoid repeatedly writing failed hardware controls. Diagnostics never activate saved schedules.
+- Pass 211 automated checks, verify hidden tray startup/open/hide/exit and inspect the Turkish preferences screen. Real timed hardware transitions and sleep/resume require user testing.
+
 ## 0.18.0 — Remember Eye comfort state (unreleased)
 
 - Build and include the self-contained Windows x64 setup EXE and SHA-256 checksum in the repository; link both READMEs to the download. The packaged application passes its read-only startup check; actual installation/upgrade remains a user test.

@@ -6,11 +6,12 @@ namespace MonitorDesk.Services;
 
 internal record WindowPlacement(int Left, int Top, double Width, double Height);
 internal record Preferences(bool LightTheme = false, int EyeStrength = 40,
-    WindowPlacement? Window = null, bool Maximized = false, bool EyeEnabled = false)
+    WindowPlacement? Window = null, bool Maximized = false, bool EyeEnabled = false, LightingSchedule? Schedule = null)
 {
     internal Preferences Validated() => this with
     {
         EyeStrength = Math.Clamp(EyeStrength, 0, 90),
+        Schedule = Schedule?.Validated(),
         Window = Window is { } w && double.IsFinite(w.Width) && double.IsFinite(w.Height)
             ? w with { Left = Math.Clamp(w.Left, -200000, 200000), Top = Math.Clamp(w.Top, -200000, 200000),
                 Width = Math.Clamp(w.Width, 680, 6000), Height = Math.Clamp(w.Height, 520, 4000) } : null

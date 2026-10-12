@@ -91,6 +91,7 @@ public partial class MainWindow
         new WindowInteropHelper(this).EnsureHandle();
         await RefreshAsync(); InitialRead.TrySetResult();
         if (preferenceLoadError != null) Status.Text = preferenceLoadError;
+        await EvaluateLightingScheduleAsync();
     }
     private void Settings_Click(object sender, RoutedEventArgs e)
         => CreateSettingsDialog().ShowDialog();
@@ -116,6 +117,7 @@ public partial class MainWindow
             }
         };
         body.Children.Add(start); body.Children.Add(detail);
+        AddLightingScheduleSettings(body);
         var close = new Button { Content = L.Get("Close"), HorizontalAlignment = HorizontalAlignment.Right, IsCancel = true };
         body.Children.Add(close);
         var dialog = new Window { Title = L.Get("Preferences"), Owner = this, Content = body, Width = 440,

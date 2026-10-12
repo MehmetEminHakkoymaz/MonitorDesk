@@ -19,6 +19,8 @@ internal static class PreferencesChecks
             check(store.Load() == saved, "Theme, enabled eye comfort and intensity, window bounds and maximized state survive a settings round trip");
             store.Save(saved with { EyeEnabled = false });
             check(!store.Load().EyeEnabled && store.Load().EyeStrength == 67, "Turning eye comfort off persists without losing its selected strength");
+            store.Save(saved with { Schedule = new(true, 21 * 60 + 30, 8 * 60 + 15) });
+            check(store.Load().Schedule == new LightingSchedule(true, 1290, 495), "Enabled custom schedule times survive a preferences round trip");
             File.WriteAllText(path, "{\"LightTheme\":true,\"EyeStrength\":22,\"Maximized\":true}");
             var legacy = store.Load();
             check(!legacy.EyeEnabled && legacy.LightTheme && legacy.EyeStrength == 22 && legacy.Maximized,
