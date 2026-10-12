@@ -2,6 +2,7 @@
 
 ## 0.20.0 — Update checks (unreleased)
 
+- Build and include the self-contained v0.20.0 Windows x64 installer with its SHA-256 checksum; update both README download links. Pass the packaged read-only startup check; actual installation/upgrade remains a user test.
 - Add a localized Updates card with installed version, manual check, download-page action and persistent automatic-check preference.
 - Check the public latest stable GitHub Release at startup and every 12 hours while running, using a 12-second timeout, no credentials and no blocking monitor operations. Diagnostics skip network checks.
 - Compare numeric release versions, excluding drafts and prereleases; show an available-update banner and a tray notification opening a URL constructed only from the fixed repository. Download and installation stay manual.

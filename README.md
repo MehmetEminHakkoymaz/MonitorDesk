@@ -10,7 +10,7 @@ Fine-tune every screen. A lightweight Windows desktop app for reading display in
 
 ## Install
 
-Download [Monilivo-Setup-0.18.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe) from this repository using **Download raw file**, then run it. Its [SHA-256 checksum](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe.sha256) is included. Older published installers are available on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases).
+Download [Monilivo-Setup-0.20.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe) from this repository using **Download raw file**, then run it. Its [SHA-256 checksum](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe.sha256) is included. Older published installers are available on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases).
 
 The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
@@ -28,7 +28,7 @@ Use the separate hour/minute fields: type two hour digits to advance automatical
 
 In **Preferences**, enable **Switch Night / Normal automatically**, enter two different local times in `HH:mm` format, then select **Save schedule**. Defaults are Night at 22:00 and Normal at 07:00. Night applies the Night lighting preset and enables Eye comfort at its selected strength; Normal applies the Normal preset and turns Eye comfort off. Saving an enabled schedule applies the current period immediately when controls are idle. Manual changes remain until the next scheduled boundary.
 
-Monilivo must be running, including in the tray. Enable **Start with Windows in the system tray** to keep this active after signing in. Startup and waking from sleep catch up to the latest period; busy monitor operations defer the switch. Hardware failures are reported through the existing profile results rather than repeatedly applying the entire profile. The linked v0.18.0 installer predates this development feature.
+Monilivo must be running, including in the tray. Enable **Start with Windows in the system tray** to keep this active after signing in. Startup and waking from sleep catch up to the latest period; busy monitor operations defer the switch. Hardware failures are reported through the existing profile results rather than repeatedly applying the entire profile.
 
 The app has its own monitor/light icon in the executable, main window and system tray. New installations use it for desktop/Start menu shortcuts and the setup EXE. The editable vector source is `src/MonitorDesk/Assets/MonitorDesk.svg`; regenerate its nine-size Windows icon with `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1`. Pinned shortcuts or Windows' icon cache may retain an older icon until the shortcut is recreated.
 
@@ -138,7 +138,7 @@ Then run **Build-Installer.cmd** from the repository root, or:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
 
 Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
 

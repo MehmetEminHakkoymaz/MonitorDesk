@@ -10,7 +10,7 @@ Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve
 
 ## Kurulum
 
-[Monilivo-Setup-0.18.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe) dosyasını bu depodan **Download raw file** düğmesiyle indirip çalıştır. [SHA-256 doğrulama dosyası](artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
+[Monilivo-Setup-0.20.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe) dosyasını bu depodan **Download raw file** düğmesiyle indirip çalıştır. [SHA-256 doğrulama dosyası](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
 
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
@@ -28,7 +28,7 @@ Saat ve dakika alanları ayrıdır: saati iki rakam olarak yazınca dakika alan�
 
 **Ayarlar** bölümünde **Gece / Normal profilini otomatik değiştir** seçeneğini aç, `22:00` ve `07:00` gibi iki farklı yerel saat girip **Zamanlamayı kaydet** düğmesine bas. Varsayılan saatler Gece için 22:00, Normal için 07:00'dır. Gece profili göz konforunu seçili yoğunlukta açar; Normal profili kapatır. Etkin zamanlamayı kaydettiğinde, kontroller boşta ise şu anki saate uygun profil hemen uygulanır. Elle yaptığın değişiklikler sonraki geçişe kadar korunur.
 
-Monilivo tepside de olsa çalışmalıdır. Oturum açtıktan sonra devam etmesi için **Windows ile sistem tepsisinde başlat** seçeneğini aç. Açılış ve uyku sonrası güncel saat dilimi uygulanır; meşgul monitör işlemlerinin bitmesi beklenir. Donanım hataları mevcut profil sonuçlarında gösterilir; tüm profil sürekli yeniden uygulanmaz. Yukarıdaki v0.18.0 kurulum paketi bu geliştirme özelliğini henüz içermez.
+Monilivo tepside de olsa çalışmalıdır. Oturum açtıktan sonra devam etmesi için **Windows ile sistem tepsisinde başlat** seçeneğini aç. Açılış ve uyku sonrası güncel saat dilimi uygulanır; meşgul monitör işlemlerinin bitmesi beklenir. Donanım hataları mevcut profil sonuçlarında gösterilir; tüm profil sürekli yeniden uygulanmaz.
 
 Uygulama dosyası, ana pencere ve sistem tepsisi artık monitör/ışık simgesini kullanır. Yeni kurulumlarda masaüstü/Başlat kısayolları ve kurulum EXE’si de bu simgeyi gösterir. Düzenlenebilir vektör kaynak `src/MonitorDesk/Assets/MonitorDesk.svg` dosyasındadır; dokuz boyutlu Windows simgesini `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/Build-Icon.ps1` ile yeniden oluşturabilirsin. Sabitlenmiş kısayollar veya Windows simge önbelleği, kısayol yeniden oluşturulana kadar eski simgeyi gösterebilir.
 
@@ -136,7 +136,7 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.18.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 
