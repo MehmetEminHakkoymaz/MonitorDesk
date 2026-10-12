@@ -6,7 +6,7 @@
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.19.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.19.2 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
@@ -17,6 +17,8 @@ Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Baş
 ## Özellikler
 
 ### Saatli aydınlatma
+
+Saat ve dakika alanları ayrıdır: saati iki rakam olarak yazınca dakika alanına otomatik geçer; iki nokta yazman gerekmez. Açılır kaydırmalı listeden seçim yapabilir, fare tekerleği veya Yukarı/Aşağı tuşlarıyla değiştirebilirsin. `1530` veya `15:30` yapıştırmak da desteklenir.
 
 **Ayarlar** bölümünde **Gece / Normal profilini otomatik değiştir** seçeneğini aç, `22:00` ve `07:00` gibi iki farklı yerel saat girip **Zamanlamayı kaydet** düğmesine bas. Varsayılan saatler Gece için 22:00, Normal için 07:00'dır. Gece profili göz konforunu seçili yoğunlukta açar; Normal profili kapatır. Etkin zamanlamayı kaydettiğinde, kontroller boşta ise şu anki saate uygun profil hemen uygulanır. Elle yaptığın değişiklikler sonraki geçişe kadar korunur.
 

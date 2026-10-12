@@ -6,7 +6,7 @@ Previously named **MonitorDesk**. Existing settings and custom profiles remain i
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.19.0 (development) · Windows only**
+**Working title · v0.19.2 (development) · Windows only**
 
 ## Install
 
@@ -17,6 +17,8 @@ The setup installs Monilivo for your Windows account, creates desktop and Start 
 ## Features
 
 ### Scheduled lighting
+
+Use the separate hour/minute fields: type two hour digits to advance automatically to minutes, or choose from the scrollable popup. Mouse wheel and Up/Down keys adjust each field. Pasting `1530` or `15:30` also works.
 
 In **Preferences**, enable **Switch Night / Normal automatically**, enter two different local times in `HH:mm` format, then select **Save schedule**. Defaults are Night at 22:00 and Normal at 07:00. Night applies the Night lighting preset and enables Eye comfort at its selected strength; Normal applies the Normal preset and turns Eye comfort off. Saving an enabled schedule applies the current period immediately when controls are idle. Manual changes remain until the next scheduled boundary.
 

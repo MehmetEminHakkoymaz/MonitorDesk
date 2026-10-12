@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -41,30 +40,38 @@ public partial class MainWindow
     private void AddLightingScheduleSettings(StackPanel body)
     {
         var schedule = preferences.Schedule ?? new LightingSchedule();
-        body.Children.Add(Text(L.Get("Scheduled lighting"), 16));
+        var card = new StackPanel();
+        card.Children.Add(Text(L.Get("Scheduled lighting"), 16));
         var enabled = new CheckBox { Content = L.Get("Switch Night / Normal automatically"), IsChecked = schedule.Enabled,
-            IsEnabled = preferencesStore != null, Margin = new(0, 12, 0, 10) };
-        enabled.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Ink"); body.Children.Add(enabled);
-        var night = new TextBox { Text = FormatMinute(schedule.NightMinute), Width = 70, Margin = new(8, 0, 12, 0) };
-        var day = new TextBox { Text = FormatMinute(schedule.DayMinute), Width = 70, Margin = new(8, 0, 0, 0) };
-        var times = new StackPanel { Orientation = Orientation.Horizontal };
-        times.Children.Add(Text(L.Get("Night"), 13)); times.Children.Add(night);
-        times.Children.Add(Text(L.Get("Normal"), 13)); times.Children.Add(day); body.Children.Add(times);
-        var detail = Text(L.Get("Local time (HH:mm). Night enables Eye comfort at its selected strength; Normal disables it. Monilivo must be running, including in the tray. Manual changes last until the next switch."), 12, "Muted");
-        detail.Margin = new(0, 10, 0, 10); body.Children.Add(detail);
+            IsEnabled = preferencesStore != null, Margin = new(0, 12, 0, 18) };
+        enabled.SetResourceReference(StyleProperty, "SettingsCheckBox");
+        enabled.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Ink"); card.Children.Add(enabled);
+        var night = new TimePicker(schedule.NightMinute);
+        var day = new TimePicker(schedule.DayMinute);
+        var times = new Grid(); times.ColumnDefinitions.Add(new()); times.ColumnDefinitions.Add(new());
+        void AddTime(string name, string hint, TimePicker picker, int column)
+        {
+            var panel = new StackPanel { Margin = new(column == 0 ? 0 : 12, 0, 0, 0) };
+            panel.Children.Add(Text(name, 14)); picker.Margin = new(0, 8, 0, 6); panel.Children.Add(picker);
+            panel.Children.Add(Text(hint, 12, "Muted")); Grid.SetColumn(panel, column); times.Children.Add(panel);
+        }
+        AddTime(L.Get("Night"), L.Get("Eye comfort on"), night, 0);
+        AddTime(L.Get("Normal"), L.Get("Eye comfort off"), day, 1);
+        card.Children.Add(times);
+        var detail = Text(L.Get("Local time · Scroll or type to choose. Monilivo must be running in the tray."), 12, "Muted");
+        detail.Margin = new(0, 18, 0, 12); card.Children.Add(detail);
         var apply = new Button { Content = L.Get("Save schedule"), HorizontalAlignment = HorizontalAlignment.Left,
-            IsEnabled = preferencesStore != null, Margin = new(0, 0, 0, 16) };
+            IsEnabled = preferencesStore != null };
         apply.Click += async (_, _) =>
         {
-            if (!TimeOnly.TryParseExact(night.Text.Trim(), "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var n) ||
-                !TimeOnly.TryParseExact(day.Text.Trim(), "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) || n == d)
+            int n = night.MinuteOfDay, d = day.MinuteOfDay;
+            if (n == d)
             { detail.Text = L.Get("Enter two different times in HH:mm format, for example 22:00 and 07:00."); return; }
-            preferences = preferences with { Schedule = new(enabled.IsChecked == true, n.Hour * 60 + n.Minute, d.Hour * 60 + d.Minute) };
+            preferences = preferences with { Schedule = new(enabled.IsChecked == true, n, d) };
             scheduleTransitions.Reset(); SavePreferences();
             detail.Text = L.Get("Schedule saved. Enabled schedules apply the current period now and after startup or sleep.");
             await EvaluateLightingScheduleAsync();
         };
-        body.Children.Add(apply);
+        card.Children.Add(apply); body.Children.Add(SettingsCard(card));
     }
-    private static string FormatMinute(int value) => $"{value / 60:00}:{value % 60:00}";
 }

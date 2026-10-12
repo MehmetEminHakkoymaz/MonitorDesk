@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.19.2 — Preferences checkboxes (unreleased)
+
+- Style the startup and scheduled-lighting checkboxes with rounded outlines, theme accent fills and checkmarks, hover highlights, keyboard focus rings and disabled states.
+- Preserve native CheckBox keyboard, label-click and accessibility behavior. Build successfully and inspect the preferences layout in light and dark themes.
+
+## 0.19.1 — Preferences and time picker (unreleased)
+
+- Present startup and scheduled lighting in separate theme-aware cards with a fixed footer and scrolling on small screens.
+- Replace free-form times with separate hour/minute fields, a scrollable selection popup, mouse-wheel and arrow-key adjustments. Two typed hour digits advance focus to minutes; typing a colon is optional.
+- Accept pasted HHmm or HH:mm times; reject invalid hour/minute ranges and nonnumeric input. Update Turkish/English labels and keep the existing saved schedule format.
+- Pass 216 automated checks and inspect both language layouts. Physical typing, wheel and popup interaction require user testing.
+
 ## 0.19.0 — Scheduled lighting (unreleased)
 
 - Add opt-in local-time Night/Normal scheduling in Preferences, defaulting to 22:00/07:00, with validated distinct HH:mm times and persistent settings.

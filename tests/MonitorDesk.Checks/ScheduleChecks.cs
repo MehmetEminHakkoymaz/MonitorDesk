@@ -1,9 +1,19 @@
 using MonitorDesk.Services;
+using MonitorDesk;
 
 internal static class ScheduleChecks
 {
     internal static void Run(Action<bool, string> check)
     {
+        check(TimeEntry.Edit("22", 0, 2, "1", 23) == "1" && TimeEntry.Edit("1", 1, 0, "5", 23) == "15",
+            "Typing hours replaces the selection and accepts the two-digit hour before advancing");
+        check(TimeEntry.Edit("2", 1, 0, "4", 23) == null && TimeEntry.Edit("5", 1, 0, "9", 59) == "59",
+            "Hour and minute input enforce their distinct valid ranges");
+        check(TimeEntry.Edit("12", 1, 1, "3", 23) == "13" && TimeEntry.Edit("12", 2, 0, "3", 23) == null,
+            "Editing a selected digit works while a third digit is rejected");
+        check(TimeEntry.ParseTime("1530") == 930 && TimeEntry.ParseTime("15:30") == 930 && TimeEntry.ParseTime("2460") == null,
+            "Pasted compact and colon times work while invalid times are rejected");
+        check(TimeEntry.Edit("00", 0, 2, "ab", 59) == null, "Non-numeric time input is rejected");
         var schedule = new LightingSchedule(true);
         DateTime day = new(2026, 10, 12);
         check(schedule.PeriodAt(day.AddHours(22)) == new SchedulePeriod(true, day.AddHours(22)), "Night starts at the exact evening boundary");

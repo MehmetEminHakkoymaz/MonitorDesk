@@ -99,12 +99,16 @@ public partial class MainWindow
     {
         var body = new StackPanel { Margin = new(24) };
         body.Children.Add(Text(L.Get("Preferences"), 22));
-        var explanation = Text(L.Get("Theme, Eye comfort state and strength, and window position are saved automatically."), 13, "Muted");
-        explanation.Margin = new(0, 12, 0, 20); body.Children.Add(explanation);
+        var explanation = Text(L.Get("Your workspace, your routine."), 13, "Muted");
+        explanation.Margin = new(0, 6, 0, 22); body.Children.Add(explanation);
+        var startupCard = new StackPanel();
+        startupCard.Children.Add(Text(L.Get("Startup"), 16));
         var start = new CheckBox { Content = L.Get("Start with Windows in the system tray"), IsEnabled = startupRegistration != null };
+        start.Margin = new(0, 12, 0, 0);
+        start.SetResourceReference(StyleProperty, "SettingsCheckBox");
         start.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Ink");
         var detail = Text(L.Get("Starts when you sign in. Open the window from the tray icon."), 12, "Muted");
-        detail.Margin = new(0, 8, 0, 16);
+        detail.Margin = new(0, 8, 0, 0);
         try { start.IsChecked = startupRegistration?.Enabled == true; }
         catch (Exception ex) { start.IsEnabled = false; detail.Text = L.Get("Could not read Windows startup preference: ") + ex.Message; }
         start.Click += (_, _) =>
@@ -116,14 +120,28 @@ public partial class MainWindow
                 start.IsChecked = !(start.IsChecked == true);
             }
         };
-        body.Children.Add(start); body.Children.Add(detail);
+        startupCard.Children.Add(start); startupCard.Children.Add(detail); body.Children.Add(SettingsCard(startupCard));
         AddLightingScheduleSettings(body);
+        var footer = new Grid { Margin = new(24, 0, 24, 20) };
+        footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        var remembered = Text(L.Get("Appearance and Eye comfort are remembered automatically."), 12, "Muted");
+        remembered.Margin = new(0, 0, 20, 0); remembered.VerticalAlignment = VerticalAlignment.Center; footer.Children.Add(remembered);
         var close = new Button { Content = L.Get("Close"), HorizontalAlignment = HorizontalAlignment.Right, IsCancel = true };
-        body.Children.Add(close);
-        var dialog = new Window { Title = L.Get("Preferences"), Owner = this, Content = body, Width = 440,
+        Grid.SetColumn(close, 1); footer.Children.Add(close);
+        var layout = new Grid(); layout.RowDefinitions.Add(new()); layout.RowDefinitions.Add(new() { Height = GridLength.Auto });
+        var scroll = new ScrollViewer { Content = body, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        layout.Children.Add(scroll); Grid.SetRow(footer, 1); layout.Children.Add(footer);
+        var dialog = new Window { Title = L.Get("Preferences"), Owner = this, Content = layout, Width = 520,
+            MaxHeight = Math.Max(320, System.Windows.SystemParameters.WorkArea.Height - 40),
             SizeToContent = SizeToContent.Height, ResizeMode = ResizeMode.NoResize, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         dialog.SetResourceReference(BackgroundProperty, "Page");
         close.Click += (_, _) => dialog.Close(); return dialog;
+    }
+    private static Border SettingsCard(UIElement content)
+    {
+        var border = new Border { Child = content, CornerRadius = new(12), BorderThickness = new(1), Padding = new(18), Margin = new(0, 0, 0, 14) };
+        border.SetResourceReference(Border.BackgroundProperty, "Card"); border.SetResourceReference(Border.BorderBrushProperty, "Line");
+        return border;
     }
     [DllImport("user32.dll")] private static extern bool GetWindowRect(nint window, out Native.Rect rect);
     [DllImport("user32.dll")] private static extern uint GetDpiForWindow(nint window);
