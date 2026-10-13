@@ -23,6 +23,9 @@ internal static class PreferencesChecks
             check(store.Load().Schedule == new LightingSchedule(true, 1290, 495), "Enabled custom schedule times survive a preferences round trip");
             store.Save(saved with { AutoCheckUpdates = false });
             check(!store.Load().AutoCheckUpdates, "Disabling automatic update checks persists across startup");
+            store.Save(saved with { MonitorNames = [new("connected", 0, "Ana ekran"), new("disconnected", 0, "Dikey ekran")] });
+            check(store.Load().MonitorNames is { Count: 2 } names && names[0].Name == "Ana ekran" && names[1].Id == "disconnected",
+                "Unicode monitor names and disconnected monitor identities survive a settings round trip");
             File.WriteAllText(path, "{\"LightTheme\":true,\"EyeStrength\":22,\"Maximized\":true}");
             var legacy = store.Load();
             check(!legacy.EyeEnabled && legacy.LightTheme && legacy.EyeStrength == 22 && legacy.Maximized,

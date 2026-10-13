@@ -6,15 +6,21 @@
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.20.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.21.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
-[Monilivo-Setup-0.20.0-win-x64.exe](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe) dosyasını bu depodan **Download raw file** düğmesiyle indirip çalıştır. [SHA-256 doğrulama dosyası](artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
+[Monilivo-Setup-0.21.0-win-x64.exe](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe) dosyasını GitHub Releases üzerinden indirip çalıştır. [SHA-256 doğrulama dosyası](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
 
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
 ## Özellikler
+
+### Monitör adları ve uyku sonrası toparlanma
+
+Monitör başlığının yanındaki **Adlandır** düğmesiyle en fazla 64 karakterlik özel bir ad kaydedebilirsin. Ana pencerede, tepside ve özel profil düzenleyicisinde görünür. Alanı boş bırakmak asıl donanım adına döndürür. Bağlantısı kesilen ekranların adları korunur; ekran numarası yerine Windows monitör kimliği ve fiziksel monitör sırasıyla eşleştirilir. Bağlantı noktası veya adaptör değişikliği Windows kimliğini değiştirirse yeniden adlandırana kadar asıl ad görünür.
+
+Uyku/uyanma veya ekran bağlantısı değişiminden sonra Monilivo monitörleri yeniden okumadan önce beş saniye bekler. Eksik ekranlar varsa 15 ve 30 saniye sonra iki ek keşif denemesi yapılır; eski kalan kontroller mevcut kontrollü yeniden okuma mekanizmasını kullanır. Devam eden yazma/önizleme işlemlerinin bitmesi beklenir, henüz gönderilmemiş kaydırıcı değişiklikleri atılır ve göz konforu açıksa seçili yoğunlukta katmanlar yeniden oluşturulur. Toparlanma mevcut değerleri okur; ışık profili uygulamaz. Etkin saatli aydınlatma, kaçırılan zaman geçişlerini ayrıca işler. Gerçek uyku/yeniden bağlantı davranışı kullanıcı testi gerektirir.
 
 ### Güncellemeler
 
@@ -136,7 +142,7 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.20.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.21.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 

@@ -219,5 +219,6 @@ PreferencesChecks.Run(Check);
 ScheduleChecks.Run(Check);
 await UpdateChecks.Run(Check);
 RecoveryChecks.Run(Check);
+WakeAndNameChecks.Run(Check);
 await CustomProfileChecks.Run(Check);
 Console.WriteLine($"Total including preferences: {count} checks passed. No real settings or startup entries were changed.");

@@ -59,7 +59,7 @@ public partial class MainWindow
         {
             var saved = editing?.Monitors?.FirstOrDefault(m => m.Id == display.Id && m.PhysicalIndex == display.PhysicalIndex);
             var card = new StackPanel { Margin = new(0, 14, 0, 0) };
-            card.Children.Add(Text(L.Format("Display {0} · {1}", display.Number, display.Name), 13));
+            card.Children.Add(Text(L.Format("Display {0} · {1}", display.Number, DisplayName(display)), 13));
             Func<int?> MakeControl(bool contrast)
             {
                 var level = contrast ? display.Contrast : display.Brightness;

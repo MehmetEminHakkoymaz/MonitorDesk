@@ -10,13 +10,13 @@ public partial class MainWindow
     private readonly DispatcherTimer recoveryTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private void InitializeRecovery()
     {
-        recoveryTimer.Tick += async (_, _) => await RecoverControlsAsync();
+        recoveryTimer.Tick += async (_, _) => { await RecoverAfterWakeAsync(); await RecoverControlsAsync(); };
         recoveryTimer.Start();
         Closed += (_, _) => recoveryTimer.Stop();
     }
     private async Task RecoverControlsAsync()
     {
-        if (closing || IsBusy || changingMode || Mouse.Captured != null) return;
+        if (closing || IsBusy || wakeRecovery.Pending || changingMode || Mouse.Captured != null) return;
         recovery.Sync(displays, DateTime.UtcNow);
         var target = recovery.Next(DateTime.UtcNow);
         if (target == null) return;

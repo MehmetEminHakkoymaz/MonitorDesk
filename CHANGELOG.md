@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.21.0 — Wake recovery and monitor names (2026-10-13)
+
+- Handle Windows suspend/resume and display reconnection with a five-second settling period, serialized read-only rediscovery and up to two additional attempts after 15/30 seconds for missing monitors. Coalesce repeated display events without postponing the deadline.
+- Suspend overlays and discard unsent slider changes; wait for active writes/previews and recreate enabled Eye comfort overlays using current display geometry. Existing stale-control recovery takes over after bounded discovery; stop power-event handling on exit. Diagnostics do not subscribe to power events.
+- Add a localized Rename action per monitor; persist custom names by Windows monitor identity/physical index, retain disconnected entries and support resetting to the hardware name. Use aliases in main/tray/profile-editor labels without changing hardware identifiers.
+- Pass 240 automated checks covering discovery deadlines, retries, busy deferral, monitor renumbering and name persistence. Verify hidden tray lifecycle and inspect the main UI. Actual sleep/resume/reconnection requires user testing.
+
 ## 0.20.0 — Update checks (unreleased)
 
 - Build and include the self-contained v0.20.0 Windows x64 installer with its SHA-256 checksum; update both README download links. Pass the packaged read-only startup check; actual installation/upgrade remains a user test.

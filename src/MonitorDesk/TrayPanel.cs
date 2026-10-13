@@ -81,7 +81,7 @@ internal sealed class TrayPanel : Window
         foreach (var display in main.QuickDisplays)
         {
             var controls = new StackPanel { IsEnabled = !main.ControlsBusy };
-            controls.Children.Add(new TextBlock { Text = L.Format("Display {0} · {1}", display.Number, display.Name), FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = display.Name, Margin = new(0, 0, 0, 6) });
+            controls.Children.Add(new TextBlock { Text = L.Format("Display {0} · {1}", display.Number, main.DisplayName(display)), FontSize = 11, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = main.DisplayName(display) + " · " + display.Name, Margin = new(0, 0, 0, 6) });
             controls.Children.Add(main.Control(display, false, true));
             var contrast = main.Control(display, true, true); contrast.Margin = new(0, 4, 0, 0); controls.Children.Add(contrast);
             var card = new Border { Child = controls, Padding = new(8), CornerRadius = new(8), Margin = new(0, 0, 0, 6) };

@@ -29,8 +29,8 @@ public partial class MainWindow : Window
     private bool hideAfterPreview;
     internal event EventHandler? QuickStateChanged;
     internal IReadOnlyList<Display> QuickDisplays => displays;
-    internal bool IsBusy => busy || autoLevelsActive;
-    internal bool ControlsBusy => busy;
+    internal bool IsBusy => busy || autoLevelsActive || suspended || wakeRecovery.Settling;
+    internal bool ControlsBusy => busy || suspended || wakeRecovery.Settling;
     internal bool AutomaticLevelsActive => autoLevelsActive;
     internal bool EyeComfortEnabled => warmEnabled;
     internal int EyeComfortStrength => (int)WarmStrength.Value;
@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         InitializePreferences();
         if (remember) InitializeRecovery();
+        if (remember) InitializeWakeHandling();
         if (remember) InitializeLightingSchedule();
         if (remember) InitializeUpdateChecks();
         InitializeCustomProfiles(remember);
@@ -84,14 +85,19 @@ public partial class MainWindow : Window
     private void DisplayChanged(object? sender, EventArgs e)
     {
         if (closing) return;
-        Dispatcher.BeginInvoke(() => { if (closing) return; debounce.Stop(); debounce.Start(); });
+        Dispatcher.BeginInvoke(() =>
+        {
+            if (closing) return;
+            if (preferencesStore != null && !changingMode) RequestWakeRecovery();
+            else { debounce.Stop(); debounce.Start(); }
+        });
     }
     private void SetBusy(bool value)
     {
-        busy = value; Toolbar.IsEnabled = !value; Cards.IsEnabled = !value; LayoutHost.IsEnabled = !value; ProfileButtons.IsEnabled = !value;
+        busy = value; Toolbar.IsEnabled = !IsBusy; Cards.IsEnabled = !ControlsBusy; LayoutHost.IsEnabled = !IsBusy; ProfileButtons.IsEnabled = !IsBusy;
         customProfileButtons.IsEnabled = !IsBusy;
         QuickStateChanged?.Invoke(this, EventArgs.Empty);
-        if (!value && pending && !closing) { pending = false; debounce.Start(); }
+        if (!value && !IsBusy && pending && !closing) { pending = false; debounce.Start(); }
     }
     public async Task RefreshAsync()
     {
@@ -154,7 +160,12 @@ public partial class MainWindow : Window
         {
             var content = new StackPanel();
             content.Children.Add(Text(L.Format("DISPLAY {0:00}  {1}", display.Number, display.Primary ? L.Get("· PRIMARY") : L.Get("· EXTENDED")), 11, "Accent"));
-            var title = Text(display.Name, 17); title.Margin = new(0, 6, 0, 6); title.FontWeight = FontWeights.SemiBold; content.Children.Add(title);
+            var heading = new DockPanel { Margin = new(0, 6, 0, 6) };
+            var rename = new Button { Content = L.Get("Rename"), Padding = new(8, 4, 8, 4), Margin = new(8, 0, 0, 0), IsEnabled = preferencesStore != null };
+            rename.Click += (_, _) => RenameMonitor(display); DockPanel.SetDock(rename, Dock.Right); heading.Children.Add(rename);
+            var title = Text(DisplayName(display), 17); title.FontWeight = FontWeights.SemiBold; title.VerticalAlignment = VerticalAlignment.Center;
+            title.TextWrapping = TextWrapping.NoWrap; title.TextTrimming = TextTrimming.CharacterEllipsis; title.ToolTip = DisplayName(display) + " · " + display.Name;
+            heading.Children.Add(title); content.Children.Add(heading);
             content.Children.Add(Text($"{display.Width} × {display.Height}   /   {(display.Hertz > 1 ? $"{display.Hertz} Hz" : L.Get("Refresh rate unavailable"))}", 14, "Muted"));
             content.Children.Add(ModeControl(display));
             var controls = new Grid { Margin = new(0, 14, 0, 12) };
@@ -317,7 +328,7 @@ public partial class MainWindow : Window
 
     private void QueueLevel(Display display, bool contrast, uint value)
     {
-        if (closing || busy || levelError != null) return;
+        if (closing || busy || suspended || wakeRecovery.Settling || levelError != null) return;
         levelChanges.Queue(display, contrast, value, DateTime.UtcNow);
         autoLevelsActive = true;
         Toolbar.IsEnabled = LayoutHost.IsEnabled = ProfileButtons.IsEnabled = false;
@@ -329,7 +340,7 @@ public partial class MainWindow : Window
 
     private async Task ApplyLevelChangesAsync()
     {
-        if (closing || busy || levelTickRunning) return;
+        if (closing || busy || suspended || wakeRecovery.Settling || levelTickRunning) return;
         levelTickRunning = true;
         try
         {
@@ -375,7 +386,11 @@ public partial class MainWindow : Window
                 : L.Get("Monitor values read back. Device limits may affect the applied value."));
             levelError = null;
         }
-        finally { levelTickRunning = false; }
+        finally
+        {
+            levelTickRunning = false;
+            if (suspended || wakeRecovery.Settling) { levelTimer.Stop(); levelChanges.Clear(); autoLevelsActive = false; }
+        }
     }
 
     internal StackPanel Control(Display display, bool contrast, bool compact = false)
@@ -438,7 +453,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            if (warmEnabled) warmFilter.Show(displays, (int)WarmStrength.Value);
+            if (warmEnabled && !suspended && !wakeRecovery.Settling) warmFilter.Show(displays, (int)WarmStrength.Value);
             else warmFilter.Dispose();
             WarmButton.Content = warmEnabled ? L.Get("Eye comfort · On") : L.Get("Eye comfort · Off");
         }
