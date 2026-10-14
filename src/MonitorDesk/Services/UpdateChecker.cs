@@ -5,7 +5,8 @@ using System.Text.Json;
 
 namespace MonitorDesk.Services;
 
-internal record PublishedUpdate(Version Version, Uri Page);
+internal record UpdatePackage(string FileName, Uri Download, Uri Checksum, long Size);
+internal record PublishedUpdate(Version Version, Uri Page, UpdatePackage? Package = null);
 
 internal sealed class UpdateChecker(HttpClient client)
 {
@@ -24,7 +25,20 @@ internal sealed class UpdateChecker(HttpClient client)
         string tag = release.GetProperty("tag_name").GetString() ?? "";
         if (!TryVersion(tag, out var version)) throw new InvalidDataException("Unrecognized release version.");
         // Build the URL from our fixed repository, never open a server-provided arbitrary URL.
-        return new(version!, new Uri(ReleasesPage + "/tag/" + Uri.EscapeDataString(tag)));
+        UpdatePackage? package = null;
+        string file = $"Monilivo-Setup-{version}-win-x64.exe";
+        if (release.TryGetProperty("assets", out var assets))
+        {
+            var setup = assets.EnumerateArray().FirstOrDefault(a => a.GetProperty("name").GetString() == file);
+            var checksum = assets.EnumerateArray().FirstOrDefault(a => a.GetProperty("name").GetString() == file + ".sha256");
+            if (setup.ValueKind != JsonValueKind.Undefined && checksum.ValueKind != JsonValueKind.Undefined &&
+                setup.GetProperty("size").GetInt64() is > 0 and <= InstallerDownload.MaximumSize)
+            {
+                string root = ReleasesPage + "/download/" + Uri.EscapeDataString(tag) + "/";
+                package = new(file, new(root + file), new(root + file + ".sha256"), setup.GetProperty("size").GetInt64());
+            }
+        }
+        return new(version!, new Uri(ReleasesPage + "/tag/" + Uri.EscapeDataString(tag)), package);
     }
     internal static bool TryVersion(string tag, out Version? version)
     {

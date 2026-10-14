@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.22.0 — Confirmed in-app updates (2026-10-14)
+
+- Replace the newer-version banner action with an install confirmation; download the exact versioned Windows x64 setup/checksum asset pair from the fixed GitHub repository.
+- Show download progress and cancellation, limit size/time, verify exact byte count and SHA-256 before launching, and remove incomplete/invalid downloads. Failures keep Monilivo running.
+- Save preferences and exit only after setup starts; installed copies update their current directory with visible silent-install progress. Portable/development copies use the normal setup wizard.
+- Add an update-only installer launch action so successful future in-app updates reopen Monilivo. Keep manual download-page fallback for releases without compatible assets.
+- Pass 247 checks, verify tray lifecycle and the Turkish update banner, and compile installer restart logic without performing installation. Actual upgrade/relaunch requires testing between two published versions containing this feature.
+
 ## 0.21.0 — Wake recovery and monitor names (2026-10-13)
 
 - Handle Windows suspend/resume and display reconnection with a five-second settling period, serialized read-only rediscovery and up to two additional attempts after 15/30 seconds for missing monitors. Coalesce repeated display events without postponing the deadline.

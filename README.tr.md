@@ -6,11 +6,11 @@
 
 Her ekranı kendine göre ayarla. Monilivo, ekran bilgilerini görüntülemek ve desteklenen monitörlerin donanımsal parlaklık ve kontrast ayarlarını değiştirmek için geliştirilmiş hafif bir Windows masaüstü uygulamasıdır.
 
-**Geçici proje adı · v0.21.0 (geliştirme) · Yalnızca Windows**
+**Geçici proje adı · v0.22.0 (geliştirme) · Yalnızca Windows**
 
 ## Kurulum
 
-[Monilivo-Setup-0.21.0-win-x64.exe](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe) dosyasını GitHub Releases üzerinden indirip çalıştır. [SHA-256 doğrulama dosyası](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
+[Monilivo-Setup-0.22.0-win-x64.exe](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.22.0/Monilivo-Setup-0.22.0-win-x64.exe) dosyasını GitHub Releases üzerinden indirip çalıştır. [SHA-256 doğrulama dosyası](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.22.0/Monilivo-Setup-0.22.0-win-x64.exe.sha256) da yanında bulunur. Önceden yayınlanan kurulum paketleri [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases) sayfasındadır.
 
 Kurulum, Monilivo’yu Windows kullanıcı hesabına yükler; masaüstü ve Başlat menüsü kısayollarını oluşturur ve Windows Ayarları’na kaldırma kaydı ekler. .NET Windows Desktop çalışma ortamı uygulamayla birlikte gelir; hedef bilgisayarda ayrıca .NET kurulması veya internet bağlantısı gerekmez. Yönetici yetkisi istenmez. Paket, x64 uyumlu Windows 10 (19041 ve üzeri) ve Windows 11 içindir; monitör sürücüsü içermez. Daha yeni kurulum dosyası mevcut kurulumu günceller.
 
@@ -24,7 +24,9 @@ Uyku/uyanma veya ekran bağlantısı değişiminden sonra Monilivo monitörleri 
 
 ### Güncellemeler
 
-**Ayarlar → Güncellemeler** bölümünden **Şimdi kontrol et** veya **İndirme sayfası** düğmesini kullan. Otomatik kontrol açılışta bir kez ve uygulama çalışırken 12 saatte bir yapılır; istersen kutunun işaretini kaldırarak kapatabilirsin. Daha yeni kararlı GitHub sürümü bulunduğunda ana pencerede indirme alanı ve tepside bildirim görünür; tıklamak indirme sayfasını açar. Kurulumu kendin yaparsın. Kontrol internet gerektirir, GitHub hesabı istemez ve 12 saniyede zaman aşımına uğrar; hata olduğunda monitör ayarlarını kullanmaya devam edebilirsin.
+**Ayarlar → Güncellemeler** bölümünden elle kontrol edebilir veya indirme sayfasını açabilirsin. Otomatik kontrol açılışta ve uygulama çalışırken 12 saatte bir yapılır; kapatılabilir. Yeni sürümde uygun setup EXE ve SHA-256 dosyası varsa **Güncelle** düğmesi onay ister, ilerleme ve iptal seçeneğiyle indirir, dosya boyutunu ve SHA-256 değerini doğrulayıp kurulumu başlatır. Monilivo ancak kurulum başlatılınca ayarlarını kaydedip kapanır. Kurulu kopya mevcut klasöründe kurulum ilerlemesi gösterilerek güncellenir; taşınabilir/geliştirme kopyasında normal kurulum penceresi açılır. v0.22.0 ve sonrasından oluşturulan kurulumlar, uygulama içi güncelleme başarıyla tamamlanınca Monilivo'yu yeniden açar. Hatalarda uygulama açık kalır. Uygun kurulum dosyası olmayan sürümlerde indirme sayfası kullanılabilir.
+
+Sürüm kontrolü 12 saniyede, kurulum indirmesi beş dakikada zaman aşımına uğrar; dosya boyutu en fazla 200 MiB olabilir. Kurulum kaydı ve doğrulanan dosya `%LOCALAPPDATA%\MonitorDesk\updates` klasöründe tutulur. v0.22.0 öncesi sürümlerde bu özellik bulunmaz; gelecekteki uygulama içi güncellemeleri denemek için önce bu sürüme elle geçmek gerekir.
 
 Yalnızca yayınlanmış kararlı sürümler kontrol edilir; commit, tek başına etiket ve ön sürümler bildirim oluşturmaz ([GitHub sürüm API'si](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)). Yeni sürümü dağıtırken setup dosyasıyla bir GitHub Release yayınlanmalıdır. Salt okunur arayüz tanılamaları internete bağlanmaz ve ayarları kaydetmez.
 
@@ -142,7 +144,7 @@ Ardından depo kökündeki **Build-Installer.cmd** dosyasını çalıştır veya
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.21.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
+Betik mevcut kontrolleri çalıştırır, .NET’i içeren Windows x64 uygulamasını oluşturur, salt okunur açılış kontrolü yapar ve `artifacts/installers/Monilivo-Setup-0.22.0-win-x64.exe` dosyasını yanında SHA-256 doğrulama dosyasıyla üretir. Yalnızca kurulum paketi oluşturma işlemi, çalışma ortamını indirmek için `installer/NuGet.Config` kullanır; normal geliştirmedeki paket kaynakları değişmez. Derleyici farklı konumdaysa `-CompilerPath "C:\path\to\ISCC.exe"` parametresini kullan.
 
 Yayınlamadan önce .NET kurulu olmayan bir Windows hesabında kurulumu, masaüstü kısayolunu, mevcut kurulumu güncellemeyi ve kaldırmayı test et. EXE ve `.sha256` dosyasını uygulama sürümüyle eşleşen bir GitHub Release’e ekle. Yerel derleme betiği kendiliğinden release oluşturmaz veya dosya yüklemez. Paket içindeki .NET’i güncellemek için güncel SDK ile yeniden paket oluşturulmalıdır. İlk kurulum paketi dijital olarak imzalanmamıştır; Windows bilinmeyen yayıncı uyarısı gösterebilir.
 

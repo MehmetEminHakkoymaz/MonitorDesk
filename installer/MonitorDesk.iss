@@ -56,9 +56,20 @@ Type: files; Name: "{app}\MonitorDesk.runtimeconfig.json"
 Type: files; Name: "{app}\MonitorDesk.pdb"
 
 [Run]
-Filename: "{app}\Monilivo.exe"; Description: "Launch Monilivo"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Monilivo.exe"; Description: "Launch Monilivo"; Flags: nowait postinstall skipifsilent; Check: NormalLaunch
+Filename: "{app}\Monilivo.exe"; Flags: nowait; Check: UpdateLaunch
 
 [Code]
+function UpdateLaunch: Boolean;
+begin
+  Result := ExpandConstant('{param:MonilivoUpdate|0}') = '1';
+end;
+
+function NormalLaunch: Boolean;
+begin
+  Result := not UpdateLaunch;
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   Command: String;

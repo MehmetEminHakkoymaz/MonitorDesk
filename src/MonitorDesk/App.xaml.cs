@@ -106,6 +106,7 @@ public partial class App : Application
         {
             // Render the actual WPF layout with real read-only display data for local QA.
             await window.InitialRead.Task;
+            if (e.Args.Contains("--sample-update")) window.SetDiagnosticUpdate();
             if (e.Args.Contains("--sample-profile")) window.SetDiagnosticProfiles([
                 new LightingProfile("Demo profile", 0, 0, window.QuickDisplays.Select(d => new MonitorProfile(d.Id, d.PhysicalIndex, 50, 65)).ToList())]);
             if (e.Args.Contains("--light")) window.ThemeButton.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));

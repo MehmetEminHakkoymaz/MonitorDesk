@@ -19,6 +19,12 @@ public partial class MainWindow
     internal event EventHandler? UpdateAvailable;
     private event EventHandler? UpdateStateChanged;
     internal string AvailableUpdateLabel => availableUpdate?.Version.ToString() ?? "";
+    internal void SetDiagnosticUpdate()
+    {
+        if (preferencesStore != null) throw new InvalidOperationException("Only available in read-only diagnostics.");
+        availableUpdate = new(new Version(0, 23, 0), new Uri(UpdateChecker.ReleasesPage + "/tag/v0.23.0"));
+        UpdateNotice.Visibility = Visibility.Visible; UpdateMessage.Text = L.Format("Monilivo {0} is available.", availableUpdate.Version);
+    }
 
     private void InitializeUpdateChecks()
     {
@@ -28,7 +34,7 @@ public partial class MainWindow
     }
     private async Task CheckUpdatesAsync()
     {
-        if (preferencesStore == null || closing || checkingUpdates) return;
+        if (preferencesStore == null || closing || checkingUpdates || installingUpdate) return;
         checkingUpdates = true; updateStatus = L.Get("Checking for updates…"); UpdateStateChanged?.Invoke(this, EventArgs.Empty);
         try
         {
@@ -40,6 +46,7 @@ public partial class MainWindow
                 ? L.Format("Monilivo {0} is available.", published.Version) : L.Format("No newer published version. Latest release: {0}.", published.Version);
             UpdateNotice.Visibility = availableUpdate == null ? Visibility.Collapsed : Visibility.Visible;
             UpdateMessage.Text = updateStatus;
+            UpdateInstallButton.Content = L.Get(availableUpdate?.Package != null ? "Install update" : "Download page");
             if (notify) UpdateAvailable?.Invoke(this, EventArgs.Empty);
         }
         catch (OperationCanceledException) { if (!closing) updateStatus = L.Get("Update check timed out. Try again later."); }
@@ -51,7 +58,8 @@ public partial class MainWindow
         try { Process.Start(new ProcessStartInfo(availableUpdate?.Page.AbsoluteUri ?? UpdateChecker.ReleasesPage) { UseShellExecute = true }); }
         catch (Exception) { Status.Text = L.Get("Could not open the browser. Visit the GitHub Releases page."); }
     }
-    private void OpenRelease_Click(object sender, RoutedEventArgs e) => OpenReleasePage();
+    private async void OpenRelease_Click(object sender, RoutedEventArgs e)
+    { if (availableUpdate?.Package == null) OpenReleasePage(); else await InstallUpdateAsync(); }
 
     private void AddUpdateSettings(StackPanel body)
     {
@@ -66,10 +74,12 @@ public partial class MainWindow
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new(0, 12, 0, 0) };
         var check = new Button { Content = L.Get("Check now"), IsEnabled = preferencesStore != null && !checkingUpdates, Margin = new(0, 0, 8, 0) };
         var download = new Button { Content = L.Get("Download page"), IsEnabled = preferencesStore != null };
+        var install = new Button { Content = L.Get("Install update"), IsEnabled = availableUpdate?.Package != null, Margin = new(8, 0, 0, 0) };
+        install.Click += async (_, _) => await InstallUpdateAsync();
         check.Click += async (_, _) => await CheckUpdatesAsync(); download.Click += (_, _) => OpenReleasePage();
-        actions.Children.Add(check); actions.Children.Add(download); card.Children.Add(actions);
+        actions.Children.Add(check); actions.Children.Add(download); actions.Children.Add(install); card.Children.Add(actions);
         var border = SettingsCard(card);
-        EventHandler changed = (_, _) => { detail.Text = updateStatus; check.IsEnabled = preferencesStore != null && !checkingUpdates; };
+        EventHandler changed = (_, _) => { detail.Text = updateStatus; check.IsEnabled = preferencesStore != null && !checkingUpdates && !installingUpdate; install.IsEnabled = availableUpdate?.Package != null && !installingUpdate; };
         border.Loaded += (_, _) => UpdateStateChanged += changed;
         border.Unloaded += (_, _) => UpdateStateChanged -= changed;
         body.Children.Add(border);

@@ -6,11 +6,11 @@ Previously named **MonitorDesk**. Existing settings and custom profiles remain i
 
 Fine-tune every screen. A lightweight Windows desktop app for reading display information and adjusting supported hardware brightness and contrast.
 
-**Working title · v0.21.0 (development) · Windows only**
+**Working title · v0.22.0 (development) · Windows only**
 
 ## Install
 
-Download [Monilivo-Setup-0.21.0-win-x64.exe](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe) from GitHub Releases, then run it. Its [SHA-256 checksum](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.21.0/Monilivo-Setup-0.21.0-win-x64.exe.sha256) is included. Older published installers are available on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases).
+Download [Monilivo-Setup-0.22.0-win-x64.exe](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.22.0/Monilivo-Setup-0.22.0-win-x64.exe) from GitHub Releases, then run it. Its [SHA-256 checksum](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases/download/v0.22.0/Monilivo-Setup-0.22.0-win-x64.exe.sha256) is included. Older published installers are available on [GitHub Releases](https://github.com/MehmetEminHakkoymaz/MonitorDesk/releases).
 
 The setup installs Monilivo for your Windows account, creates desktop and Start menu shortcuts, and adds an uninstall entry in Windows Settings. The .NET Windows Desktop runtime is bundled with the app, so no separate runtime installation or internet connection is needed on the target PC. Administrator rights are not requested. The package targets x64-compatible Windows 10 (build 19041+) and Windows 11; it contains no monitor drivers. Running a newer installer updates the same installation.
 
@@ -24,7 +24,9 @@ After sleep/resume or display-connection changes, Monilivo waits five seconds be
 
 ### Updates
 
-Open **Preferences → Updates** to use **Check now** or **Download page**. Automatic checks run once at startup and every 12 hours while Monilivo is running; disable them with the checkbox if preferred. A newer stable GitHub Release shows a main-window banner and a tray notification; clicking opens its download page. Installation remains manual. Public release checks require internet, use no GitHub login, and time out after 12 seconds; errors leave monitor controls available.
+Open **Preferences → Updates** to check manually or open the download page. Automatic checks run at startup and every 12 hours while running and can be disabled. When a newer release contains the exact versioned setup EXE and checksum, **Install update** asks for confirmation, downloads with progress/cancellation, and verifies size and SHA-256 before launching setup. Monilivo saves preferences and exits only once setup starts. An installed copy updates its current directory with setup progress; a portable/development copy opens the normal installation wizard. Successful installers built from v0.22.0 onward reopen the app for in-app updates. Errors leave Monilivo running. Releases without compatible assets retain the download-page action.
+
+Release checks time out after 12 seconds; installer downloads have a five-minute limit and 200 MiB size cap. Installation logs and verified installers remain in `%LOCALAPPDATA%\MonitorDesk\updates`. Versions older than v0.22.0 require an initial manual upgrade before testing future in-app updates.
 
 Only published stable releases are considered, not commits, bare tags or prereleases ([GitHub release API](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)). Publish a GitHub Release with the setup asset when distributing a newer version. Read-only UI diagnostics do not check online or save preferences.
 
@@ -144,7 +146,7 @@ Then run **Build-Installer.cmd** from the repository root, or:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build-Installer.ps1
 ```
 
-The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.21.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
+The script runs the existing checks, publishes a self-contained Windows x64 app, performs a read-only startup check, and compiles `artifacts/installers/Monilivo-Setup-0.22.0-win-x64.exe` with a SHA-256 checksum alongside it. Only release publishing uses `installer/NuGet.Config` to obtain runtime packs; normal development keeps the existing package-source configuration. For a custom compiler location, pass `-CompilerPath "C:\path\to\ISCC.exe"`.
 
 Before publishing, test installation, the desktop shortcut, updating an existing installation, and removal on a Windows account without .NET installed. Upload the EXE and `.sha256` file to a GitHub Release matching the app version. No release is created or uploaded by the local build script. The bundled runtime must be updated by rebuilding the installer with a patched SDK. The initial installer is unsigned; Windows may display an unknown-publisher warning.
 

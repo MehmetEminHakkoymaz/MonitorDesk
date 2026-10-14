@@ -12,6 +12,11 @@ internal static class UpdateChecks
         using var client = new HttpClient(new ResponseHandler(HttpStatusCode.OK, "{\"tag_name\":\"v0.21.0\",\"draft\":false,\"prerelease\":false,\"html_url\":\"https://untrusted.example/\"}"));
         var release = await new UpdateChecker(client).CheckAsync(default);
         check(release?.Version == new Version(0, 21, 0) && release.Page.AbsoluteUri == UpdateChecker.ReleasesPage + "/tag/v0.21.0", "A new release opens only our repository's download page");
+        check(release?.Package == null, "A release without a matching setup pair retains only the download-page action");
+        using var packaged = new HttpClient(new ResponseHandler(HttpStatusCode.OK, "{\"tag_name\":\"v0.23.0\",\"draft\":false,\"prerelease\":false,\"assets\":[{\"name\":\"Monilivo-Setup-0.23.0-win-x64.exe\",\"size\":100},{\"name\":\"Monilivo-Setup-0.23.0-win-x64.exe.sha256\",\"size\":100}]}"));
+        var update = await new UpdateChecker(packaged).CheckAsync(default);
+        check(update?.Package is { Size: 100 } package && package.Download.AbsoluteUri == UpdateChecker.ReleasesPage + "/download/v0.23.0/Monilivo-Setup-0.23.0-win-x64.exe",
+            "Installer URLs are constructed from the fixed repository and exact versioned asset pair");
         foreach (string field in new[] { "draft", "prerelease" })
         {
             using var excluded = new HttpClient(new ResponseHandler(HttpStatusCode.OK, "{\"tag_name\":\"v9.0.0\",\"draft\":" + (field == "draft" ? "true" : "false") + ",\"prerelease\":" + (field == "prerelease" ? "true" : "false") + "}"));

@@ -218,6 +218,7 @@ Console.WriteLine($"Total including automatic sliders: {count} checks passed. No
 PreferencesChecks.Run(Check);
 ScheduleChecks.Run(Check);
 await UpdateChecks.Run(Check);
+await InstallerDownloadChecks.Run(Check);
 RecoveryChecks.Run(Check);
 WakeAndNameChecks.Run(Check);
 await CustomProfileChecks.Run(Check);

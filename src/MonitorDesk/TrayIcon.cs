@@ -29,12 +29,12 @@ internal sealed class TrayIcon : IDisposable
             applicationIcon = (System.Drawing.Icon)source.Clone();
         icon = new Forms.NotifyIcon { Text = "Monilivo", Icon = applicationIcon, ContextMenuStrip = menu, Visible = true };
         window.UpdateAvailable += NotifyUpdate;
-        icon.BalloonTipClicked += (_, _) => window.OpenReleasePage();
+        icon.BalloonTipClicked += async (_, _) => await window.InstallUpdateAsync();
         icon.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); singleClick.Start(); } };
         icon.MouseDoubleClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) { singleClick.Stop(); ShowWindow(); } };
     }
     private void NotifyUpdate(object? sender, EventArgs e)
-        => icon.ShowBalloonTip(8000, L.Get("Update available"), L.Format("Monilivo {0} is available. Click to open the download page.", window.AvailableUpdateLabel), Forms.ToolTipIcon.Info);
+        => icon.ShowBalloonTip(8000, L.Get("Update available"), L.Format("Monilivo {0} is available. Click to review and install the update.", window.AvailableUpdateLabel), Forms.ToolTipIcon.Info);
 
     internal void ShowWindow() => window.Dispatcher.Invoke(() =>
     {
